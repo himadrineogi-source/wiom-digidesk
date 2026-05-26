@@ -1,0 +1,2360 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Wiom DigiDesk</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f0f4f8;color:#1a202c;min-height:100vh}
+button{cursor:pointer;border:none;background:none;font-family:inherit;font-size:inherit}
+input,select,textarea{font-family:inherit}
+:root{
+  --blue:#1d4ed8;--blue-dk:#1e40af;--blue-lt:#dbeafe;--blue-xlt:#eff6ff;
+  --green:#16a34a;--green-lt:#dcfce7;
+  --amber:#ca8a04;--amber-lt:#fef9c3;
+  --red:#dc2626;--red-lt:#fee2e2;
+  --gray:#6b7280;--gray-lt:#f3f4f6;
+  --border:#e5e7eb;--text:#111827;--text-mid:#374151;--text-sm:#6b7280;
+  --white:#fff;
+  --sh:0 1px 3px rgba(0,0,0,.1),0 1px 2px rgba(0,0,0,.06);
+  --sh-md:0 4px 6px rgba(0,0,0,.07),0 2px 4px rgba(0,0,0,.06);
+  --nav-h:62px;--top-h:54px;
+}
+
+/* ===== LOGIN ===== */
+#loginPage{min-height:100vh;display:flex;align-items:stretch}
+.login-left{flex:1;background:linear-gradient(145deg,#5a0645 0%,#930d70 45%,#d4188e 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 48px;position:relative;overflow:hidden}
+.login-left::before{content:'';position:absolute;top:-80px;right:-80px;width:320px;height:320px;border-radius:50%;background:rgba(255,255,255,.06)}
+.login-left::after{content:'';position:absolute;bottom:-60px;left:-60px;width:240px;height:240px;border-radius:50%;background:rgba(255,255,255,.05)}
+.login-left-content{position:relative;z-index:1;text-align:center;color:#fff}
+.login-left-icon{width:72px;height:72px;background:rgba(255,255,255,.18);border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:900;margin:0 auto 28px;letter-spacing:-1px;backdrop-filter:blur(10px);border:1.5px solid rgba(255,255,255,.25)}
+.login-left-content h2{font-size:30px;font-weight:800;margin-bottom:12px;letter-spacing:-.5px}
+.login-left-content p{font-size:15px;opacity:.85;line-height:1.6;max-width:280px;margin:0 auto 40px}
+.login-left-features{display:flex;flex-direction:column;gap:14px;text-align:left}
+.login-left-feature{display:flex;align-items:center;gap:12px;font-size:14px;opacity:.9}
+.login-left-feature-icon{width:34px;height:34px;background:rgba(255,255,255,.15);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.login-right{width:480px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 48px;background:#fff}
+.login-card{width:100%;max-width:380px}
+.login-brand{text-align:left;margin-bottom:32px}
+.brand-icon{width:44px;height:44px;background:linear-gradient(135deg,#7b0a5e,#d4188e);border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;color:#fff;margin:0 0 16px;letter-spacing:-1px;box-shadow:0 4px 14px rgba(180,18,122,.3)}
+.login-brand h1{font-size:24px;font-weight:800;color:#111827;margin-bottom:4px}
+.login-brand p{font-size:13px;color:#6b7280}
+@media(max-width:860px){.login-left{display:none}.login-right{width:100%;padding:40px 28px}}
+@media(max-width:400px){.login-right{padding:32px 20px}}
+.login-step{display:flex;align-items:center;gap:8px;margin-bottom:24px}
+.login-step-item{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#9ca3af}
+.login-step-item.active{color:#b5127a}
+.login-step-num{width:22px;height:22px;border-radius:50%;border:2px solid currentColor;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.login-step-item.active .login-step-num{background:#b5127a;border-color:#b5127a;color:#fff}
+.login-step-item.done .login-step-num{background:#16a34a;border-color:#16a34a;color:#fff}
+.login-step-item.done{color:#16a34a}
+.login-step-line{flex:1;height:1px;background:#e5e7eb}
+.login-title{font-size:18px;font-weight:700;color:#111827;margin-bottom:4px}
+.login-sub{font-size:13px;color:#6b7280;margin-bottom:22px;line-height:1.5}
+.login-footer{text-align:center;margin-top:24px;font-size:12px;color:#9ca3af}
+.demo-box{background:#fef3c7;border:1.5px solid #fcd34d;border-radius:10px;padding:10px 14px;font-size:12px;color:#92400e;margin-bottom:18px;line-height:1.6}
+.demo-box strong{color:#78350f;display:block;margin-bottom:3px}
+.otp-reveal{margin-top:6px;font-size:16px;font-weight:800;color:#1d4ed8;letter-spacing:4px}
+.login-toggle{display:flex;gap:8px;margin-bottom:20px}
+.ltoggle{flex:1;padding:10px 8px;border-radius:9px;font-size:13px;font-weight:600;border:2px solid #e5e7eb;color:#6b7280;background:#fff;transition:all .2s}
+.ltoggle.on{border-color:#1d4ed8;color:#1d4ed8;background:#eff6ff}
+.login-inp-wrap{position:relative;margin-bottom:16px}
+.login-inp-wrap label{display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:6px;letter-spacing:.3px}
+.login-inp-wrap input{width:100%;padding:12px 14px 12px 42px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:15px;color:#111827;background:#fff;transition:border-color .2s,box-shadow .2s;outline:none}
+.login-inp-wrap input:focus{border-color:#b5127a;box-shadow:0 0 0 3px rgba(181,18,122,.1)}
+.login-inp-wrap .inp-icon{position:absolute;left:14px;bottom:13px;font-size:16px;pointer-events:none}
+.login-divider{display:flex;align-items:center;gap:10px;margin:18px 0;color:#d1d5db;font-size:12px}
+.login-divider::before,.login-divider::after{content:'';flex:1;height:1px;background:#e5e7eb}
+@media(max-width:460px){.login-card{padding:28px 20px 24px}}
+.fgroup{margin-bottom:14px}
+.fgroup label{display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:5px}
+.fgroup input,.fgroup select,.fgroup textarea{width:100%;padding:11px 13px;border:1.5px solid #e5e7eb;border-radius:9px;font-size:15px;color:#111827;background:#fff;transition:border-color .2s,box-shadow .2s;outline:none}
+.fgroup input:focus,.fgroup select:focus,.fgroup textarea:focus{border-color:#1d4ed8;box-shadow:0 0 0 3px rgba(29,78,216,.1)}
+.fgroup textarea{resize:vertical;min-height:76px}
+.fgroup .hint{font-size:12px;color:#6b7280;margin-top:5px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:12px 18px;border-radius:10px;font-size:15px;font-weight:600;transition:all .15s;cursor:pointer;border:none}
+.btn-w{width:100%}
+.btn-primary{background:#1d4ed8;color:#fff}
+.btn-primary:hover{background:#1e40af}
+.btn-primary:active{background:#1e3a8a}
+.btn-secondary{background:#f3f4f6;color:#374151;border:1.5px solid #e5e7eb}
+.btn-secondary:hover{background:#e5e7eb}
+.btn-success{background:#16a34a;color:#fff}
+.btn-success:hover{background:#15803d}
+.btn-danger{background:#dc2626;color:#fff}
+.btn-danger:hover{background:#b91c1c}
+.btn-sm{padding:7px 13px;font-size:13px;border-radius:7px}
+.btn-outline{background:transparent;border:1.5px solid #1d4ed8;color:#1d4ed8}
+.btn-outline:hover{background:#eff6ff}
+.mgr-link{text-align:center;margin-top:18px;font-size:13px;color:#6b7280}
+.mgr-link span{color:#1d4ed8;font-weight:600;cursor:pointer;text-decoration:underline}
+
+/* ===== MODAL ===== */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:none;align-items:flex-end;justify-content:center}
+.modal-bg.show{display:flex}
+.modal{background:#fff;border-radius:20px 20px 0 0;padding:22px 20px 28px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto}
+#docViewerModal{align-items:center;justify-content:center;z-index:300}
+#docViewerModal .doc-viewer-box{background:#fff;border-radius:16px;width:95vw;max-width:860px;height:90vh;display:flex;flex-direction:column;overflow:hidden}
+#docViewerModal .dv-hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid #e5e7eb;flex-shrink:0}
+#docViewerModal .dv-hdr h3{font-size:15px;font-weight:700;color:#111827;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:70%}
+#docViewerModal .dv-hdr-actions{display:flex;gap:8px;align-items:center;flex-shrink:0}
+#docViewerModal iframe{flex:1;width:100%;border:none;background:#f3f4f6}
+.modal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.modal-hdr h3{font-size:17px;font-weight:700}
+.modal-close{font-size:22px;color:#9ca3af;line-height:1;padding:2px 6px}
+
+/* ===== APP ===== */
+#app{display:none;flex-direction:column;min-height:100vh}
+#app.on{display:flex}
+.topbar{position:sticky;top:0;z-index:100;background:#1e3a8a;color:#fff;height:var(--top-h);display:flex;align-items:center;padding:0 14px;gap:10px;box-shadow:0 2px 8px rgba(0,0,0,.18)}
+.topbar .ttl{flex:1;font-size:16px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.topbar .uchip{font-size:11px;background:rgba(255,255,255,.15);padding:4px 9px;border-radius:20px;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.topbar .logbtn{font-size:12px;color:rgba(255,255,255,.85);padding:5px 10px;border:1px solid rgba(255,255,255,.3);border-radius:6px}
+.topbar .logbtn:hover{background:rgba(255,255,255,.12)}
+.app-body{flex:1;overflow-y:auto;padding-bottom:calc(var(--nav-h) + 4px)}
+.page{display:none;padding:14px;animation:fi .2s ease}
+.page.on{display:block}
+@keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+
+/* ===== BOTTOM NAV ===== */
+.bnav{position:fixed;bottom:0;left:0;right:0;z-index:100;background:#fff;border-top:1px solid #e5e7eb;height:var(--nav-h);display:flex;align-items:stretch;box-shadow:0 -2px 8px rgba(0,0,0,.06)}
+.nbtn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:6px 3px;color:#9ca3af;font-size:10px;font-weight:600;transition:color .15s}
+#app.role-manager #nav-leave,#app.role-manager #nav-attendance,#app.role-hr #nav-leave,#app.role-hr #nav-attendance{display:none}
+.nbtn.on{color:#1d4ed8}
+.nbtn .ni{font-size:20px;line-height:1}
+
+/* ===== CARDS ===== */
+.card{background:#fff;border-radius:14px;padding:15px;box-shadow:var(--sh);margin-bottom:12px}
+.card-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.card-hdr h3{font-size:15px;font-weight:700}
+.card-hdr .sub{font-size:12px;color:#6b7280;margin-top:2px}
+.welcome-card{background:linear-gradient(135deg,#1e3a8a,#1d4ed8);border-radius:14px;padding:18px;color:#fff;margin-bottom:12px}
+.welcome-card .wname{font-size:20px;font-weight:800;margin-bottom:4px}
+.welcome-card .winfo{font-size:13px;opacity:.85;line-height:1.6}
+.welcome-card .wid{display:inline-block;background:rgba(255,255,255,.2);padding:3px 10px;border-radius:12px;font-size:12px;margin-top:8px}
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
+.scard{background:#fff;border-radius:12px;padding:13px 8px;text-align:center;box-shadow:var(--sh)}
+.scard .sv{font-size:22px;font-weight:800;line-height:1}
+.scard .sl{font-size:11px;color:#6b7280;margin-top:3px}
+.sv-blue{color:#1d4ed8}.sv-green{color:#16a34a}.sv-amber{color:#ca8a04}.sv-red{color:#dc2626}
+
+/* ===== BADGES ===== */
+.badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600}
+.b-pending{background:#fef9c3;color:#a16207}
+.b-approved{background:#dcfce7;color:#15803d}
+.b-rejected{background:#fee2e2;color:#b91c1c}
+.b-blue{background:#dbeafe;color:#1d4ed8}
+.b-gray{background:#f3f4f6;color:#6b7280}
+
+/* ===== TABS ===== */
+.tabs{display:flex;background:#f3f4f6;border-radius:10px;padding:4px;margin-bottom:14px}
+.tab-btn{flex:1;padding:9px 6px;border-radius:7px;font-size:13px;font-weight:600;color:#6b7280;transition:all .2s}
+.tab-btn.on{background:#fff;color:#1d4ed8;box-shadow:var(--sh)}
+
+/* ===== LEAVE ===== */
+.leave-item{display:flex;align-items:flex-start;gap:11px;padding:11px 0;border-bottom:1px solid #f3f4f6}
+.leave-item:last-child{border-bottom:none}
+.licon{width:38px;height:38px;border-radius:9px;background:#eff6ff;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.ldetail{flex:1;min-width:0}
+.ldetail .ltype{font-size:14px;font-weight:600}
+.ldetail .ldates{font-size:12px;color:#6b7280;margin-top:2px}
+.ldetail .lreason{font-size:12px;color:#9ca3af;font-style:italic;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px}
+.bal-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.bal-card{background:#fff;border-radius:12px;padding:16px;box-shadow:var(--sh);text-align:center}
+.bal-card .bnum{font-size:34px;font-weight:800;color:#1d4ed8;line-height:1}
+.bal-card .btype{font-size:13px;font-weight:600;color:#374151;margin-top:4px}
+.bal-card .bsub{font-size:11px;color:#9ca3af;margin-top:2px}
+.prog{height:6px;background:#e5e7eb;border-radius:3px;margin-top:8px;overflow:hidden}
+.prog-fill{height:100%;background:#1d4ed8;border-radius:3px}
+.date-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* ===== ATTENDANCE ===== */
+.att-today{background:linear-gradient(135deg,#064e3b,#059669);border-radius:14px;padding:18px;color:#fff;margin-bottom:12px}
+.att-today h3{font-size:15px;font-weight:700;margin-bottom:12px;opacity:.9}
+.att-btns{display:flex;gap:10px}
+.att-btn{flex:1;padding:12px;border-radius:10px;font-size:14px;font-weight:700;text-align:center;cursor:pointer;border:none;transition:all .2s}
+.att-btn-in{background:#fff;color:#059669}
+.att-btn-in:hover{background:#f0fdf4}
+.att-btn:disabled{opacity:.5;cursor:not-allowed}
+.time-chips{display:flex;gap:10px;margin-top:12px}
+.time-chip{flex:1;background:rgba(255,255,255,.15);border-radius:8px;padding:8px;text-align:center}
+.time-chip .tc-val{font-size:16px;font-weight:700}
+.time-chip .tc-lbl{font-size:10px;opacity:.8;margin-top:2px}
+.cal-wrap{background:#fff;border-radius:14px;padding:15px;box-shadow:var(--sh);margin-bottom:12px}
+.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.cal-nav h3{font-size:15px;font-weight:700}
+.cal-nav button{padding:5px 11px;border-radius:7px;font-size:13px;font-weight:600;background:#f3f4f6;color:#374151;border:none;cursor:pointer}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cal-hdr{text-align:center;font-size:11px;font-weight:700;color:#9ca3af;padding:5px 0}
+.cal-day{aspect-ratio:1;border-radius:7px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px;font-weight:500;cursor:default}
+.cd-present{background:#dcfce7;color:#15803d}
+.cd-absent{background:#fee2e2;color:#b91c1c}
+.cd-leave{background:#fef9c3;color:#a16207}
+.cd-compoff{background:#ede9fe;color:#7c3aed}
+.cd-today{background:#1d4ed8;color:#fff;font-weight:700}
+.cd-future{background:#f9fafb;color:#d1d5db}
+.cd-empty{background:transparent}
+.cd-weekend{background:#f3f4f6;color:#9ca3af}
+.att-legend{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:11px;color:#6b7280}
+.leg-badge{min-width:22px;height:18px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;padding:0 4px}
+
+/* ===== DOCUMENTS ===== */
+.doc-card{background:#fff;border-radius:12px;margin-bottom:10px;box-shadow:var(--sh);overflow:hidden}
+.doc-hdr{display:flex;align-items:center;gap:11px;padding:13px 15px;cursor:pointer;transition:background .2s}
+.doc-hdr:hover{background:#f9fafb}
+.dicon{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.doc-ttl{flex:1;font-size:14px;font-weight:600}
+.doc-arr{font-size:14px;color:#9ca3af;transition:transform .25s}
+.doc-arr.open{transform:rotate(90deg)}
+.doc-body{max-height:0;overflow:hidden;transition:max-height .35s ease,padding .3s}
+.doc-body.open{max-height:700px;padding:0 15px 15px}
+.doc-body p,.doc-body li{font-size:13px;color:#374151;line-height:1.75;margin-bottom:5px}
+.doc-body ul,.doc-body ol{padding-left:18px}
+.doc-body h4{font-size:13px;font-weight:700;color:#111827;margin:10px 0 5px}
+.doc-body .doc-meta{font-size:11px;color:#9ca3af;margin-bottom:10px}
+.upload-zone{border:2px dashed #e5e7eb;border-radius:10px;padding:20px;text-align:center;cursor:pointer;transition:border-color .2s;margin-top:10px}
+.upload-zone:hover{border-color:#1d4ed8}
+.upload-zone .uz-icon{font-size:30px;margin-bottom:8px}
+.upload-zone p{font-size:13px;color:#6b7280}
+.upload-zone .uz-link{color:#1d4ed8;font-weight:600}
+
+/* ===== MANAGER PANEL ===== */
+.appr-card{background:#fff;border-radius:12px;padding:15px;box-shadow:var(--sh);margin-bottom:10px}
+.appr-card .acname{font-size:15px;font-weight:700}
+.appr-card .acmeta{font-size:12px;color:#6b7280;margin-top:3px;line-height:1.6}
+.appr-card .acreason{font-size:12px;color:#9ca3af;font-style:italic;margin-top:4px}
+.appr-actions{display:flex;gap:8px;margin-top:12px}
+
+/* ===== HR PANEL ===== */
+.hr-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.hrsc{background:#fff;border-radius:12px;padding:14px;box-shadow:var(--sh);text-align:center}
+.hrsc .hn{font-size:26px;font-weight:800;color:#1d4ed8}.hrsc .hl{font-size:12px;color:#6b7280;margin-top:3px}
+.emp-row{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid #f3f4f6}
+.emp-row:last-child{border-bottom:none}
+.emp-av{width:36px;height:36px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#1d4ed8;flex-shrink:0}
+.emp-row .en{font-size:13px;font-weight:600}
+.emp-row .em{font-size:11px;color:#9ca3af}
+.filter-row{display:flex;gap:7px;margin-bottom:12px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+.filter-row::-webkit-scrollbar{display:none}
+.fchip{padding:6px 13px;border-radius:20px;font-size:12px;font-weight:600;background:#f3f4f6;color:#6b7280;white-space:nowrap;cursor:pointer;border:2px solid transparent;flex-shrink:0}
+.fchip.on{background:#dbeafe;color:#1d4ed8;border-color:#bfdbfe}
+
+/* ===== PROFILE ===== */
+.prof-av{width:72px;height:72px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:#1d4ed8;margin:0 auto 12px}
+.prof-row{display:flex;align-items:center;padding:11px 0;border-bottom:1px solid #f3f4f6}
+.prof-row:last-child{border-bottom:none}
+.prof-row .pl{font-size:13px;color:#6b7280;flex:1}
+.prof-row .pv{font-size:13px;font-weight:600;color:#111827;text-align:right;max-width:60%}
+.access-card{background:#fff;border-radius:14px;padding:15px;box-shadow:var(--sh);margin-bottom:12px}
+.access-card h3{font-size:15px;font-weight:700;margin-bottom:12px}
+.access-btn{display:flex;align-items:center;gap:11px;padding:11px 14px;background:#f9fafb;border-radius:10px;margin-bottom:8px;cursor:pointer;border:none;width:100%;text-align:left;transition:background .2s}
+.access-btn:hover{background:#eff6ff}
+.access-btn .ab-icon{font-size:22px}
+.access-btn .ab-text{flex:1}
+.access-btn .ab-title{font-size:14px;font-weight:600;color:#111827}
+.access-btn .ab-sub{font-size:12px;color:#6b7280}
+.access-btn .ab-arr{color:#9ca3af}
+
+/* ===== TOAST ===== */
+.toast-wrap{position:fixed;top:14px;right:14px;left:14px;z-index:400;display:flex;flex-direction:column;gap:7px;pointer-events:none}
+.toast{background:#111827;color:#fff;padding:12px 15px;border-radius:10px;font-size:14px;box-shadow:var(--sh-md);opacity:0;transform:translateY(-8px);transition:all .3s;pointer-events:auto}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast.ts{background:#15803d}.toast.te{background:#b91c1c}.toast.tw{background:#ca8a04}
+
+/* ===== MISC ===== */
+.sec-title{font-size:16px;font-weight:700;color:#111827;margin-bottom:11px}
+.empty{text-align:center;padding:36px 20px;color:#9ca3af}
+.empty .ei{font-size:38px;margin-bottom:8px}
+.empty p{font-size:14px}
+.divider{height:1px;background:#f3f4f6;margin:11px 0}
+.chip-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.chip{padding:3px 9px;border-radius:12px;font-size:11px;font-weight:600;background:#f3f4f6;color:#6b7280}
+
+@media(max-width:360px){
+  .stats-row{grid-template-columns:1fr 1fr}
+  .scard:last-child{grid-column:1/-1}
+}
+</style>
+</head>
+<body>
+
+<!-- TOASTS -->
+<div class="toast-wrap" id="toastWrap"></div>
+
+<!-- ========== LOGIN PAGE ========== -->
+<div id="loginPage">
+  <!-- Left branding panel -->
+  <div class="login-left">
+    <div class="login-left-content">
+      <div class="login-left-icon">W</div>
+      <h2>Wiom DigiDesk</h2>
+      <p>Your complete self-service platform for attendance, leaves, documents and more.</p>
+      <div class="login-left-features">
+        <div class="login-left-feature">
+          <div class="login-left-feature-icon">📋</div>
+          <span>Apply & track leaves instantly</span>
+        </div>
+        <div class="login-left-feature">
+          <div class="login-left-feature-icon">📄</div>
+          <span>Access your documents securely</span>
+        </div>
+        <div class="login-left-feature">
+          <div class="login-left-feature-icon">✅</div>
+          <span>Manager approvals in one place</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Right form panel -->
+  <div class="login-right">
+  <div class="login-card">
+    <div class="login-brand">
+      <div class="brand-icon">W</div>
+      <h1>Welcome back</h1>
+      <p>Sign in to Wiom DigiDesk</p>
+    </div>
+
+    <!-- Step indicator -->
+    <div class="login-step" id="loginStepBar">
+      <div class="login-step-item active" id="step1Item">
+        <div class="login-step-num">1</div>
+        <span>Credentials</span>
+      </div>
+      <div class="login-step-line"></div>
+      <div class="login-step-item" id="step2Item">
+        <div class="login-step-num">2</div>
+        <span>Verify OTP</span>
+      </div>
+    </div>
+
+    <!-- OTP banner -->
+    <div id="demoBanner" style="display:none" class="demo-box">
+      <strong id="otpBannerTitle">Your OTP</strong>
+      <span id="otpDisplay"></span>
+    </div>
+
+    <!-- Step 1: Credentials -->
+    <div id="credStep">
+      <p class="login-title">Sign in</p>
+      <p class="login-sub">Enter your Employee ID and registered mobile number</p>
+      <div class="login-inp-wrap">
+        <label>EMPLOYEE ID</label>
+        <span class="inp-icon">🪪</span>
+        <input type="text" id="loginEmpId" placeholder="e.g. ORA0023 or 202018314" oninput="this.value=this.value.toUpperCase()">
+      </div>
+      <div class="login-inp-wrap">
+        <label>MOBILE NUMBER</label>
+        <span class="inp-icon">📱</span>
+        <input type="tel" id="loginMobile" placeholder="10-digit mobile number" maxlength="10">
+      </div>
+      <button class="btn btn-primary btn-w" onclick="sendOTP()" id="sendOTPBtn" style="background:linear-gradient(135deg,#7b0a5e,#d4188e);border-radius:10px;padding:13px;font-size:15px;margin-top:4px">Send OTP →</button>
+    </div>
+
+    <!-- Step 2: OTP -->
+    <div id="otpSection" style="display:none">
+      <p class="login-title">Enter OTP</p>
+      <p class="login-sub">A 6-digit OTP has been sent to your registered mobile number</p>
+      <div class="login-inp-wrap">
+        <label>ONE-TIME PASSWORD</label>
+        <span class="inp-icon">🔐</span>
+        <input type="tel" id="loginOTP" placeholder="6-digit OTP" maxlength="6" style="letter-spacing:6px;font-size:20px;font-weight:700;text-align:center;padding-left:14px">
+      </div>
+      <button class="btn btn-success btn-w" onclick="verifyOTP()" style="border-radius:10px;padding:13px;font-size:15px;margin-top:4px">Verify &amp; Login →</button>
+      <p style="text-align:center;margin-top:14px;font-size:13px;color:#6b7280">Wrong number? <span style="color:#b5127a;cursor:pointer;font-weight:600" onclick="resetLoginStep()">Go back</span></p>
+    </div>
+
+    <div class="login-footer">© 2026 Wiom DigiDesk · All rights reserved</div>
+  </div>
+  </div>
+</div>
+
+<!-- ========== MAIN APP ========== -->
+<div id="app">
+  <div class="topbar">
+    <span class="ttl" id="pageTitle">Dashboard</span>
+    <span class="uchip" id="userChip"></span>
+    <button class="logbtn" onclick="logout()">Logout</button>
+  </div>
+
+  <div class="app-body">
+    <!-- DASHBOARD -->
+    <div id="page-dashboard" class="page on"><div id="dashContent"></div></div>
+
+    <!-- LEAVE -->
+    <div id="page-leave" class="page">
+      <div class="tabs">
+        <button class="tab-btn on" onclick="leaveTab('apply')" id="tab-apply">Apply</button>
+        <button class="tab-btn" onclick="leaveTab('history')" id="tab-history">History</button>
+        <button class="tab-btn" onclick="leaveTab('balance')" id="tab-balance">Balance</button>
+      </div>
+      <div id="leave-apply"><div id="leaveApplyContent"></div></div>
+      <div id="leave-history" style="display:none"><div id="leaveHistoryContent"></div></div>
+      <div id="leave-balance" style="display:none"><div id="leaveBalanceContent"></div></div>
+    </div>
+
+    <!-- ATTENDANCE -->
+    <div id="page-attendance" class="page"><div id="attContent"></div></div>
+
+    <!-- DOCUMENTS -->
+    <div id="page-documents" class="page"><div id="docsContent"></div></div>
+
+    <!-- MANAGER PANEL -->
+    <div id="page-manager" class="page"><div id="mgrContent"></div></div>
+
+    <!-- HR PANEL -->
+    <div id="page-hr" class="page"><div id="hrContent"></div></div>
+
+    <!-- PROFILE / MORE -->
+    <div id="page-profile" class="page"><div id="profContent"></div></div>
+  </div>
+
+  <nav class="bnav">
+    <button class="nbtn on" onclick="showPage('dashboard')" id="nav-dashboard"><span class="ni">🏠</span><span>Home</span></button>
+    <button class="nbtn" onclick="showPage('leave')" id="nav-leave"><span class="ni">📅</span><span>Leave</span></button>
+    <button class="nbtn" onclick="showPage('attendance')" id="nav-attendance"><span class="ni">✅</span><span>Attend.</span></button>
+    <button class="nbtn" onclick="showPage('documents')" id="nav-documents"><span class="ni">📄</span><span>Docs</span></button>
+    <button class="nbtn" onclick="showPage('profile')" id="nav-profile"><span class="ni">👤</span><span>More</span></button>
+  </nav>
+</div>
+
+<!-- APPLY LEAVE MODAL -->
+<div class="modal-bg" id="leaveModal">
+  <div class="modal">
+    <div class="modal-hdr">
+      <h3>Apply Leave</h3>
+      <button class="modal-close" onclick="closeModal('leaveModal')">✕</button>
+    </div>
+    <div class="fgroup">
+      <label>Leave Type</label>
+      <select id="leaveType">
+        <option value="CL">Casual Leave (CL)</option>
+        <option value="SL">Sick Leave (SL)</option>
+      </select>
+    </div>
+    <div class="date-row fgroup">
+      <div>
+        <label>From Date</label>
+        <input type="date" id="leaveFrom">
+      </div>
+      <div>
+        <label>To Date</label>
+        <input type="date" id="leaveTo">
+      </div>
+    </div>
+    <div id="leaveDaysNote" style="font-size:13px;color:#1d4ed8;font-weight:600;margin-bottom:12px"></div>
+    <div class="fgroup">
+      <label>Reason</label>
+      <textarea id="leaveReason" placeholder="Brief reason for leave..."></textarea>
+    </div>
+    <button class="btn btn-primary btn-w" onclick="submitLeave()">Submit Application</button>
+  </div>
+</div>
+
+<!-- ADD EMPLOYEE MODAL -->
+<div class="modal-bg" id="addEmpModal">
+  <div class="modal">
+    <div class="modal-hdr"><h3>Add New Employee</h3><button class="modal-close" onclick="closeModal('addEmpModal')">✕</button></div>
+    <div class="fgroup"><label>Employee ID *</label><input type="text" id="ne_id" placeholder="e.g. ORA0070"></div>
+    <div class="fgroup"><label>Full Name *</label><input type="text" id="ne_name" placeholder="Full name"></div>
+    <div class="fgroup"><label>Mobile *</label><input type="tel" id="ne_mobile" placeholder="10-digit mobile" maxlength="10"></div>
+    <div class="fgroup"><label>Email</label><input type="email" id="ne_email" placeholder="email@wiom.in"></div>
+    <div class="fgroup"><label>Date of Joining *</label><input type="date" id="ne_doj"></div>
+    <div class="fgroup"><label>Designation *</label><input type="text" id="ne_desig" placeholder="e.g. Associate"></div>
+    <div class="fgroup"><label>Department *</label>
+      <select id="ne_dept">
+        <option value="">— Select —</option>
+        <option>Customer Experience</option><option>Supply</option>
+        <option>Execution Team</option><option>User Insights</option><option>Other</option>
+      </select>
+    </div>
+    <div class="fgroup"><label>Location *</label>
+      <select id="ne_loc"><option value="">— Select —</option>
+        <option>Gurugram</option><option>New Delhi</option><option>Mumbai</option><option>Other</option>
+      </select>
+    </div>
+    <div class="fgroup"><label>Payroll *</label>
+      <select id="ne_payroll"><option value="">— Select —</option>
+        <option>Betterplace</option><option>Bigtree</option>
+      </select>
+    </div>
+    <div class="fgroup"><label>Reporting Manager *</label>
+      <input type="text" id="ne_mgr" placeholder="Type or select manager name" list="mgrList" autocomplete="off">
+      <datalist id="mgrList">
+        <option>Akash Kumar</option><option>Abid Khan</option>
+        <option>Mohammad Shamsul Hasan Siddiqui</option><option>Avakash Kumar Gupta</option>
+        <option>Shariq Raza Khan</option><option>Shivam Kumar</option>
+        <option>Piyush Gupta</option><option>Pradeep Sharma</option><option>Divi Ramola</option>
+      </datalist>
+    </div>
+    <div class="fgroup"><label>Role</label>
+      <select id="ne_role"><option value="employee">Employee</option><option value="manager">Manager</option><option value="hr">HR Admin</option></select>
+    </div>
+    <button class="btn btn-primary btn-w" onclick="addEmployee()">Save Employee</button>
+  </div>
+</div>
+
+<!-- DOCUMENT VIEWER MODAL -->
+<div class="modal-bg" id="docViewerModal">
+  <div class="doc-viewer-box">
+    <div class="dv-hdr">
+      <h3 id="docViewerTitle">Document</h3>
+      <div class="dv-hdr-actions">
+        <button id="docViewerDownloadBtn" class="btn btn-secondary btn-sm" style="display:none" onclick="downloadDocViewer()">⬇ Download</button>
+        <button class="btn btn-secondary btn-sm" onclick="closeDocViewer()">✕ Close</button>
+      </div>
+    </div>
+    <iframe id="docViewerFrame" src="about:blank"></iframe>
+  </div>
+</div>
+
+<!-- RESIGNATION MODAL -->
+<div class="modal-bg" id="resignModal">
+  <div class="modal">
+    <div class="modal-hdr"><h3>Apply Resignation</h3><button class="modal-close" onclick="closeModal('resignModal')">✕</button></div>
+    <div class="fgroup" style="background:#fee2e2;border-radius:10px;padding:12px;margin-bottom:14px">
+      <p style="font-size:13px;color:#b91c1c;font-weight:600">⚠️ This action cannot be undone once submitted. Please confirm carefully.</p>
+    </div>
+    <div class="fgroup"><label>Last Working Day *</label><input type="date" id="res_lwd"></div>
+    <div class="fgroup"><label>Reason for Resignation *</label>
+      <textarea id="res_reason" placeholder="Please state your reason for resignation..."></textarea>
+    </div>
+    <button class="btn btn-danger btn-w" onclick="submitResignation()">Submit Resignation</button>
+  </div>
+</div>
+
+<!-- EDIT EMPLOYEE MODAL (HR only) -->
+<div class="modal-bg" id="editEmpModal">
+  <div class="modal" style="max-height:88vh;overflow-y:auto">
+    <div class="modal-hdr"><h3>Edit Employee Profile</h3><button class="modal-close" onclick="closeModal('editEmpModal')">✕</button></div>
+    <div style="background:#eff6ff;border-radius:10px;padding:10px 12px;margin-bottom:14px;font-size:12px;color:#1e40af">
+      <strong>Employee ID:</strong> <span id="edit_emp_id_display" style="font-family:monospace;font-size:13px"></span> <span style="color:#6b7280">(cannot be changed)</span>
+    </div>
+    <input type="hidden" id="edit_emp_id">
+    <div class="fgroup"><label>Full Name *</label><input type="text" id="edit_name" placeholder="Full name"></div>
+    <div class="fgroup"><label>Mobile *</label><input type="tel" id="edit_mobile" placeholder="10-digit mobile" maxlength="10"></div>
+    <div class="fgroup"><label>Email</label><input type="email" id="edit_email" placeholder="Work email"></div>
+    <div class="fgroup"><label>Date of Joining *</label><input type="date" id="edit_doj"></div>
+    <div class="fgroup"><label>Designation *</label><input type="text" id="edit_desig" placeholder="e.g. CX Agent"></div>
+    <div class="fgroup"><label>Department *</label>
+      <select id="edit_dept">
+        <option>Customer Experience</option><option>Sales</option><option>Operations</option>
+        <option>Technology</option><option>Finance</option><option>HR</option><option>Marketing</option>
+      </select>
+    </div>
+    <div class="fgroup"><label>Location *</label>
+      <select id="edit_loc">
+        <option>Delhi</option><option>Mumbai</option><option>Bangalore</option>
+        <option>Hyderabad</option><option>Pune</option><option>Chennai</option><option>Noida</option><option>Gurugram</option>
+      </select>
+    </div>
+    <div class="fgroup"><label>Payroll *</label>
+      <select id="edit_payroll"><option>Wiom</option><option>Offroll</option><option>Contract</option></select>
+    </div>
+    <div class="fgroup"><label>Reporting Manager *</label>
+      <input type="text" id="edit_mgr" placeholder="Type or select manager name" list="mgrList" autocomplete="off">
+    </div>
+    <div class="fgroup"><label>Status</label>
+      <select id="edit_status"><option value="Active">Active</option><option value="Inactive">Inactive</option></select>
+    </div>
+    <div class="fgroup"><label>Role</label>
+      <select id="edit_role"><option value="employee">Employee</option><option value="manager">Manager</option><option value="hr">HR Admin</option></select>
+    </div>
+    <button class="btn btn-primary btn-w" onclick="saveEditEmp()">Save Changes</button>
+  </div>
+</div>
+
+<!-- MANAGER RESIGNATION APPROVE MODAL -->
+<div class="modal-bg" id="mgrResignModal">
+  <div class="modal">
+    <div class="modal-hdr"><h3>Approve Resignation</h3><button class="modal-close" onclick="closeModal('mgrResignModal')">✕</button></div>
+    <div id="mgrResignDetail" style="background:#f9fafb;border-radius:10px;padding:12px;margin-bottom:14px;font-size:13px;color:#374151"></div>
+    <div class="fgroup">
+      <label>Last Working Day</label>
+      <p style="font-size:12px;color:#6b7280;margin-bottom:6px">You can change the LWD before forwarding to HR.</p>
+      <input type="date" id="mgr_lwd_edit">
+    </div>
+    <button class="btn btn-success btn-w" onclick="confirmMgrApprove()">✓ Confirm & Forward to HR</button>
+  </div>
+</div>
+
+<!-- REJECT REASON MODAL -->
+<div class="modal-bg" id="rejectModal">
+  <div class="modal">
+    <div class="modal-hdr">
+      <h3>Reject Leave</h3>
+      <button class="modal-close" onclick="closeModal('rejectModal')">✕</button>
+    </div>
+    <p style="font-size:14px;color:#374151;margin-bottom:12px">Please provide a reason for rejection:</p>
+    <textarea class="reject-reason" id="rejectReason" placeholder="Enter rejection reason..." style="width:100%;padding:10px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:14px;font-family:inherit;resize:none;height:90px;outline:none"></textarea>
+    <button class="btn btn-danger btn-w" style="margin-top:12px" onclick="confirmReject()">Confirm Rejection</button>
+  </div>
+</div>
+
+<script>
+// ==================== EMPLOYEE DATA ====================
+let EMPLOYEES = [
+  {id:'HRADMIN',name:'Pramod',mobile:'9716209931',email:'pramod@wiom.in',doj:'2023-01-01',designation:'HR Admin',dept:'HR',loc:'Gurugram',mgr:'',payroll:'Wiom',role:'hr'},
+  {id:'ORA0023',name:'Udit Kumar',mobile:'9716209931',email:'',doj:'2025-07-24',designation:'Associate',dept:'Supply',loc:'New Delhi',mgr:'Pramod',payroll:'Betterplace'},
+];
+
+const POLICIES = {
+  leave:`<div class="doc-meta">Effective: 1 May 2026 | Applicable: All Off-Roll Employees</div>
+<h4>Purpose</h4>
+<p style="font-size:13px;color:#374151;margin-bottom:10px">This policy outlines the leave entitlement and leave management process applicable to all off-roll employees across the organization.</p>
+<h4>Applicability</h4>
+<p style="font-size:13px;color:#374151;margin-bottom:10px">Applicable to all off-roll employees engaged with the organization across all departments and locations.</p>
+<h4>Leave Entitlement</h4>
+<ul>
+<li>Total <strong>12 paid leaves</strong> in a calendar year.</li>
+<li>Leaves credited on a quarterly basis — <strong>3 leaves per quarter</strong>.</li>
+</ul>
+<h4>Quarter-wise Leave Credit</h4>
+<ul>
+<li>Jan – Mar: 3 Leaves</li>
+<li>Apr – Jun: 3 Leaves</li>
+<li>Jul – Sep: 3 Leaves</li>
+<li>Oct – Dec: 3 Leaves</li>
+</ul>
+<h4>Leave Validity &amp; Lapse</h4>
+<ul>
+<li>Leave must be utilized <strong>within the same quarter</strong>.</li>
+<li>Unused leave balance will automatically <strong>lapse</strong> at the end of each quarter.</li>
+<li>Leave <strong>cannot</strong> be carried forward, accumulated, or encashed.</li>
+<li>A fresh balance of 3 leaves will be credited at the beginning of every quarter.</li>
+</ul>
+<h4>Leave Approval Process</h4>
+<ul>
+<li>Employees must obtain <strong>prior approval</strong> from their reporting manager before availing leave.</li>
+<li>In emergency situations, employees must inform their reporting manager as early as possible.</li>
+</ul>
+<h4>Unauthorized Absence</h4>
+<p style="font-size:13px;color:#374151;margin-bottom:10px">Absence without approval or proper intimation may be treated as unauthorized absence and may result in <strong>loss of pay or disciplinary action</strong>.</p>`,
+
+  disciplinary:`<div class="doc-meta">Last Updated: Jan 2026 | Applicable: All Employees</div>
+<h4>Purpose</h4>
+<p>This policy outlines the standards of conduct expected of all Wiom employees and the process followed when these standards are not met.</p>
+<h4>Standards of Conduct</h4>
+<ul>
+<li>Employees must maintain professional behavior at all times.</li>
+<li>Misuse of company property or resources is strictly prohibited.</li>
+<li>Discrimination, harassment, or bullying will not be tolerated.</li>
+<li>Employees must not engage in activities that conflict with the company's interests.</li>
+</ul>
+<h4>Disciplinary Process</h4>
+<ol>
+<li><strong>Verbal Warning</strong> – Informal discussion about the issue.</li>
+<li><strong>Written Warning</strong> – Formal written notice with expectations.</li>
+<li><strong>Show Cause Notice</strong> – Employee must provide written explanation.</li>
+<li><strong>Suspension</strong> – Temporary suspension pending investigation.</li>
+<li><strong>Termination</strong> – Employment terminated for gross misconduct.</li>
+</ol>
+<h4>Grounds for Immediate Termination</h4>
+<ul>
+<li>Theft or fraud</li><li>Physical violence or threats</li>
+<li>Disclosure of confidential information</li><li>Gross insubordination</li>
+</ul>`,
+
+  conduct:`<div class="doc-meta">Last Updated: Jan 2026 | Applicable: All Employees</div>
+<h4>Professional Conduct</h4>
+<ul>
+<li>Treat all colleagues, clients, and partners with respect and dignity.</li>
+<li>Maintain punctuality — report to work on time and notify manager in case of delay.</li>
+<li>Dress appropriately as per the role and work location guidelines.</li>
+<li>Maintain confidentiality of all company and customer data.</li>
+</ul>
+<h4>Digital & Communication Standards</h4>
+<ul>
+<li>Use company systems and tools only for authorized business purposes.</li>
+<li>Do not share login credentials or access cards with anyone.</li>
+<li>Social media posts must not mention or disclose internal business information.</li>
+</ul>
+<h4>Conflict of Interest</h4>
+<ul>
+<li>Employees must disclose any personal interest that may conflict with their professional duties.</li>
+<li>Outside employment or business activities must be pre-approved by HR.</li>
+</ul>
+<h4>Reporting Violations</h4>
+<p>Any observed violations should be reported to the HR department confidentially. Wiom prohibits retaliation against anyone who reports a concern in good faith.</p>`
+};
+
+// ==================== STATE ====================
+let S = {
+  user: null,  // { emp, role: 'employee'|'manager'|'hr', mgrName }
+  page: 'dashboard',
+  leaveTabId: 'apply',
+  generatedOTP: null,
+  rejectingLeaveId: null,
+  calYear: new Date().getFullYear(),
+  calMonth: new Date().getMonth(),
+  hrFilter: 'All',
+};
+
+// ==================== STORAGE ====================
+const BACKEND=window.location.origin+'/api';
+const _cache={wiom_att:{},wiom_leaves:[],wiom_notifs:{},wiom_custom_emps:[],wiom_resignations:[],wiom_rosters:[]};
+let _cacheLoaded=false;
+async function loadCache(){
+  if(_cacheLoaded)return;
+  try{
+    const r=await fetch(BACKEND+'?action=getAll');
+    const d=await r.json();
+    if(d.ok){for(const k of Object.keys(_cache)){if(d.data[k])_cache[k]=JSON.parse(d.data[k]);}}
+  }catch(e){console.warn('Backend unavailable, using local cache');}
+  _cacheLoaded=true;
+}
+function _save(key){fetch(BACKEND,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key,value:JSON.stringify(_cache[key])})}).catch(()=>{});}
+function getLeaves(){return _cache.wiom_leaves;}
+function saveLeaves(d){_cache.wiom_leaves=d;_save('wiom_leaves');}
+function getAtt(){return _cache.wiom_att;}
+function saveAtt(d){_cache.wiom_att=d;_save('wiom_att');}
+function getDocs(){return JSON.parse(localStorage.getItem('wiom_docs')||'[]');}
+function saveDocs(d){localStorage.setItem('wiom_docs',JSON.stringify(d));}
+function getCustomEmps(){return _cache.wiom_custom_emps;}
+function saveCustomEmps(d){_cache.wiom_custom_emps=d;_save('wiom_custom_emps');}
+function getResignations(){return _cache.wiom_resignations;}
+function saveResignations(d){_cache.wiom_resignations=d;_save('wiom_resignations');}
+function getRosters(){return _cache.wiom_rosters;}
+function saveRosters(d){_cache.wiom_rosters=d;_save('wiom_rosters');}
+function getNotifs(empId){return(_cache.wiom_notifs[empId])||[];}
+function addNotif(empId,msg){if(!empId)return;if(!_cache.wiom_notifs[empId])_cache.wiom_notifs[empId]=[];_cache.wiom_notifs[empId].unshift({msg,date:today(),read:false});_save('wiom_notifs');}
+function markNotifsRead(empId){if(!empId)return;if(_cache.wiom_notifs[empId])_cache.wiom_notifs[empId].forEach(x=>x.read=true);_save('wiom_notifs');}
+function unreadNotifCount(empId){return getNotifs(empId).filter(n=>!n.read).length;}
+
+// ==================== DATE / QUARTER HELPERS ====================
+function today(){return new Date().toISOString().slice(0,10)}
+function fmtDate(s){if(!s)return '';const d=new Date(s);return d.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})}
+function daysBetween(a,b){return Math.round((new Date(b)-new Date(a))/(1000*60*60*24))+1}
+function getQuarter(dateStr){
+  const m=new Date(dateStr).getMonth();
+  return Math.floor(m/3);
+}
+function quarterLabel(q,y){return ['Q1 (Jan–Mar)','Q2 (Apr–Jun)','Q3 (Jul–Sep)','Q4 (Oct–Dec)'][q]+' '+y}
+function quarterStart(q,y){return new Date(y,[0,3,6,9][q],1).toISOString().slice(0,10)}
+function quarterEnd(q,y){return new Date(y,[2,5,8,11][q],[31,30,30,31][q]).toISOString().slice(0,10)}
+function currentQ(){const n=new Date();return{q:getQuarter(today()),y:n.getFullYear()}}
+function initials(n){return n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()}
+
+// ==================== LEAVE BALANCE ====================
+function getLeaveBalance(empId){
+  const {q,y}=currentQ();
+  const alloc=3;
+  const leaves=getLeaves().filter(l=>l.empId===empId&&l.status==='Approved');
+  const qStart=quarterStart(q,y);const qEnd=quarterEnd(q,y);
+  const used=leaves.filter(l=>l.from>=qStart&&l.from<=qEnd).reduce((s,l)=>s+l.days,0);
+  const pending=getLeaves().filter(l=>l.empId===empId&&l.status==='Pending'&&l.from>=qStart).reduce((s,l)=>s+l.days,0);
+  return{alloc,used,pending,avail:Math.max(0,alloc-used-pending)};
+}
+
+// ==================== ATTENDANCE HELPERS ====================
+function getAttKey(empId,dateStr){return empId+'__'+dateStr}
+function getEmpAtt(empId,dateStr){const a=getAtt();return a[getAttKey(empId,dateStr)]||null}
+function setEmpAtt(empId,dateStr,data){const a=getAtt();a[getAttKey(empId,dateStr)]={...a[getAttKey(empId,dateStr)],...data};saveAtt(a)}
+function countPresent(empId,y,m){
+  const att=getAtt();let c=0;
+  const days=new Date(y,m+1,0).getDate();
+  for(let d=1;d<=days;d++){
+    const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    if(ds>today())break;
+    const k=getAttKey(empId,ds);
+    if(att[k]&&att[k].in)c++;
+  }
+  return c;
+}
+
+// ==================== LOGIN ====================
+
+function sendOTP(){
+  const empId=document.getElementById('loginEmpId').value.trim().toUpperCase();
+  const mobile=document.getElementById('loginMobile').value.trim();
+  if(!empId){showToast('Please enter your Employee ID','e');return;}
+  if(!mobile||mobile.length!==10){showToast('Please enter a valid 10-digit mobile number','e');return;}
+  const emp=EMPLOYEES.find(e=>e.id===empId);
+  if(!emp){showToast('Employee ID not found','e');return;}
+  if(emp.mobile!==mobile){showToast('Mobile number does not match our records','e');return;}
+  S.generatedOTP=String(Math.floor(100000+Math.random()*900000));
+  const btn=document.getElementById('sendOTPBtn');
+  btn.disabled=true;btn.textContent='Sending…';
+  function goToStep2(){
+    document.getElementById('credStep').style.display='none';
+    document.getElementById('otpSection').style.display='block';
+    document.getElementById('step1Item').className='login-step-item done';
+    document.getElementById('step2Item').className='login-step-item active';
+    document.getElementById('loginOTP').value='';
+    document.getElementById('loginOTP').focus();
+  }
+  function showOTPOnScreen(){
+    document.getElementById('otpBannerTitle').textContent='Your OTP';
+    document.getElementById('otpDisplay').textContent=S.generatedOTP;
+    document.getElementById('demoBanner').style.display='block';
+    goToStep2();
+  }
+  btn.disabled=false;btn.textContent='Send OTP';
+  showOTPOnScreen();
+}
+
+function verifyOTP(){
+  const empId=document.getElementById('loginEmpId').value.trim().toUpperCase();
+  const otp=document.getElementById('loginOTP').value.trim();
+  if(!otp){showToast('Enter OTP','e');return;}
+  if(otp!==S.generatedOTP){showToast('Incorrect OTP. Please try again.','e');return;}
+  const emp=EMPLOYEES.find(e=>e.id===empId);
+  if(!emp){showToast('Employee not found','e');return;}
+  const role=emp.role||'employee';
+  if(role==='hr') loginSuccess({emp,role:'hr',mgrName:emp.name});
+  else if(role==='manager') loginSuccess({emp,role:'manager',mgrName:emp.name});
+  else loginSuccess({emp,role:'employee'});
+}
+
+async function loginSuccess(user){
+  await loadCache();
+  S.user=user;
+  document.getElementById('loginPage').style.display='none';
+  const app=document.getElementById('app');
+  app.classList.add('on');
+  app.classList.remove('role-manager','role-hr','role-employee');
+  app.classList.add('role-'+user.role);
+  const name=user.role==='employee'?user.emp.name:user.mgrName||'HR Admin';
+  document.getElementById('userChip').textContent=name.split(' ')[0];
+  if(user.role==='manager') showPage('manager');
+  else if(user.role==='hr') showPage('hr');
+  else showPage('dashboard');
+}
+
+function logout(){
+  S.user=null;S.generatedOTP=null;
+  document.getElementById('loginPage').style.display='flex';
+  const app=document.getElementById('app');
+  app.classList.remove('on','role-manager','role-hr','role-employee');
+  document.getElementById('loginEmpId').value='';
+  document.getElementById('loginMobile').value='';
+  document.getElementById('loginOTP').value='';
+  document.getElementById('demoBanner').style.display='none';
+  document.getElementById('otpSection').style.display='none';
+  document.getElementById('credStep').style.display='block';
+  document.getElementById('step1Item').className='login-step-item active';
+  document.getElementById('step2Item').className='login-step-item';
+}
+
+function resetLoginStep(){
+  S.generatedOTP=null;
+  document.getElementById('otpSection').style.display='none';
+  document.getElementById('demoBanner').style.display='none';
+  document.getElementById('credStep').style.display='block';
+  document.getElementById('step1Item').className='login-step-item active';
+  document.getElementById('step2Item').className='login-step-item';
+}
+
+// ==================== NAVIGATION ====================
+const PAGE_TITLES={dashboard:'Dashboard',leave:'My Leaves',attendance:'Attendance',documents:'Documents',manager:'Manager Panel',hr:'HR Admin',profile:'Profile & More'};
+function showPage(pg){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.nbtn').forEach(b=>b.classList.remove('on'));
+  const el=document.getElementById('page-'+pg);
+  if(el)el.classList.add('on');
+  const nb=document.getElementById('nav-'+pg);
+  if(nb)nb.classList.add('on');
+  document.getElementById('pageTitle').textContent=PAGE_TITLES[pg]||pg;
+  S.page=pg;
+  renderPage(pg);
+}
+
+function renderPage(pg){
+  if(pg==='dashboard')renderDashboard();
+  else if(pg==='leave'){leaveTab(S.leaveTabId);renderLeaveApply();renderLeaveHistory();renderLeaveBalance();}
+  else if(pg==='attendance')renderAttendance();
+  else if(pg==='documents')renderDocuments();
+  else if(pg==='manager')renderManager();
+  else if(pg==='hr')renderHR();
+  else if(pg==='profile')renderProfile();
+}
+
+// ==================== DASHBOARD HELPERS ====================
+function workingDaysPassed(y,m){
+  let wd=0;
+  const now=new Date();
+  const maxD=(now.getFullYear()===y&&now.getMonth()===m)?now.getDate():new Date(y,m+1,0).getDate();
+  for(let d=1;d<=maxD;d++){
+    const dow=new Date(y,m,d).getDay();
+    const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    if(dow!==0&&dow!==6&&ds<=today())wd++;
+  }
+  return wd;
+}
+function absenceDays(empId,y,m){
+  const att=getAtt();const leaves=getLeaves();let absent=0;
+  const maxD=(new Date().getFullYear()===y&&new Date().getMonth()===m)?new Date().getDate()-1:new Date(y,m+1,0).getDate();
+  for(let d=1;d<=maxD;d++){
+    const dow=new Date(y,m,d).getDay();if(dow===0||dow===6)continue;
+    const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    if(ds>today())break;
+    const onLeave=leaves.some(l=>l.empId===empId&&l.status==='Approved'&&ds>=l.from&&ds<=l.to);
+    const hasAtt=att[getAttKey(empId,ds)]&&att[getAttKey(empId,ds)].in;
+    if(!onLeave&&!hasAtt)absent++;
+  }
+  return absent;
+}
+function leaveDaysThisMonth(empId,y,m){
+  const leaves=getLeaves().filter(l=>l.empId===empId&&l.status==='Approved');
+  let count=0;
+  leaves.forEach(l=>{
+    for(let d=new Date(l.from);d<=new Date(l.to);d.setDate(d.getDate()+1)){
+      if(d.getFullYear()===y&&d.getMonth()===m)count++;
+    }
+  });
+  return count;
+}
+
+// ==================== DASHBOARD ====================
+function renderDashboard(){
+  if(!S.user){document.getElementById('dashContent').innerHTML='';return;}
+  if(S.user.role==='manager')renderMgrDashboard();
+  else if(S.user.role==='hr')renderHRDashboard();
+  else renderEmpDashboard();
+}
+
+function renderEmpDashboard(){
+  const emp=S.user.emp;
+  const bal=getLeaveBalance(emp.id);
+  const {q,y}=currentQ();
+  const m=new Date().getMonth();
+  const todayAtt=getEmpAtt(emp.id,today());
+  const presentDays=countPresent(emp.id,y,m);
+  const wdPassed=workingDaysPassed(y,m);
+  const absentDays=absenceDays(emp.id,y,m);
+  const lvDays=leaveDaysThisMonth(emp.id,y,m);
+  const attPct=wdPassed>0?Math.round(presentDays/wdPassed*100):0;
+  const totalAvail=bal.avail;
+  const pendingCount=getLeaves().filter(l=>l.empId===emp.id&&l.status==='Pending').length;
+  const recentLeaves=getLeaves().filter(l=>l.empId===emp.id).sort((a,b)=>b.applied.localeCompare(a.applied)).slice(0,4);
+  const upcomingLeaves=getLeaves().filter(l=>l.empId===emp.id&&l.status==='Approved'&&l.from>=today()).sort((a,b)=>a.from.localeCompare(b.from));
+  const monthName=new Date(y,m).toLocaleDateString('en-IN',{month:'long',year:'numeric'});
+  const attColor=attPct>=80?'#16a34a':attPct>=60?'#f59e0b':'#dc2626';
+
+  document.getElementById('dashContent').innerHTML=`
+<div class="welcome-card">
+  <div class="wname">Hello, ${emp.name.split(' ')[0]}! 👋</div>
+  <div class="winfo">${emp.designation} · ${emp.dept}<br>${emp.loc} · ${emp.payroll}</div>
+  <span class="wid">${emp.id} · Manager: ${emp.mgr}</span>
+</div>
+<div class="stats-row">
+  <div class="scard"><div class="sv sv-green">${attPct}%</div><div class="sl">Attendance</div></div>
+  <div class="scard"><div class="sv sv-blue">${totalAvail}</div><div class="sl">Leaves Left</div></div>
+  <div class="scard"><div class="sv sv-amber">${pendingCount}</div><div class="sl">Pending</div></div>
+</div>
+<div class="card">
+  <div class="card-hdr"><h3>Today</h3><span style="font-size:12px;color:#6b7280">${new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'short'})}</span></div>
+  <div style="display:flex;align-items:center;gap:12px">
+    <div style="font-size:32px">${todayAtt&&todayAtt.in?'🟢':'🔴'}</div>
+    <div style="flex:1">
+      <div style="font-size:15px;font-weight:700">${todayAtt&&todayAtt.in?(todayAtt.out?'Checked Out':'Checked In'):'Not Marked'}</div>
+      ${todayAtt&&todayAtt.in?`<div style="font-size:12px;color:#6b7280">In: <strong>${todayAtt.in}</strong>${todayAtt.out?' &nbsp;·&nbsp; Out: <strong>'+todayAtt.out+'</strong>':''}</div>`:'<div style="font-size:12px;color:#9ca3af">Mark your attendance for today</div>'}
+    </div>
+    <button class="btn btn-sm btn-primary" onclick="showPage('attendance')">Mark →</button>
+  </div>
+</div>
+<div class="card">
+  <div class="card-hdr"><h3>Attendance — ${monthName}</h3></div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px">
+    <div style="text-align:center;background:#dcfce7;border-radius:10px;padding:10px">
+      <div style="font-size:22px;font-weight:800;color:#15803d">${presentDays}</div>
+      <div style="font-size:11px;color:#166534;font-weight:600">Present</div>
+    </div>
+    <div style="text-align:center;background:#fee2e2;border-radius:10px;padding:10px">
+      <div style="font-size:22px;font-weight:800;color:#b91c1c">${absentDays}</div>
+      <div style="font-size:11px;color:#991b1b;font-weight:600">Absent</div>
+    </div>
+    <div style="text-align:center;background:#fef9c3;border-radius:10px;padding:10px">
+      <div style="font-size:22px;font-weight:800;color:#a16207">${lvDays}</div>
+      <div style="font-size:11px;color:#854d0e;font-weight:600">On Leave</div>
+    </div>
+  </div>
+  <div style="display:flex;justify-content:space-between;font-size:12px;color:#6b7280;margin-bottom:5px">
+    <span>Attendance Rate</span><span style="font-weight:700;color:${attColor}">${attPct}%</span>
+  </div>
+  <div style="height:10px;background:#f3f4f6;border-radius:5px;overflow:hidden">
+    <div style="height:100%;width:${attPct}%;background:${attColor};border-radius:5px"></div>
+  </div>
+  <div style="font-size:11px;color:#9ca3af;margin-top:6px">${wdPassed} working days passed this month</div>
+</div>
+<div class="card">
+  <div class="card-hdr"><h3>Leave Analysis</h3><span class="badge b-blue">${quarterLabel(q,y)}</span></div>
+  <div>
+    <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px">
+      <span style="font-weight:600">Quarterly Leave (3 per quarter)</span>
+      <span style="color:#6b7280">${bal.used} used · <strong>${bal.avail}</strong> left</span>
+    </div>
+    <div style="height:8px;background:#f3f4f6;border-radius:4px;overflow:hidden">
+      <div style="height:100%;display:flex">
+        <div style="width:${Math.round(bal.used/3*100)}%;background:#1d4ed8"></div>
+        <div style="width:${Math.round(bal.pending/3*100)}%;background:#93c5fd"></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:4px;font-size:11px;color:#9ca3af">
+      <span style="color:#1d4ed8">■ Used: ${bal.used}</span>${bal.pending?`<span style="color:#93c5fd">■ Pending: ${bal.pending}</span>`:''}
+      <span>□ Available: ${bal.avail}</span>
+    </div>
+  </div>
+  <button class="btn btn-outline btn-w" style="margin-top:14px" onclick="openLeaveModal()">+ Apply Leave</button>
+</div>
+${upcomingLeaves.length?`
+<div class="card">
+  <div class="card-hdr"><h3>Upcoming Leaves</h3></div>
+  ${upcomingLeaves.slice(0,3).map(l=>`
+  <div class="leave-item">
+    <div class="licon">${l.type==='SL'?'🤒':'🏖️'}</div>
+    <div class="ldetail">
+      <div class="ltype">${l.type==='CL'?'Casual':'Sick'} · ${l.days} day${l.days>1?'s':''}</div>
+      <div class="ldates">${fmtDate(l.from)}${l.days>1?' – '+fmtDate(l.to):''}</div>
+    </div>
+    <span class="badge b-approved">Approved</span>
+  </div>`).join('')}
+</div>`:''}
+${recentLeaves.length?`
+<div class="card">
+  <div class="card-hdr"><h3>Recent Leave Requests</h3><button class="btn btn-sm btn-secondary" onclick="showPage('leave');leaveTab('history')">All →</button></div>
+  ${recentLeaves.map(l=>`
+  <div class="leave-item">
+    <div class="licon">${l.type==='SL'?'🤒':'🏖️'}</div>
+    <div class="ldetail">
+      <div class="ltype">${l.type==='CL'?'Casual Leave':'Sick Leave'} · ${l.days}d</div>
+      <div class="ldates">${fmtDate(l.from)}${l.days>1?' – '+fmtDate(l.to):''}</div>
+      <div class="lreason">${l.reason}</div>
+    </div>
+    <span class="badge ${l.status==='Approved'?'b-approved':l.status==='Rejected'?'b-rejected':'b-pending'}">${l.status}</span>
+  </div>`).join('')}
+</div>`:`
+<div class="card" style="text-align:center;padding:20px">
+  <div style="font-size:32px;margin-bottom:8px">📭</div>
+  <div style="font-size:14px;color:#6b7280">No leave applications yet.</div>
+  <button class="btn btn-primary btn-w" style="margin-top:12px" onclick="openLeaveModal()">Apply Your First Leave</button>
+</div>`}
+<div class="card">
+  <div class="card-hdr"><h3>Quick Actions</h3></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+    <button class="btn btn-secondary" style="flex-direction:column;gap:5px;padding:14px" onclick="showPage('attendance')"><span style="font-size:20px">✅</span><span style="font-size:12px">Mark Attendance</span></button>
+    <button class="btn btn-secondary" style="flex-direction:column;gap:5px;padding:14px" onclick="openLeaveModal()"><span style="font-size:20px">📅</span><span style="font-size:12px">Apply Leave</span></button>
+    <button class="btn btn-secondary" style="flex-direction:column;gap:5px;padding:14px" onclick="showPage('documents')"><span style="font-size:20px">📋</span><span style="font-size:12px">View Policies</span></button>
+    <button class="btn btn-secondary" style="flex-direction:column;gap:5px;padding:14px" onclick="showPage('leave');leaveTab('balance')"><span style="font-size:20px">📊</span><span style="font-size:12px">Leave Balance</span></button>
+  </div>
+</div>`;
+}
+
+function renderMgrDashboard(){
+  const mgrName=S.user.mgrName;
+  const teamEmps=EMPLOYEES.filter(e=>e.mgr===mgrName);
+  const t=today();const y=new Date().getFullYear();const m=new Date().getMonth();
+  const pendingLeaves=getLeaves().filter(l=>l.status==='Pending'&&l.mgr===mgrName);
+  const presentToday=teamEmps.filter(e=>{const a=getEmpAtt(e.id,t);return a&&a.in;}).length;
+  const onLeaveToday=teamEmps.filter(e=>getLeaves().some(l=>l.empId===e.id&&l.status==='Approved'&&t>=l.from&&t<=l.to)).length;
+  const wdP=workingDaysPassed(y,m);
+
+  document.getElementById('dashContent').innerHTML=`
+<div class="welcome-card">
+  <div class="wname">Hello, ${mgrName.split(' ')[0]}! 👔</div>
+  <div class="winfo">Manager · ${teamEmps.length} direct reportees</div>
+</div>
+<div class="stats-row">
+  <div class="scard"><div class="sv sv-green">${presentToday}</div><div class="sl">Present Today</div></div>
+  <div class="scard"><div class="sv sv-amber">${onLeaveToday}</div><div class="sl">On Leave</div></div>
+  <div class="scard"><div class="sv sv-red">${Math.max(0,teamEmps.length-presentToday-onLeaveToday)}</div><div class="sl">Not Marked</div></div>
+</div>
+<div class="card">
+  <div class="card-hdr"><h3>Pending Approvals</h3>${pendingLeaves.length?`<span class="badge b-pending">${pendingLeaves.length}</span>`:''}</div>
+  ${pendingLeaves.length?pendingLeaves.slice(0,3).map(l=>`
+  <div class="leave-item">
+    <div class="licon">📋</div>
+    <div class="ldetail">
+      <div class="ltype">${l.empName} · ${l.type}</div>
+      <div class="ldates">${fmtDate(l.from)} – ${fmtDate(l.to)} · ${l.days}d</div>
+      <div class="lreason">${l.reason}</div>
+    </div>
+    <button class="btn btn-success btn-sm" onclick="approveLeave('${l.id}','${l.empName}','${mgrName}');renderDashboard()">✓</button>
+  </div>`).join('')+(pendingLeaves.length>3?`<button class="btn btn-outline btn-w" style="margin-top:8px" onclick="showPage('manager')">View all ${pendingLeaves.length} →</button>`:'')
+  :`<div class="empty" style="padding:14px 0"><div class="ei" style="font-size:28px">🎉</div><p>No pending approvals</p></div>`}
+</div>
+<div class="card">
+  <div class="card-hdr"><h3>Team Attendance — Today</h3><span style="font-size:12px;color:#6b7280">${new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short'})}</span></div>
+  ${teamEmps.map(e=>{
+    const att=getEmpAtt(e.id,t);
+    const onLeave=getLeaves().some(l=>l.empId===e.id&&l.status==='Approved'&&t>=l.from&&t<=l.to);
+    const pMonth=countPresent(e.id,y,m);
+    const pct=wdP>0?Math.round(pMonth/wdP*100):0;
+    let icon,label,col;
+    if(onLeave){icon='🏖️';label='On Leave';col='#a16207';}
+    else if(att&&att.out){icon='🔵';label='Out '+att.out;col='#374151';}
+    else if(att&&att.in){icon='🟢';label='In '+att.in;col='#15803d';}
+    else{icon='🔴';label='Not Marked';col='#b91c1c';}
+    return `<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #f9fafb">
+      <div class="emp-av" style="width:32px;height:32px;font-size:12px">${initials(e.name)}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:600">${e.name}</div>
+        <div style="height:4px;background:#f3f4f6;border-radius:2px;margin-top:3px;width:70px">
+          <div style="height:100%;width:${pct}%;background:${pct>=80?'#16a34a':'#f59e0b'};border-radius:2px"></div>
+        </div>
+        <div style="font-size:10px;color:#9ca3af">${pct}% this month</div>
+      </div>
+      <div style="font-size:11px;font-weight:600;color:${col}">${icon} ${label}</div>
+    </div>`;
+  }).join('')}
+</div>
+<button class="btn btn-primary btn-w" onclick="showPage('manager')">Manager Panel →</button>`;
+}
+
+function renderMgrResignations(mgrName,container){
+  const mgrEmp=S.user&&S.user.emp;
+  const mgrEmpId=mgrEmp?mgrEmp.id:null;
+  // Show unread notifications for manager
+  const notifs=mgrEmpId?getNotifs(mgrEmpId).filter(n=>!n.read):[];
+  let notifHtml='';
+  if(notifs.length){
+    notifHtml=`<div style="background:#fef9c3;border:1px solid #fde047;border-radius:10px;padding:10px 12px;margin-bottom:12px">
+      <div style="font-weight:700;font-size:12px;color:#854d0e;margin-bottom:5px">🔔 Notifications (${notifs.length})</div>
+      ${notifs.map(n=>`<div style="font-size:12px;color:#713f12;margin-bottom:3px">• ${n.msg} <span style="color:#a16207;font-size:10px">(${fmtDate(n.date)})</span></div>`).join('')}
+    </div>`;
+    markNotifsRead(mgrEmpId);
+  }
+  const all=getResignations().filter(r=>r.mgr===mgrName);
+  const pending=all.filter(r=>r.status==='Pending Manager');
+  const hrRejected=all.filter(r=>r.status==='HR Rejected');
+  const forwarded=all.filter(r=>r.status==='Manager Approved');
+  const approved=all.filter(r=>r.status==='HR Approved');
+
+  let html=notifHtml;
+  if(pending.length){
+    html+=pending.map(r=>`
+    <div class="appr-card">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between">
+        <div>
+          <div class="acname">${r.empName}</div>
+          <div class="acmeta">Dept: ${r.dept}<br>Proposed LWD: <strong>${fmtDate(r.lwd)}</strong><br>Applied: ${fmtDate(r.submittedOn)}</div>
+          <div class="acreason">"${r.reason}"</div>
+        </div>
+        <span class="badge b-pending">Pending</span>
+      </div>
+      <div class="appr-actions">
+        <button class="btn btn-success btn-sm" style="flex:1" onclick="openMgrApproveModal('${r.id}')">✓ Review & Approve</button>
+        <button class="btn btn-danger btn-sm" style="flex:1" onclick="mgrRejectResignation('${r.id}')">✕ Reject</button>
+      </div>
+    </div>`).join('');
+  }
+  if(forwarded.length){
+    html+=`<div style="font-size:12px;font-weight:700;color:#6b7280;margin:10px 0 6px">Forwarded to HR</div>`;
+    html+=forwarded.map(r=>`
+    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:10px 12px;margin-bottom:8px;font-size:13px">
+      <div style="font-weight:700">${r.empName} <span class="badge b-approved" style="font-size:10px">Awaiting HR</span></div>
+      <div style="color:#6b7280;margin-top:3px">LWD: ${fmtDate(r.lwd)} · Forwarded: ${fmtDate(r.mgrApprovedOn)}</div>
+    </div>`).join('');
+  }
+  if(hrRejected.length){
+    html+=`<div style="font-size:12px;font-weight:700;color:#b91c1c;margin:10px 0 6px">Rejected by HR</div>`;
+    html+=hrRejected.map(r=>`
+    <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:10px 12px;margin-bottom:8px;font-size:13px">
+      <div style="font-weight:700">${r.empName} <span class="badge b-rejected" style="font-size:10px">HR Rejected</span></div>
+      <div style="color:#6b7280;margin-top:3px">Applied LWD: ${fmtDate(r.lwd)} · Applied: ${fmtDate(r.submittedOn)}</div>
+      <div style="font-size:12px;color:#9ca3af;margin-top:2px">Employee has been notified and may re-apply.</div>
+    </div>`).join('');
+  }
+  if(approved.length){
+    html+=`<div style="font-size:12px;font-weight:700;color:#15803d;margin:10px 0 6px">HR Approved</div>`;
+    html+=approved.map(r=>`
+    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:10px 12px;margin-bottom:8px;font-size:13px">
+      <div style="font-weight:700">${r.empName} <span class="badge b-approved" style="font-size:10px">Approved</span></div>
+      <div style="color:#6b7280;margin-top:3px">LWD: ${fmtDate(r.lwd)}</div>
+    </div>`).join('');
+  }
+  if(!html&&!notifHtml)html='<div class="empty" style="padding:14px 0"><div class="ei" style="font-size:28px">✅</div><p>No resignation requests</p></div>';
+  container.innerHTML=html;
+}
+
+function renderHRDashboard(){
+  const t=today();const y=new Date().getFullYear();const m=new Date().getMonth();
+  const leaves=getLeaves();
+  const depts=[...new Set(EMPLOYEES.map(e=>e.dept))];
+  const payrolls=[...new Set(EMPLOYEES.map(e=>e.payroll))];
+  const locs=[...new Set(EMPLOYEES.map(e=>e.loc))];
+  const presentToday=EMPLOYEES.filter(e=>{const a=getEmpAtt(e.id,t);return a&&a.in;}).length;
+  const onLeaveToday=EMPLOYEES.filter(e=>leaves.some(l=>l.empId===e.id&&l.status==='Approved'&&t>=l.from&&t<=l.to)).length;
+  const pendingAll=leaves.filter(l=>l.status==='Pending').length;
+  const approvedAll=leaves.filter(l=>l.status==='Approved').length;
+  const recentLeaves=leaves.slice().sort((a,b)=>b.applied.localeCompare(a.applied)).slice(0,5);
+
+  document.getElementById('dashContent').innerHTML=`
+<div class="welcome-card">
+  <div class="wname">HR Admin Dashboard 🏢</div>
+  <div class="winfo">Pramod · pramod@wiom.in<br>Full access · All departments</div>
+</div>
+<div class="stats-row">
+  <div class="scard"><div class="sv sv-blue">${EMPLOYEES.length}</div><div class="sl">Total Staff</div></div>
+  <div class="scard"><div class="sv sv-green">${presentToday}</div><div class="sl">Present Today</div></div>
+  <div class="scard"><div class="sv sv-amber">${pendingAll}</div><div class="sl">Pending Leaves</div></div>
+</div>
+<div class="card">
+  <div class="card-hdr"><h3>Today's Snapshot</h3><span style="font-size:12px;color:#6b7280">${new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'short'})}</span></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+    <div style="text-align:center;background:#dcfce7;border-radius:10px;padding:10px"><div style="font-size:20px;font-weight:800;color:#15803d">${presentToday}</div><div style="font-size:11px;color:#166534">Present</div></div>
+    <div style="text-align:center;background:#fef9c3;border-radius:10px;padding:10px"><div style="font-size:20px;font-weight:800;color:#a16207">${onLeaveToday}</div><div style="font-size:11px;color:#854d0e">On Leave</div></div>
+    <div style="text-align:center;background:#fee2e2;border-radius:10px;padding:10px"><div style="font-size:20px;font-weight:800;color:#b91c1c">${Math.max(0,EMPLOYEES.length-presentToday-onLeaveToday)}</div><div style="font-size:11px;color:#991b1b">Not Marked</div></div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-hdr"><h3>By Department</h3></div>
+  ${depts.map(d=>{const c=EMPLOYEES.filter(e=>e.dept===d).length;const pct=Math.round(c/EMPLOYEES.length*100);
+  return `<div style="margin-bottom:10px">
+    <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px"><span style="font-weight:600">${d}</span><span style="color:#6b7280">${c} employees</span></div>
+    <div style="height:8px;background:#f3f4f6;border-radius:4px;overflow:hidden"><div style="height:100%;width:${pct}%;background:#1d4ed8;border-radius:4px"></div></div>
+  </div>`;}).join('')}
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+  <div class="card" style="margin-bottom:0">
+    <div style="font-size:13px;font-weight:700;margin-bottom:10px">By Payroll</div>
+    ${payrolls.map(p=>{const c=EMPLOYEES.filter(e=>e.payroll===p).length;return `<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f3f4f6;font-size:13px"><span>${p}</span><span style="font-weight:700;color:#1d4ed8">${c}</span></div>`;}).join('')}
+  </div>
+  <div class="card" style="margin-bottom:0">
+    <div style="font-size:13px;font-weight:700;margin-bottom:10px">By Location</div>
+    ${locs.map(l=>{const c=EMPLOYEES.filter(e=>e.loc===l).length;return `<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f3f4f6;font-size:13px"><span>${l}</span><span style="font-weight:700;color:#1d4ed8">${c}</span></div>`;}).join('')}
+  </div>
+</div>
+<div class="card">
+  <div class="card-hdr"><h3>Leave Overview</h3></div>
+  <div style="display:flex;gap:8px;margin-bottom:12px">
+    <div style="flex:1;text-align:center;background:#fef9c3;border-radius:10px;padding:12px"><div style="font-size:22px;font-weight:800;color:#a16207">${pendingAll}</div><div style="font-size:11px;color:#854d0e;font-weight:600">Pending</div></div>
+    <div style="flex:1;text-align:center;background:#dcfce7;border-radius:10px;padding:12px"><div style="font-size:22px;font-weight:800;color:#15803d">${approvedAll}</div><div style="font-size:11px;color:#166534;font-weight:600">Approved</div></div>
+    <div style="flex:1;text-align:center;background:#fee2e2;border-radius:10px;padding:12px"><div style="font-size:22px;font-weight:800;color:#b91c1c">${leaves.filter(l=>l.status==='Rejected').length}</div><div style="font-size:11px;color:#991b1b;font-weight:600">Rejected</div></div>
+  </div>
+  ${recentLeaves.length?`<div style="font-size:13px;font-weight:700;margin-bottom:8px">Recent Applications</div>
+  ${recentLeaves.map(l=>`<div class="leave-item">
+    <div class="licon">${l.type==='SL'?'🤒':'🏖️'}</div>
+    <div class="ldetail"><div class="ltype">${l.empName} · ${l.type}</div><div class="ldates">${fmtDate(l.from)} – ${fmtDate(l.to)}</div></div>
+    <span class="badge ${l.status==='Approved'?'b-approved':l.status==='Rejected'?'b-rejected':'b-pending'}">${l.status}</span>
+  </div>`).join('')}`:''}
+</div>
+<button class="btn btn-primary btn-w" onclick="showPage('hr')">HR Admin Panel →</button>`;
+}
+
+// ==================== LEAVE TAB ====================
+function leaveTab(tab){
+  S.leaveTabId=tab;
+  ['apply','history','balance'].forEach(t=>{
+    document.getElementById('tab-'+t).classList.toggle('on',t===tab);
+    document.getElementById('leave-'+t).style.display=t===tab?'block':'none';
+  });
+  if(tab==='apply')renderLeaveApply();
+  else if(tab==='history')renderLeaveHistory();
+  else renderLeaveBalance();
+}
+
+function renderLeaveApply(){
+  if(!S.user||S.user.role!=='employee'){
+    document.getElementById('leaveApplyContent').innerHTML='<div class="empty"><div class="ei">🚫</div><p>Employee access only.</p></div>';return;
+  }
+  const emp=S.user.emp;
+  const bal=getLeaveBalance(emp.id);
+  const {q,y}=currentQ();
+  document.getElementById('leaveApplyContent').innerHTML=`
+<div class="card" style="background:#eff6ff;border:1.5px solid #bfdbfe">
+  <div style="font-size:13px;font-weight:600;color:#1e40af;margin-bottom:8px">Available Balance — ${quarterLabel(q,y)}</div>
+  <div style="display:flex;gap:14px">
+    <div><span style="font-size:22px;font-weight:800;color:#1d4ed8">${bal.avail}</span> <span style="font-size:12px;color:#374151">Leaves left</span></div>
+    <div><span style="font-size:22px;font-weight:800;color:#6b7280">${bal.used}</span> <span style="font-size:12px;color:#374151">Used</span></div>
+    ${bal.pending>0?`<div><span style="font-size:22px;font-weight:800;color:#ca8a04">${bal.pending}</span> <span style="font-size:12px;color:#374151">Pending</span></div>`:''}
+  </div>
+</div>
+<button class="btn btn-primary btn-w" onclick="openLeaveModal()">+ Apply for Leave</button>
+<div style="margin-top:14px;font-size:13px;color:#6b7280;line-height:1.6;background:#fff;border-radius:10px;padding:12px;box-shadow:var(--sh)">
+  <strong style="color:#374151">Reminders:</strong><br>
+  • 3 leaves credited per quarter — unused leaves lapse at quarter end<br>
+  • Apply in advance; in emergencies inform your manager immediately<br>
+  • Unauthorized absence may result in loss of pay or disciplinary action
+</div>`;
+}
+
+function renderLeaveHistory(){
+  if(!S.user||S.user.role!=='employee'){
+    document.getElementById('leaveHistoryContent').innerHTML='';return;
+  }
+  const emp=S.user.emp;
+  const leaves=getLeaves().filter(l=>l.empId===emp.id).sort((a,b)=>b.applied.localeCompare(a.applied));
+  if(!leaves.length){
+    document.getElementById('leaveHistoryContent').innerHTML='<div class="empty"><div class="ei">📭</div><p>No leave applications yet.</p></div>';return;
+  }
+  document.getElementById('leaveHistoryContent').innerHTML=`
+<div class="card">
+  ${leaves.map(l=>`
+  <div class="leave-item">
+    <div class="licon">${l.type==='SL'?'🤒':'🏖️'}</div>
+    <div class="ldetail">
+      <div class="ltype">${l.type==='CL'?'Casual Leave':'Sick Leave'} · ${l.days} day${l.days>1?'s':''}</div>
+      <div class="ldates">${fmtDate(l.from)} – ${fmtDate(l.to)}</div>
+      <div class="lreason">${l.reason||''}</div>
+      ${l.rejectReason?`<div style="font-size:11px;color:#dc2626;margin-top:2px">Reason: ${l.rejectReason}</div>`:''}
+      <div style="font-size:11px;color:#9ca3af;margin-top:2px">Applied: ${fmtDate(l.applied)}</div>
+    </div>
+    <span class="badge ${l.status==='Approved'?'b-approved':l.status==='Rejected'?'b-rejected':'b-pending'}">${l.status}</span>
+  </div>`).join('')}
+</div>`;
+}
+
+function renderLeaveBalance(){
+  if(!S.user||S.user.role!=='employee'){
+    document.getElementById('leaveBalanceContent').innerHTML='';return;
+  }
+  const emp=S.user.emp;
+  const bal=getLeaveBalance(emp.id);
+  const {q,y}=currentQ();
+  const usedPct=Math.round((bal.used/3)*100);
+  document.getElementById('leaveBalanceContent').innerHTML=`
+<div class="card">
+  <div class="card-hdr"><h3>Current Quarter</h3><span class="badge b-blue">${quarterLabel(q,y)}</span></div>
+  <div class="bal-grid" style="grid-template-columns:1fr 1fr 1fr">
+    <div class="bal-card">
+      <div class="bnum">${bal.avail}</div>
+      <div class="btype">Available</div>
+      <div class="bsub">Leaves left</div>
+    </div>
+    <div class="bal-card">
+      <div class="bnum" style="color:#dc2626">${bal.used}</div>
+      <div class="btype">Used</div>
+      <div class="bsub">This quarter</div>
+    </div>
+    <div class="bal-card">
+      <div class="bnum" style="color:#ca8a04">${bal.pending}</div>
+      <div class="btype">Pending</div>
+      <div class="bsub">Awaiting approval</div>
+    </div>
+  </div>
+  <div class="prog" style="margin-top:10px"><div class="prog-fill" style="width:${usedPct}%;background:#1d4ed8"></div></div>
+  <div style="font-size:11px;color:#9ca3af;margin-top:4px">${bal.used} of 3 leaves used this quarter</div>
+</div>
+<div class="card" style="background:#fef9c3;border:1.5px solid #fcd34d">
+  <div style="font-size:13px;font-weight:700;color:#92400e;margin-bottom:4px">⚠️ Quarter Policy Reminder</div>
+  <div style="font-size:12px;color:#78350f;line-height:1.6">Unused leave balance lapses at the end of the current quarter (${fmtDate(quarterEnd(q,y))}). Plan your leaves accordingly.</div>
+</div>
+<div class="card">
+  <div class="card-hdr"><h3>Leave Summary</h3></div>
+  ${[0,1,2,3].map(qi=>{
+    const qLeaves=getLeaves().filter(l=>l.empId===emp.id&&l.status==='Approved'&&getQuarter(l.from)===qi&&new Date(l.from).getFullYear()===y);
+    const qUsed=qLeaves.reduce((s,l)=>s+l.days,0);
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid #f3f4f6">
+      <span style="font-size:13px;color:#374151">${['Q1 Jan–Mar','Q2 Apr–Jun','Q3 Jul–Sep','Q4 Oct–Dec'][qi]} ${y}</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span style="font-size:13px;font-weight:600;color:#1d4ed8">${qUsed} used</span>
+        ${qi===q?'<span class="badge b-blue">Current</span>':'<span style="font-size:11px;color:#9ca3af">Lapsed: '+(3-qUsed)+'</span>'}
+      </div>
+    </div>`;
+  }).join('')}
+</div>`;
+}
+
+// ==================== LEAVE MODAL ====================
+function openLeaveModal(){
+  const t=today();
+  document.getElementById('leaveFrom').value=t;
+  document.getElementById('leaveTo').value=t;
+  document.getElementById('leaveReason').value='';
+  updateLeaveDaysNote();
+  document.getElementById('leaveModal').classList.add('show');
+}
+
+document.getElementById('leaveFrom').addEventListener('change',updateLeaveDaysNote);
+document.getElementById('leaveTo').addEventListener('change',updateLeaveDaysNote);
+
+function updateLeaveDaysNote(){
+  const f=document.getElementById('leaveFrom').value;
+  const t=document.getElementById('leaveTo').value;
+  if(f&&t&&f<=t){
+    const d=daysBetween(f,t);
+    document.getElementById('leaveDaysNote').textContent=`Duration: ${d} working day${d>1?'s':''}`;
+  } else {
+    document.getElementById('leaveDaysNote').textContent='';
+  }
+}
+
+function submitLeave(){
+  if(!S.user||!S.user.emp){return}
+  const emp=S.user.emp;
+  const type=document.getElementById('leaveType').value;
+  const from=document.getElementById('leaveFrom').value;
+  const to=document.getElementById('leaveTo').value;
+  const reason=document.getElementById('leaveReason').value.trim();
+  if(!from||!to){showToast('Please select dates','e');return}
+  if(from>to){showToast('From date must be before To date','e');return}
+  if(!reason){showToast('Please enter a reason','e');return}
+  const days=daysBetween(from,to);
+  const bal=getLeaveBalance(emp.id);
+  if(days>bal.avail){showToast(`Insufficient leave balance. Available: ${bal.avail} day${bal.avail!==1?'s':''}','e`);return}
+  const leave={
+    id:'LV'+Date.now(),empId:emp.id,empName:emp.name,mgr:emp.mgr,dept:emp.dept,
+    type,from,to,days,reason,status:'Pending',applied:today(),rejectReason:''
+  };
+  const leaves=getLeaves();leaves.push(leave);saveLeaves(leaves);
+  const mgrEmp=EMPLOYEES.find(e=>e.name===emp.mgr);
+  if(mgrEmp)addNotif(mgrEmp.id,`Leave Request: ${emp.name} applied for ${type} from ${fmtDate(from)} to ${fmtDate(to)} (${days} day${days>1?'s':''}). Awaiting your approval.`);
+  closeModal('leaveModal');
+  showToast(`Leave application submitted! Pending ${emp.mgr}'s approval.`,'s');
+  renderPage(S.page);
+}
+
+// ==================== ATTENDANCE ====================
+function renderAttendance(){
+  const emp=S.user&&S.user.emp;
+  const empId=emp?emp.id:'DEMO';
+  const t=today();
+  const att=getEmpAtt(empId,t);
+  const {calYear:y,calMonth:m}=S;
+  const presentCount=emp?countPresent(empId,y,m):0;
+  const daysInMonth=new Date(y,m+1,0).getDate();
+
+  document.getElementById('attContent').innerHTML=`
+<div class="att-today">
+  <h3>Mark Today's Attendance</h3>
+  <div style="font-size:13px;opacity:.85;margin-bottom:12px">${new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</div>
+  <div class="time-chips">
+    <div class="time-chip">
+      <div class="tc-val">${att&&att.in?att.in:'--:--'}</div>
+      <div class="tc-lbl">Check In</div>
+    </div>
+  </div>
+  <div class="att-btns" style="margin-top:12px">
+    <button class="att-btn att-btn-in" onclick="checkIn()" ${att&&att.in?'disabled':''}>
+      ${att&&att.in?'✅ Checked In':'Check In'}
+    </button>
+  </div>
+</div>
+<div class="stats-row">
+  <div class="scard"><div class="sv sv-green">${presentCount}</div><div class="sl">Present</div></div>
+  <div class="scard"><div class="sv sv-red">${Math.max(0,(new Date()<new Date(y,m+1,0)?new Date().getDate()-1:daysInMonth)-presentCount-(emp?getLeaves().filter(l=>l.empId===empId&&l.status==='Approved'&&new Date(l.from).getMonth()===m).reduce((s,l)=>s+l.days,0):0))}</div><div class="sl">Absent</div></div>
+  <div class="scard"><div class="sv sv-amber">${emp?getLeaves().filter(l=>l.empId===empId&&l.status==='Approved'&&new Date(l.from).getMonth()===m&&new Date(l.from).getFullYear()===y).reduce((s,l)=>s+l.days,0):0}</div><div class="sl">On Leave</div></div>
+</div>
+<div class="cal-wrap">
+  <div class="cal-nav">
+    <button onclick="S.calMonth--;if(S.calMonth<0){S.calMonth=11;S.calYear--;}renderPage('attendance')">‹ Prev</button>
+    <h3>${new Date(y,m,1).toLocaleDateString('en-IN',{month:'long',year:'numeric'})}</h3>
+    <button onclick="S.calMonth++;if(S.calMonth>11){S.calMonth=0;S.calYear++;}renderPage('attendance')">Next ›</button>
+  </div>
+  <div class="cal-grid">
+    ${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d=>`<div class="cal-hdr">${d}</div>`).join('')}
+    ${buildCalendar(empId,y,m)}
+  </div>
+  <div class="att-legend">
+    <div class="leg-item"><div class="leg-badge" style="background:#dcfce7;color:#15803d">P</div> Present</div>
+    <div class="leg-item"><div class="leg-badge" style="background:#fee2e2;color:#b91c1c">A</div> Absent</div>
+    <div class="leg-item"><div class="leg-badge" style="background:#fef9c3;color:#a16207">L</div> Leave</div>
+    <div class="leg-item"><div class="leg-badge" style="background:#f3f4f6;color:#9ca3af">WO</div> Week Off</div>
+    <div class="leg-item"><div class="leg-badge" style="background:#ede9fe;color:#7c3aed">CO</div> Comp Off</div>
+    <div class="leg-item"><div class="leg-badge" style="background:#1d4ed8;color:#fff">•</div> Today</div>
+  </div>
+</div>`;
+}
+
+function buildCalendar(empId,y,m){
+  const firstDay=new Date(y,m,1).getDay();
+  const daysInMonth=new Date(y,m+1,0).getDate();
+  const att=getAtt();
+  const approvedLeaves=getLeaves().filter(l=>l.empId===empId&&l.status==='Approved');
+  let html='';
+  for(let i=0;i<firstDay;i++)html+=`<div class="cal-day cd-empty"></div>`;
+  for(let d=1;d<=daysInMonth;d++){
+    const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const dow=new Date(y,m,d).getDay();
+    const isToday=ds===today();
+    const isFuture=ds>today();
+    const isWeekend=dow===0||dow===6;
+    const onLeave=approvedLeaves.some(l=>ds>=l.from&&ds<=l.to);
+    const attRec=att[getAttKey(empId,ds)];
+    let cls='cal-day ';let lbl='';
+    if(isToday){cls+='cd-today';lbl='';}
+    else if(isFuture){cls+=isWeekend?'cd-weekend':'cd-future';lbl=isWeekend?'WO':'';}
+    else if(onLeave){cls+='cd-leave';lbl='L';}
+    else if(isWeekend){cls+='cd-weekend';lbl='WO';}
+    else if(attRec&&attRec.compoff){cls+='cd-compoff';lbl='CO';}
+    else if(attRec&&attRec.in){cls+='cd-present';lbl='P';}
+    else{cls+='cd-absent';lbl='A';}
+    html+=`<div class="${cls}"><div>${d}</div>${lbl?`<div style="font-size:8px;font-weight:800;line-height:1;margin-top:1px">${lbl}</div>`:''}</div>`;
+  }
+  return html;
+}
+
+function checkIn(){
+  const emp=S.user&&S.user.emp;
+  if(!emp){showToast('Please log in as employee','e');return}
+  const now=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true});
+  setEmpAtt(emp.id,today(),{in:now});
+  showToast('Checked in at '+now,'s');
+  renderAttendance();
+}
+
+
+// ==================== DOCUMENTS ====================
+function renderDocuments(){
+  const isHR=S.user&&S.user.role==='hr';
+  const customDocs=getDocs();
+  document.getElementById('docsContent').innerHTML=`
+<p class="sec-title">Company Policies</p>
+${docCard('📋','Leave Policy','leave','bg:#dbeafe',true)}
+${docCard('⚖️','Disciplinary Policy','disciplinary','background:#fef3c7')}
+${docCard('🤝','Code of Conduct','conduct','background:#dcfce7')}
+<p class="sec-title" style="margin-top:16px">Other Documents</p>
+${customDocs.length?customDocs.map((d,i)=>`
+<div class="doc-card">
+  <div class="doc-hdr" onclick="toggleDocCard(this)">
+    <div class="dicon" style="background:#f3f4f6">📎</div>
+    <div class="doc-ttl">${d.name}</div>
+    <span style="font-size:11px;color:#9ca3af;margin-right:6px">${d.size?d.size+' KB':fmtDate(d.date)}</span>
+    <div class="doc-arr">›</div>
+  </div>
+  <div class="doc-body">
+    <div class="doc-meta">Uploaded by HR · ${fmtDate(d.date)}${d.size?' · '+d.size+' KB':''}</div>
+    ${d.dataUrl
+      ?`<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+          <button class="btn btn-primary btn-sm" onclick="viewDoc(${i})">📄 View</button>
+          ${isHR?`<button class="btn btn-secondary btn-sm" onclick="downloadDoc(${i})">⬇ Download</button>`:''}
+        </div>`
+      :`<div style="background:#fef3c7;border:1px solid #fcd34d;border-radius:8px;padding:10px;margin-bottom:8px">
+          <div style="font-size:12px;font-weight:700;color:#92400e;margin-bottom:3px">⚠️ File not viewable</div>
+          <div style="font-size:12px;color:#78350f">${isHR?'This file was uploaded before the viewer was enabled. Please remove and re-upload it.':'This document was uploaded before the viewer was enabled. Please ask HR to re-upload it.'}</div>
+        </div>`
+    }
+    ${isHR?`
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+        ${!d.dataUrl?`<label class="btn btn-sm btn-primary" style="cursor:pointer;margin:0">🔄 Re-upload<input type="file" style="display:none" onchange="reUploadDoc(${i},this)"></label>`:''}
+        <button class="btn btn-sm btn-danger" onclick="removeDoc(${i})">Remove</button>
+      </div>`:''}
+  </div>
+</div>`).join(''):'<div class="empty"><div class="ei">📂</div><p>No additional documents yet.</p></div>'}
+${isHR?`
+<div class="upload-zone" onclick="document.getElementById('docUpload').click()">
+  <div class="uz-icon">📤</div>
+  <p><span class="uz-link">Click to upload</span> a document</p>
+  <p style="font-size:11px;margin-top:4px">PDF, DOC, or image files</p>
+  <input type="file" id="docUpload" style="display:none" onchange="uploadDoc(this)">
+</div>
+<div class="fgroup" style="margin-top:12px">
+  <label>Add Text Document</label>
+  <input type="text" id="docName" placeholder="Document name">
+</div>
+<div class="fgroup">
+  <textarea id="docContent" placeholder="Document content..."></textarea>
+</div>
+<button class="btn btn-primary btn-w" onclick="addTextDoc()">Add Document</button>`:''}`;
+}
+
+function docCard(icon,title,key,iconStyle,defaultOpen=false){
+  return `
+<div class="doc-card">
+  <div class="doc-hdr" onclick="toggleDocCard(this)">
+    <div class="dicon" style="${iconStyle}">${icon}</div>
+    <div class="doc-ttl">${title}</div>
+    <div class="doc-arr${defaultOpen?' open':''}">›</div>
+  </div>
+  <div class="doc-body${defaultOpen?' open':''}">${POLICIES[key]}</div>
+</div>`;
+}
+
+function toggleDocCard(hdr){
+  const body=hdr.nextElementSibling;
+  const arr=hdr.querySelector('.doc-arr');
+  body.classList.toggle('open');
+  arr.classList.toggle('open');
+}
+
+function uploadDoc(input){
+  const file=input.files[0];
+  if(!file)return;
+  if(file.size>4*1024*1024){showToast('File too large. Max 4 MB allowed.','e');input.value='';return;}
+  const reader=new FileReader();
+  reader.onload=function(ev){
+    const docs=getDocs();
+    docs.push({name:file.name,date:today(),type:file.type,size:(file.size/1024).toFixed(0),dataUrl:ev.target.result});
+    try{saveDocs(docs);}catch(e){showToast('Storage full. Remove old documents first.','e');return;}
+    showToast('Document uploaded: '+file.name,'s');
+    renderDocuments();
+  };
+  reader.readAsDataURL(file);
+}
+
+// ==================== ROSTER ====================
+function getRosters(){return JSON.parse(localStorage.getItem('wiom_rosters')||'[]')}
+function saveRosters(d){localStorage.setItem('wiom_rosters',JSON.stringify(d))}
+
+function uploadRoster(input,uploadedBy){
+  const file=input.files[0];
+  if(!file)return;
+  if(file.size>5*1024*1024){showToast('File too large. Max 5 MB.','e');input.value='';return;}
+  const reader=new FileReader();
+  reader.onload=function(ev){
+    const rosters=getRosters();
+    rosters.unshift({id:'RST'+Date.now(),name:file.name,date:today(),uploadedBy,type:file.type,size:(file.size/1024).toFixed(0),dataUrl:ev.target.result});
+    try{saveRosters(rosters);}catch(e){showToast('Storage full.','e');return;}
+    input.value='';
+    showToast('Roster uploaded: '+file.name,'s');
+    if(S.user&&S.user.role==='manager')renderManager();
+    else renderHR();
+  };
+  reader.readAsDataURL(file);
+}
+
+function downloadRoster(i){
+  const r=getRosters()[i];
+  if(!r||!r.dataUrl)return;
+  const a=document.createElement('a');a.href=r.dataUrl;a.download=r.name;a.click();
+}
+
+function deleteRoster(i){
+  const rosters=getRosters();rosters.splice(i,1);saveRosters(rosters);
+  showToast('Roster removed.','s');
+  if(S.user&&S.user.role==='manager')renderManager();else renderHR();
+}
+
+function downloadRosterTemplate(){
+  const now=new Date();
+  // Find Monday of current week
+  const day=now.getDay();
+  const monday=new Date(now);
+  monday.setDate(now.getDate()-(day===0?6:day-1));
+  const weekStart=monday.toISOString().slice(0,10);
+
+  const headers=['Employee ID','Employee Name','Department','Manager','Location','Week Start Date','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday','Remarks'];
+
+  const sampleRows=[
+    ['ORA0001','Sample Employee 1','Customer Experience','Akash Kumar','Delhi',weekStart,'9AM-6PM','9AM-6PM','9AM-6PM','9AM-6PM','9AM-6PM','Off','Off',''],
+    ['ORA0002','Sample Employee 2','Sales','Abid Khan','Noida',weekStart,'WFH','9AM-6PM','9AM-6PM','WFH','9AM-6PM','Off','Off',''],
+    ['ORA0003','Sample Employee 3','Operations','Shivam Kumar','Mumbai',weekStart,'9AM-6PM','Off','9AM-6PM','9AM-6PM','9AM-6PM','9AM-6PM','Off','Weekly Off on Tuesday'],
+    ['ORA0004','Sample Employee 4','Technology','Piyush Gupta','Bangalore',weekStart,'WFH','WFH','9AM-6PM','9AM-6PM','WFH','Off','Off','Work From Home Mon/Tue/Fri'],
+  ];
+
+  let csv=headers.join(',')+'\n';
+  sampleRows.forEach(r=>{ csv+=r.map(v=>`"${v}"`).join(',')+'\n'; });
+
+  // Add instructions sheet as comments at bottom
+  csv+='\n';
+  csv+='"--- INSTRUCTIONS ---","","","","","","","","","","","","",""\n';
+  csv+='"Shift Codes","9AM-6PM = Standard Shift","10AM-7PM = Late Shift","WFH = Work From Home","Off = Weekly Off / Holiday","Night = Night Shift","Half = Half Day","Leave = On Leave","","","","","",""\n';
+  csv+='"Note: Do not change column headers. Fill one row per employee per week.","","","","","","","","","","","","",""\n';
+
+  const blob=new Blob([csv],{type:'text/csv'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=`Wiom_Roster_Template_${weekStart}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Roster template downloaded!','s');
+}
+
+function rosterListHTML(filterByMgr){
+  const all=getRosters();
+  const list=filterByMgr?all.filter(r=>r.uploadedBy===filterByMgr):all;
+  if(!list.length)return'<div style="font-size:13px;color:#9ca3af;padding:8px 0">No rosters uploaded yet.</div>';
+  return list.map((r,i)=>{
+    const gi=filterByMgr?all.indexOf(r):i;
+    return`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f3f4f6">
+      <div>
+        <div style="font-size:13px;font-weight:600;color:#111827">📋 ${r.name}</div>
+        <div style="font-size:11px;color:#9ca3af;margin-top:2px">Uploaded: ${fmtDate(r.date)} · ${r.size} KB · By: ${r.uploadedBy}</div>
+      </div>
+      <div style="display:flex;gap:6px;flex-shrink:0;margin-left:8px">
+        <button class="btn btn-sm" style="background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;padding:5px 10px;font-size:12px" onclick="downloadRoster(${gi})">⬇ Download</button>
+        <button class="btn btn-sm btn-danger" style="padding:5px 10px;font-size:12px" onclick="deleteRoster(${gi})">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function downloadAttendanceCSV(scope,mgrName){
+  const emps=scope==='all'?EMPLOYEES.filter(e=>e.role!=='manager'):EMPLOYEES.filter(e=>e.mgr===mgrName);
+  const att=getAtt();const leaves=getLeaves();
+  const now=new Date();const y=now.getFullYear();const m=now.getMonth();
+  const daysInMonth=new Date(y,m+1,0).getDate();
+  const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  let csv='Employee ID,Name,Department,Manager,Date,Day,Status,Check-In,Check-Out\n';
+  emps.forEach(emp=>{
+    for(let d=1;d<=daysInMonth;d++){
+      const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      if(ds>today())break;
+      const dow=new Date(y,m,d).getDay();
+      if(dow===0||dow===6)continue;
+      const key=getAttKey(emp.id,ds);
+      const rec=att[key];
+      const onLeave=leaves.some(l=>l.empId===emp.id&&l.status==='Approved'&&ds>=l.from&&ds<=l.to);
+      let status='Absent',checkIn='',checkOut='';
+      if(onLeave){status='On Leave';}
+      else if(rec&&rec.in){status=rec.out?'Present':'Present (Not Checked Out)';checkIn=rec.in;checkOut=rec.out||'';}
+      csv+=`${emp.id},"${emp.name}","${emp.dept}","${emp.mgr}",${ds},${days[dow]},${status},${checkIn},${checkOut}\n`;
+    }
+  });
+  const blob=new Blob([csv],{type:'text/csv'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  const label=scope==='all'?'All_Employees':mgrName.replace(/\s+/g,'_')+'_Team';
+  a.download=`Attendance_${label}_${today()}.csv`;
+  a.click();URL.revokeObjectURL(url);
+  showToast('Attendance report downloaded!','s');
+}
+
+function reUploadDoc(i,input){
+  const file=input.files[0];
+  if(!file)return;
+  if(file.size>4*1024*1024){showToast('File too large. Max 4 MB.','e');return;}
+  const reader=new FileReader();
+  reader.onload=function(ev){
+    const docs=getDocs();
+    docs[i]={...docs[i],dataUrl:ev.target.result,type:file.type,size:(file.size/1024).toFixed(0),date:today()};
+    try{saveDocs(docs);}catch(e){showToast('Storage full.','e');return;}
+    showToast('Document re-uploaded successfully!','s');
+    renderDocuments();
+  };
+  reader.readAsDataURL(file);
+}
+
+let _viewerBlobUrl=null;
+let _viewerDocIdx=null;
+function viewDoc(i){
+  const doc=getDocs()[i];
+  if(!doc||!doc.dataUrl){showToast('File data not available','e');return;}
+  const arr=doc.dataUrl.split(',');
+  const mime=arr[0].match(/:(.*?);/)[1];
+  const bstr=atob(arr[1]);
+  let n=bstr.length;const u8=new Uint8Array(n);
+  while(n--)u8[n]=bstr.charCodeAt(n);
+  const blob=new Blob([u8],{type:mime});
+  if(_viewerBlobUrl)URL.revokeObjectURL(_viewerBlobUrl);
+  _viewerBlobUrl=URL.createObjectURL(blob);
+  _viewerDocIdx=i;
+  document.getElementById('docViewerTitle').textContent=doc.name;
+  document.getElementById('docViewerFrame').src=_viewerBlobUrl;
+  const isHR=S.user&&S.user.role==='hr';
+  document.getElementById('docViewerDownloadBtn').style.display=isHR?'':'none';
+  document.getElementById('docViewerModal').classList.add('show');
+}
+function closeDocViewer(){
+  document.getElementById('docViewerModal').classList.remove('show');
+  document.getElementById('docViewerFrame').src='about:blank';
+  if(_viewerBlobUrl){URL.revokeObjectURL(_viewerBlobUrl);_viewerBlobUrl=null;}
+}
+function downloadDocViewer(){
+  if(_viewerDocIdx===null)return;
+  const doc=getDocs()[_viewerDocIdx];
+  if(!doc||!doc.dataUrl)return;
+  const a=document.createElement('a');
+  a.href=doc.dataUrl;a.download=doc.name;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+}
+function downloadDoc(i){
+  const doc=getDocs()[i];
+  if(!doc||!doc.dataUrl){showToast('File data not available','e');return;}
+  const a=document.createElement('a');
+  a.href=doc.dataUrl;a.download=doc.name;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+}
+
+function addTextDoc(){
+  const name=document.getElementById('docName').value.trim();
+  const content=document.getElementById('docContent').value.trim();
+  if(!name){showToast('Enter document name','e');return}
+  const docs=getDocs();docs.push({name,date:today(),content});saveDocs(docs);
+  showToast('Document added','s');renderDocuments();
+}
+
+function removeDoc(i){
+  const docs=getDocs();docs.splice(i,1);saveDocs(docs);
+  showToast('Document removed','s');renderDocuments();
+}
+
+// ==================== MANAGER PANEL ====================
+function renderManager(){
+  if(!S.user||(S.user.role!=='manager'&&S.user.role!=='hr')){
+    document.getElementById('mgrContent').innerHTML='<div class="empty"><div class="ei">🔐</div><p>Manager access only.</p></div>';return;
+  }
+  const mgrName=S.user.mgrName||(S.user.emp&&S.user.emp.name)||'';
+  const allLeaves=getLeaves();
+  const pending=allLeaves.filter(l=>l.status==='Pending'&&(S.user.role==='hr'||l.mgr===mgrName));
+  const approved=allLeaves.filter(l=>l.status==='Approved'&&(S.user.role==='hr'||l.mgr===mgrName)).slice(0,5);
+  const teamEmps=S.user.role==='hr'?EMPLOYEES:EMPLOYEES.filter(e=>e.mgr===mgrName);
+
+  document.getElementById('mgrContent').innerHTML=`
+<div class="card" style="background:#eff6ff;border:1.5px solid #bfdbfe">
+  <div style="font-size:13px;color:#1e40af">Welcome, <strong>${mgrName||'HR Admin'}</strong></div>
+  <div style="font-size:12px;color:#6b7280;margin-top:3px">${teamEmps.length} team members · ${pending.length} pending approval${pending.length!==1?'s':''}</div>
+</div>
+<p class="sec-title">Pending Approvals ${pending.length?`<span class="badge b-pending">${pending.length}</span>`:''}</p>
+${pending.length?pending.map(l=>`
+<div class="appr-card">
+  <div style="display:flex;align-items:flex-start;justify-content:space-between">
+    <div>
+      <div class="acname">${l.empName}</div>
+      <div class="acmeta">
+        ${l.type==='CL'?'Casual Leave':'Sick Leave'} · ${l.days} day${l.days>1?'s':''}<br>
+        ${fmtDate(l.from)} – ${fmtDate(l.to)}<br>
+        Applied: ${fmtDate(l.applied)}
+      </div>
+      <div class="acreason">"${l.reason}"</div>
+    </div>
+    <span class="badge b-pending">Pending</span>
+  </div>
+  <div class="appr-actions">
+    <button class="btn btn-success btn-sm" style="flex:1" onclick="approveLeave('${l.id}','${l.empName}','${mgrName}')">✓ Approve</button>
+    <button class="btn btn-danger btn-sm" style="flex:1" onclick="openRejectModal('${l.id}')">✕ Reject</button>
+  </div>
+</div>`).join(''):`<div class="empty"><div class="ei">🎉</div><p>No pending approvals.</p></div>`}
+${approved.length?`
+<p class="sec-title" style="margin-top:16px">Recently Approved</p>
+<div class="card">
+  ${approved.map(l=>`
+  <div class="leave-item">
+    <div class="licon">${l.type==='SL'?'🤒':'🏖️'}</div>
+    <div class="ldetail">
+      <div class="ltype">${l.empName} · ${l.type}</div>
+      <div class="ldates">${fmtDate(l.from)} – ${fmtDate(l.to)}</div>
+    </div>
+    <span class="badge b-approved">Approved</span>
+  </div>`).join('')}
+</div>`:''}
+<p class="sec-title" style="margin-top:16px">Team Attendance — Today</p>
+<div class="card">
+  ${teamEmps.map(e=>{
+    const att=getEmpAtt(e.id,today());
+    const onLeave=getLeaves().some(l=>l.empId===e.id&&l.status==='Approved'&&today()>=l.from&&today()<=l.to);
+    let statusLabel,statusColor,statusBg,icon;
+    if(onLeave){statusLabel='On Leave';statusColor='#a16207';statusBg='#fef9c3';icon='🏖️';}
+    else if(att&&att.out){statusLabel='Checked Out '+att.out;statusColor='#374151';statusBg='#f3f4f6';icon='🔵';}
+    else if(att&&att.in){statusLabel='In since '+att.in;statusColor='#15803d';statusBg='#dcfce7';icon='🟢';}
+    else{statusLabel='Not Marked';statusColor='#b91c1c';statusBg='#fee2e2';icon='🔴';}
+    const presentThisMonth=countPresent(e.id,new Date().getFullYear(),new Date().getMonth());
+    return `<div class="emp-row">
+      <div class="emp-av">${initials(e.name)}</div>
+      <div style="flex:1;min-width:0">
+        <div class="en">${e.name}</div>
+        <div class="em">${e.designation} · ${e.loc}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:11px;font-weight:600;padding:2px 7px;border-radius:10px;background:${statusBg};color:${statusColor}">${icon} ${statusLabel}</div>
+        <div style="font-size:10px;color:#9ca3af;margin-top:3px">${presentThisMonth} days this month</div>
+      </div>
+    </div>`;
+  }).join('')}
+</div>
+<p class="sec-title" style="margin-top:16px">Roster Management</p>
+<div class="card">
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+    <div style="font-size:13px;color:#6b7280">Upload your team's work schedule</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-sm" style="background:#fef9c3;color:#a16207;border:1.5px solid #fde047;font-weight:600" onclick="downloadRosterTemplate()">⬇ Download Format</button>
+      <label class="btn btn-sm btn-primary" style="cursor:pointer;margin:0">
+        📋 Upload Roster
+        <input type="file" style="display:none" accept=".csv,.xlsx,.xls,.pdf,.doc,.docx" onchange="uploadRoster(this,'${mgrName}')">
+      </label>
+    </div>
+  </div>
+  <div id="mgrRosterList">${rosterListHTML(mgrName)}</div>
+</div>
+<div style="display:flex;justify-content:flex-end;margin-top:10px;margin-bottom:4px">
+  <button class="btn btn-sm" style="background:#f0fdf4;color:#15803d;border:1.5px solid #bbf7d0;font-weight:600" onclick="downloadAttendanceCSV('team','${mgrName}')">⬇ Download Team Attendance (CSV)</button>
+</div>
+<p class="sec-title" style="margin-top:16px">Resignation Requests</p>
+<div id="mgrResignContainer"></div>
+<p class="sec-title" style="margin-top:16px">Team Members (${teamEmps.length})</p>
+<div class="card">
+  ${teamEmps.map(e=>`
+  <div class="emp-row">
+    <div class="emp-av">${initials(e.name)}</div>
+    <div style="flex:1">
+      <div class="en">${e.name}</div>
+      <div class="em">${e.id} · ${e.dept}</div>
+    </div>
+    <div style="text-align:right">
+      <span class="badge b-approved">Active</span>
+      <div style="font-size:10px;color:#9ca3af;margin-top:2px">${e.payroll}</div>
+    </div>
+  </div>`).join('')}
+</div>`;
+  const rc=document.getElementById('mgrResignContainer');
+  if(rc)renderMgrResignations(mgrName,rc);
+}
+
+function approveLeave(id,empName,approverName){
+  const leaves=getLeaves();
+  const idx=leaves.findIndex(l=>l.id===id);
+  if(idx<0)return;
+  leaves[idx].status='Approved';leaves[idx].approvedBy=approverName;leaves[idx].approvedOn=today();
+  saveLeaves(leaves);
+  showToast(`✅ Leave approved. Email sent to ${empName} and HR confirming approval.`,'s');
+  renderManager();
+}
+
+function openRejectModal(leaveId){
+  S.rejectingLeaveId=leaveId;
+  document.getElementById('rejectReason').value='';
+  document.getElementById('rejectModal').classList.add('show');
+}
+
+function confirmReject(){
+  const reason=document.getElementById('rejectReason').value.trim();
+  if(!reason){showToast('Please enter rejection reason','e');return}
+  const leaves=getLeaves();
+  const idx=leaves.findIndex(l=>l.id===S.rejectingLeaveId);
+  if(idx<0)return;
+  const empName=leaves[idx].empName;
+  leaves[idx].status='Rejected';leaves[idx].rejectReason=reason;
+  saveLeaves(leaves);
+  closeModal('rejectModal');
+  showToast(`Leave rejected. Notification sent to ${empName}.`,'w');
+  renderManager();
+}
+
+// ==================== HR PANEL ====================
+function renderHR(){
+  if(!S.user||S.user.role!=='hr'){
+    document.getElementById('hrContent').innerHTML='<div class="empty"><div class="ei">🔐</div><p>HR Admin access only.</p></div>';return;
+  }
+  const leaves=getLeaves();
+  const filter=S.hrFilter;
+  const depts=[...new Set(EMPLOYEES.map(e=>e.dept))];
+  const filtEmps=filter==='All'?EMPLOYEES:EMPLOYEES.filter(e=>e.dept===filter);
+  const pendingAll=leaves.filter(l=>l.status==='Pending').length;
+  const approvedAll=leaves.filter(l=>l.status==='Approved').length;
+  const resignations=getResignations();
+  const pendingResigns=resignations.filter(r=>r.status==='Manager Approved');
+
+  document.getElementById('hrContent').innerHTML=`
+<div class="hr-stats">
+  <div class="hrsc"><div class="hn">${EMPLOYEES.length}</div><div class="hl">Total Employees</div></div>
+  <div class="hrsc"><div class="hn">${pendingAll}</div><div class="hl">Pending Leaves</div></div>
+  <div class="hrsc"><div class="hn">${approvedAll}</div><div class="hl">Approved Leaves</div></div>
+  <div class="hrsc"><div class="hn">${resignations.filter(r=>r.status==='HR Approved').length}</div><div class="hl">Resignations</div></div>
+</div>
+
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+  <p class="sec-title" style="margin-bottom:0">Employee Directory</p>
+  <div style="display:flex;gap:8px">
+    <button class="btn btn-secondary btn-sm" onclick="downloadEmpTemplate()">⬇ Template</button>
+    <label class="btn btn-secondary btn-sm" style="cursor:pointer;margin:0">📤 Bulk Upload<input type="file" accept=".csv" style="display:none" onchange="bulkUploadEmployees(this)"></label>
+    <button class="btn btn-primary btn-sm" onclick="document.getElementById('addEmpModal').classList.add('show')">+ Add Employee</button>
+  </div>
+</div>
+<div class="filter-row">
+  ${['All',...depts].map(d=>`<div class="fchip${filter===d?' on':''}" onclick="S.hrFilter='${d}';renderHR()">${d}</div>`).join('')}
+</div>
+<div class="card">
+  ${filtEmps.map(e=>`
+  <div class="emp-row" style="align-items:flex-start;padding:10px 0">
+    <div class="emp-av" style="margin-top:2px">${initials(e.name)}</div>
+    <div style="flex:1;min-width:0">
+      <div class="en">${e.name}</div>
+      <div class="em">${e.id} · ${e.designation} · ${e.loc}</div>
+      <div style="font-size:11px;color:#9ca3af;margin-top:1px">${e.dept} · ${e.payroll}${getCustomEmps().find(c=>c.id===e.id)?' · <span style="color:#16a34a;font-weight:600">New</span>':''}</div>
+    </div>
+    <button class="btn btn-sm" style="background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;padding:5px 10px;font-size:12px;border-radius:7px;flex-shrink:0;margin-top:2px" onclick="openEditEmpModal('${e.id}')">✏️ Edit</button>
+  </div>`).join('')}
+</div>
+
+<p class="sec-title" style="margin-top:16px">Roster Management</p>
+<div class="card">
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+    <div style="font-size:13px;color:#6b7280">Upload organisation-wide work schedules</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-sm" style="background:#fef9c3;color:#a16207;border:1.5px solid #fde047;font-weight:600" onclick="downloadRosterTemplate()">⬇ Download Format</button>
+      <label class="btn btn-sm btn-primary" style="cursor:pointer;margin:0">
+        📋 Upload Roster
+        <input type="file" style="display:none" accept=".csv,.xlsx,.xls,.pdf,.doc,.docx" onchange="uploadRoster(this,'HR Admin')">
+      </label>
+    </div>
+  </div>
+  <div>${rosterListHTML(null)}</div>
+</div>
+<div style="display:flex;justify-content:flex-end;margin-top:10px;margin-bottom:4px">
+  <button class="btn btn-sm" style="background:#f0fdf4;color:#15803d;border:1.5px solid #bbf7d0;font-weight:600" onclick="downloadAttendanceCSV('all','')">⬇ Download All Employees Attendance (CSV)</button>
+</div>
+<p class="sec-title" style="margin-top:16px">Resignation Approvals ${pendingResigns.length?`<span class="badge b-pending">${pendingResigns.length}</span>`:''}</p>
+${resignations.length?`<div class="card">
+  ${resignations.sort((a,b)=>b.submittedOn.localeCompare(a.submittedOn)).map(r=>`
+  <div style="padding:12px 0;border-bottom:1px solid #f3f4f6">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
+      <div style="flex:1">
+        <div style="font-size:14px;font-weight:700">${r.empName}</div>
+        <div style="font-size:12px;color:#6b7280;margin-top:2px">LWD: ${fmtDate(r.lwd)} · Applied: ${fmtDate(r.submittedOn)}</div>
+        <div style="font-size:12px;color:#9ca3af;font-style:italic;margin-top:2px">"${r.reason}"</div>
+        <div style="font-size:11px;color:#6b7280;margin-top:4px">
+          Mgr: <span style="color:${r.mgrApproved?'#15803d':'#ca8a04'}">${r.mgrApproved?'✓ Approved':'⏳ Pending'}</span>
+        </div>
+      </div>
+      <span class="badge ${r.status==='HR Approved'?'b-approved':r.status==='HR Rejected'?'b-rejected':r.status==='Manager Approved'?'b-pending':'b-gray'}">${r.status}</span>
+    </div>
+    ${r.status==='Manager Approved'?`
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <button class="btn btn-success btn-sm" style="flex:1" onclick="hrApproveResignation('${r.id}')">✓ Approve</button>
+      <button class="btn btn-danger btn-sm" style="flex:1" onclick="hrRejectResignation('${r.id}')">✕ Reject</button>
+    </div>`:''}
+  </div>`).join('')}
+</div>`:`<div class="empty"><div class="ei">📭</div><p>No resignation requests.</p></div>`}
+
+<p class="sec-title" style="margin-top:16px">All Leave Applications</p>
+<div class="card">
+  ${leaves.length?leaves.slice().sort((a,b)=>b.applied.localeCompare(a.applied)).slice(0,20).map(l=>`
+  <div class="leave-item">
+    <div class="licon">${l.type==='SL'?'🤒':'🏖️'}</div>
+    <div class="ldetail">
+      <div class="ltype">${l.empName} · ${l.type}</div>
+      <div class="ldates">${fmtDate(l.from)} – ${fmtDate(l.to)} · ${l.days}d</div>
+      <div style="font-size:11px;color:#9ca3af">Mgr: ${l.mgr}</div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+      <span class="badge ${l.status==='Approved'?'b-approved':l.status==='Rejected'?'b-rejected':'b-pending'}">${l.status}</span>
+      ${l.status==='Pending'?`<button class="btn btn-success btn-sm" onclick="approveLeave('${l.id}','${l.empName}','HR Admin')">Approve</button>`:''}
+    </div>
+  </div>`).join(''):`<div class="empty" style="padding:20px"><p>No leave applications.</p></div>`}
+</div>`;
+}
+
+// ==================== PROFILE ====================
+function renderProfile(){
+  const user=S.user;
+  const emp=user&&user.emp;
+  const isMgr=user&&user.role==='manager';
+  const isHR=user&&user.role==='hr';
+  const isEmp=user&&user.role==='employee';
+
+  document.getElementById('profContent').innerHTML=`
+${emp?`
+<div class="card" style="text-align:center;padding:20px">
+  <div class="prof-av">${initials(emp.name)}</div>
+  <div style="font-size:18px;font-weight:700">${emp.name}</div>
+  <div style="font-size:13px;color:#6b7280;margin-top:3px">${emp.designation}</div>
+  <span class="badge b-blue" style="margin-top:6px">${emp.id}</span>
+</div>
+<div class="card">
+  <div class="card-hdr"><h3>Employee Details</h3></div>
+  ${[
+    ['Department',emp.dept],['Location',emp.loc],['Date of Joining',fmtDate(emp.doj)],
+    ['Payroll',emp.payroll],['Reporting Manager',emp.mgr],
+    ['Email',emp.email||'—'],['Mobile',emp.mobile],['Status','Active · Offroll'],
+  ].map(([l,v])=>`<div class="prof-row"><span class="pl">${l}</span><span class="pv">${v}</span></div>`).join('')}
+</div>`:''}
+${isMgr?`<div class="card" style="background:#eff6ff;border:1.5px solid #bfdbfe;text-align:center;padding:16px">
+  <div style="font-size:16px;font-weight:700;color:#1e40af">${user.mgrName}</div>
+  <div style="font-size:13px;color:#3b82f6;margin-top:3px">Manager Account</div>
+  <div style="font-size:12px;color:#6b7280;margin-top:4px">${EMPLOYEES.filter(e=>e.mgr===user.mgrName).length} reportees</div>
+</div>`:''}
+${isHR?`<div class="card" style="background:#eff6ff;border:1.5px solid #bfdbfe;text-align:center;padding:16px">
+  <div style="font-size:16px;font-weight:700;color:#1e40af">HR Admin</div>
+  <div style="font-size:13px;color:#3b82f6;margin-top:3px">Full Access Account</div>
+</div>`:''}
+<div class="access-card">
+  <h3>Quick Access</h3>
+    <button class="access-btn" onclick="showPage('documents')">
+    <span class="ab-icon">📋</span>
+    <div class="ab-text"><div class="ab-title">Company Policies</div><div class="ab-sub">Leave, Disciplinary, Code of Conduct</div></div>
+    <span class="ab-arr">›</span>
+  </button>
+</div>
+${isEmp?`
+<div class="card" style="border:1.5px solid #fecaca">
+  <div class="card-hdr"><h3 style="color:#b91c1c">Resignation</h3></div>
+  ${(()=>{
+    const notifs=getNotifs(emp.id).filter(n=>!n.read);
+    const notifHtml=notifs.length?`<div style="background:#fef9c3;border:1px solid #fde047;border-radius:8px;padding:10px;margin-bottom:12px">
+      <div style="font-weight:700;font-size:12px;color:#854d0e;margin-bottom:4px">🔔 Notification${notifs.length>1?'s':''}</div>
+      ${notifs.map(n=>`<div style="font-size:12px;color:#713f12;margin-bottom:3px">• ${n.msg}</div>`).join('')}
+    </div>`:'';
+    if(notifs.length)markNotifsRead(emp.id);
+    const myResign=getResignations().filter(r=>r.empId===emp.id&&r.status!=='Withdrawn').sort((a,b)=>b.submittedOn.localeCompare(a.submittedOn))[0];
+    if(!myResign)return notifHtml+`<p style="font-size:13px;color:#6b7280;margin-bottom:12px">If you wish to resign, you can submit your resignation here. It will be reviewed by your manager and then HR.</p>
+    <button class="btn btn-danger btn-w" onclick="openResignModal()">Submit Resignation</button>`;
+    if(myResign.status==='Manager Rejected'||myResign.status==='HR Rejected'){
+      const by=myResign.status==='Manager Rejected'?'your manager':'HR Admin';
+      return notifHtml+`
+      <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:12px;margin-bottom:12px">
+        <div style="font-size:13px;font-weight:700;color:#b91c1c;margin-bottom:4px">✕ Resignation Rejected</div>
+        <div style="font-size:12px;color:#6b7280">Your resignation was rejected by ${by}.</div>
+        <div style="font-size:12px;color:#6b7280;margin-top:4px">Applied: ${fmtDate(myResign.submittedOn)} · LWD Requested: ${fmtDate(myResign.lwd)}</div>
+        <div style="font-size:12px;font-style:italic;color:#9ca3af;margin-top:4px">"${myResign.reason}"</div>
+      </div>
+      <p style="font-size:13px;color:#6b7280;margin-bottom:10px">You can re-apply if you still wish to resign.</p>
+      <button class="btn btn-danger btn-w" onclick="clearRejectedResignation('${myResign.id}')">↩ Re-apply Resignation</button>`;
+    }
+    const statusColor=myResign.status==='HR Approved'?'#15803d':'#a16207';
+    return notifHtml+`<div style="font-size:13px;color:#6b7280;margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+        <span>Status</span><span style="font-weight:700;color:${statusColor}">${myResign.status}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+        <span>Last Working Day</span><span style="font-weight:600">${fmtDate(myResign.lwd)}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+        <span>Submitted On</span><span>${fmtDate(myResign.submittedOn)}</span>
+      </div>
+      <div style="margin-top:8px;padding:8px;background:#f9fafb;border-radius:8px;font-style:italic">"${myResign.reason}"</div>
+      <div style="margin-top:8px;display:flex;gap:8px;font-size:11px">
+        <span style="color:${myResign.mgrApproved?'#15803d':'#9ca3af'}">Manager: ${myResign.mgrApproved?'✓ Approved':'⏳ Pending'}</span>
+        <span style="color:${myResign.status==='HR Approved'?'#15803d':'#9ca3af'}">HR: ${myResign.status==='HR Approved'?'✓ Approved':'⏳ Pending'}</span>
+      </div>
+    </div>`;
+  })()}
+</div>`:''}
+<button class="btn btn-danger btn-w" onclick="logout()" style="margin-bottom:8px">Logout</button>
+<p style="text-align:center;font-size:11px;color:#9ca3af;margin-top:8px">Wiom DigiDesk v1.0</p>`;
+}
+
+// ==================== MODAL ===========================
+function closeModal(id){document.getElementById(id).classList.remove('show')}
+
+// ==================== ADD EMPLOYEE ====================
+function openEditEmpModal(empId){
+  const e=EMPLOYEES.find(x=>x.id===empId);
+  if(!e)return;
+  document.getElementById('edit_emp_id').value=e.id;
+  document.getElementById('edit_emp_id_display').textContent=e.id;
+  document.getElementById('edit_name').value=e.name||'';
+  document.getElementById('edit_mobile').value=e.mobile||'';
+  document.getElementById('edit_email').value=e.email||'';
+  document.getElementById('edit_doj').value=e.doj||'';
+  document.getElementById('edit_desig').value=e.designation||'';
+  document.getElementById('edit_dept').value=e.dept||'Customer Experience';
+  document.getElementById('edit_loc').value=e.loc||'Delhi';
+  document.getElementById('edit_payroll').value=e.payroll||'Wiom';
+  document.getElementById('edit_mgr').value=e.mgr||'';
+  document.getElementById('edit_status').value=e.status||'Active';
+  document.getElementById('edit_role').value=e.role||'employee';
+  document.getElementById('editEmpModal').classList.add('show');
+}
+
+function saveEditEmp(){
+  const id=document.getElementById('edit_emp_id').value;
+  const name=document.getElementById('edit_name').value.trim();
+  const mobile=document.getElementById('edit_mobile').value.trim();
+  const email=document.getElementById('edit_email').value.trim();
+  const doj=document.getElementById('edit_doj').value;
+  const designation=document.getElementById('edit_desig').value.trim();
+  const dept=document.getElementById('edit_dept').value;
+  const loc=document.getElementById('edit_loc').value;
+  const payroll=document.getElementById('edit_payroll').value;
+  const mgr=document.getElementById('edit_mgr').value;
+  const status=document.getElementById('edit_status').value;
+  const role=document.getElementById('edit_role').value||'employee';
+  if(!name||!mobile||!doj||!designation||!dept||!loc||!payroll||!mgr){
+    showToast('Please fill all required fields (*)','e');return;
+  }
+  if(mobile.length!==10||isNaN(mobile)){showToast('Enter valid 10-digit mobile number','e');return;}
+  const updated={id,name,mobile,email,doj,designation,dept,loc,payroll,mgr,status,role};
+  const idx=EMPLOYEES.findIndex(e=>e.id===id);
+  if(idx>=0)EMPLOYEES[idx]=updated;
+  const custom=getCustomEmps();
+  const ci=custom.findIndex(e=>e.id===id);
+  if(ci>=0)custom[ci]=updated;
+  else custom.push(updated);
+  saveCustomEmps(custom);
+  closeModal('editEmpModal');
+  showToast('Employee profile updated successfully!','s');
+  renderHR();
+}
+
+function downloadEmpTemplate(){
+  const header='Employee ID,Full Name,Mobile,Email,Date of Joining (YYYY-MM-DD),Designation,Department,Location,Payroll,Reporting Manager,Role (employee/manager/hr)';
+  const sample='ORA0099,John Doe,9876543210,john@wiom.in,2025-01-15,Associate,Customer Experience,Gurugram,Betterplace,Akash Kumar,employee';
+  const csv=header+'\n'+sample;
+  const blob=new Blob([csv],{type:'text/csv'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Employee_Upload_Template.csv';a.click();
+  showToast('Template downloaded!','s');
+}
+
+function bulkUploadEmployees(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    const lines=e.target.result.split('\n').map(l=>l.trim()).filter(l=>l);
+    if(lines.length<2){showToast('CSV is empty or has no data rows','e');input.value='';return;}
+    const custom=getCustomEmps();
+    let added=0,updated=0,skipped=0,errors=[];
+    for(let i=1;i<lines.length;i++){
+      const cols=lines[i].split(',').map(c=>c.trim());
+      if(cols.length<6){skipped++;continue;}
+      const [id,name,mobile,email,doj,designation,dept,loc,payroll,mgr,role]=cols;
+      if(!id||!name||!mobile){errors.push('Row '+(i+1)+': ID, Name and Mobile are required');skipped++;continue;}
+      if(mobile.length!==10||isNaN(mobile)){errors.push('Row '+(i+1)+': Invalid mobile – '+mobile);skipped++;continue;}
+      const emp={id:id.toUpperCase(),name,mobile,email:email||'',doj:doj||'',designation:designation||'Associate',dept:dept||'Customer Experience',loc:loc||'Gurugram',payroll:payroll||'Betterplace',mgr:mgr||'',status:'Active',role:['manager','hr'].includes((role||'').toLowerCase())?(role||'').toLowerCase():'employee'};
+      const gi=EMPLOYEES.findIndex(x=>x.id===emp.id);
+      if(gi>=0){EMPLOYEES[gi]=emp;updated++;}else{EMPLOYEES.push(emp);added++;}
+      const ci=custom.findIndex(x=>x.id===emp.id);
+      if(ci>=0)custom[ci]=emp;else custom.push(emp);
+    }
+    saveCustomEmps(custom);
+    input.value='';
+    renderHR();
+    let msg=`Bulk upload done: ${added} added, ${updated} updated, ${skipped} skipped.`;
+    if(errors.length)msg+='\nErrors:\n'+errors.slice(0,5).join('\n');
+    showToast(msg.split('\n')[0],'s');
+    if(errors.length)setTimeout(()=>showToast('Errors: '+errors.slice(0,3).join(' | '),'e'),1500);
+  };
+  reader.readAsText(file);
+}
+
+function addEmployee(){
+  const id=document.getElementById('ne_id').value.trim().toUpperCase();
+  const name=document.getElementById('ne_name').value.trim();
+  const mobile=document.getElementById('ne_mobile').value.trim();
+  const email=document.getElementById('ne_email').value.trim();
+  const doj=document.getElementById('ne_doj').value;
+  const designation=document.getElementById('ne_desig').value.trim();
+  const dept=document.getElementById('ne_dept').value;
+  const loc=document.getElementById('ne_loc').value;
+  const payroll=document.getElementById('ne_payroll').value;
+  const mgr=document.getElementById('ne_mgr').value;
+  if(!id||!name||!mobile||!doj||!designation||!dept||!loc||!payroll||!mgr){
+    showToast('Please fill all required fields (*)','e');return;
+  }
+  if(EMPLOYEES.find(e=>e.id===id)){showToast('Employee ID already exists','e');return;}
+  if(mobile.length!==10||isNaN(mobile)){showToast('Enter valid 10-digit mobile number','e');return;}
+  const role=document.getElementById('ne_role').value||'employee';
+  const emp={id,name,mobile,email,doj,designation,dept,loc,payroll,mgr,status:'Active',role};
+  EMPLOYEES.push(emp);
+  const custom=getCustomEmps();custom.push(emp);saveCustomEmps(custom);
+  closeModal('addEmpModal');
+  showToast(`Employee ${name} added successfully!`,'s');
+  renderHR();
+}
+
+// ==================== RESIGNATION ====================
+function openResignModal(){
+  const minDate=new Date();minDate.setDate(minDate.getDate()+30);
+  document.getElementById('res_lwd').value=minDate.toISOString().slice(0,10);
+  document.getElementById('res_lwd').min=minDate.toISOString().slice(0,10);
+  document.getElementById('res_reason').value='';
+  document.getElementById('resignModal').classList.add('show');
+}
+
+function submitResignation(){
+  if(!S.user||!S.user.emp){return;}
+  const emp=S.user.emp;
+  const lwd=document.getElementById('res_lwd').value;
+  const reason=document.getElementById('res_reason').value.trim();
+  if(!lwd){showToast('Please select last working day','e');return;}
+  if(!reason){showToast('Please enter reason for resignation','e');return;}
+  const existing=getResignations().find(r=>r.empId===emp.id&&(r.status==='Pending Manager'||r.status==='Manager Approved'));
+  if(existing){showToast('You already have a resignation in progress','w');closeModal('resignModal');return;}
+  const resignations=getResignations();
+  resignations.push({
+    id:'RES'+Date.now(),empId:emp.id,empName:emp.name,dept:emp.dept,mgr:emp.mgr,
+    submittedOn:today(),lwd,reason,status:'Pending Manager',mgrApproved:false,
+    mgrApprovedOn:null,hrApprovedOn:null,hrComment:''
+  });
+  saveResignations(resignations);
+  closeModal('resignModal');
+  showToast('Resignation submitted. Pending your manager\'s review.','s');
+  renderProfile();
+}
+
+let _mgrApproveId=null;
+function openMgrApproveModal(id){
+  const r=getResignations().find(x=>x.id===id);
+  if(!r)return;
+  _mgrApproveId=id;
+  document.getElementById('mgrResignDetail').innerHTML=`
+    <div style="font-weight:700;font-size:14px;margin-bottom:6px">${r.empName}</div>
+    <div>Department: ${r.dept}</div>
+    <div style="margin-top:4px">Applied: ${fmtDate(r.submittedOn)}</div>
+    <div style="margin-top:4px;font-style:italic;color:#6b7280">"${r.reason}"</div>`;
+  const lwdInput=document.getElementById('mgr_lwd_edit');
+  lwdInput.value=r.lwd;
+  lwdInput.min=r.lwd;
+  document.getElementById('mgrResignModal').classList.add('show');
+}
+
+function confirmMgrApprove(){
+  if(!_mgrApproveId)return;
+  const newLwd=document.getElementById('mgr_lwd_edit').value;
+  if(!newLwd){showToast('Please set a Last Working Day','e');return;}
+  const resignations=getResignations();
+  const idx=resignations.findIndex(r=>r.id===_mgrApproveId);
+  if(idx<0)return;
+  resignations[idx].status='Manager Approved';
+  resignations[idx].mgrApproved=true;
+  resignations[idx].mgrApprovedOn=today();
+  resignations[idx].lwd=newLwd;
+  saveResignations(resignations);
+  _mgrApproveId=null;
+  closeModal('mgrResignModal');
+  showToast('Resignation approved and forwarded to HR Admin.','s');
+  renderManager();
+}
+
+function clearRejectedResignation(id){
+  const resignations=getResignations();
+  const idx=resignations.findIndex(r=>r.id===id);
+  if(idx<0)return;
+  resignations[idx].status='Withdrawn';
+  saveResignations(resignations);
+  renderProfile();
+  openResignModal();
+}
+
+function mgrRejectResignation(id){
+  const resignations=getResignations();
+  const idx=resignations.findIndex(r=>r.id===id);
+  if(idx<0)return;
+  resignations[idx].status='Manager Rejected';
+  resignations[idx].mgrRejectedOn=today();
+  saveResignations(resignations);
+  addNotif(resignations[idx].empId,'Your resignation (submitted on '+fmtDate(resignations[idx].submittedOn)+') was rejected by your manager. You may re-apply if you wish.');
+  showToast('Resignation rejected. Employee has been notified.','w');
+  renderManager();
+}
+
+function hrApproveResignation(id){
+  const resignations=getResignations();
+  const idx=resignations.findIndex(r=>r.id===id);
+  if(idx<0)return;
+  resignations[idx].status='HR Approved';
+  resignations[idx].hrApprovedOn=today();
+  saveResignations(resignations);
+  const r=resignations[idx];
+  addNotif(r.empId,'Your resignation has been approved by HR Admin. Your Last Working Day is '+fmtDate(r.lwd)+'.');
+  const mgrEmp=EMPLOYEES.find(e=>e.name===r.mgr);
+  if(mgrEmp)addNotif(mgrEmp.id,'Resignation of '+r.empName+' has been approved by HR Admin. Last Working Day: '+fmtDate(r.lwd)+'.');
+  showToast('Resignation approved. LWD: '+fmtDate(r.lwd)+'. Employee & manager notified.','s');
+  renderHR();
+}
+
+function hrRejectResignation(id){
+  const resignations=getResignations();
+  const idx=resignations.findIndex(r=>r.id===id);
+  if(idx<0)return;
+  resignations[idx].status='HR Rejected';
+  resignations[idx].hrRejectedOn=today();
+  saveResignations(resignations);
+  const r=resignations[idx];
+  addNotif(r.empId,'Your resignation was rejected by HR Admin. You may re-apply if you wish to proceed.');
+  const mgrEmp=EMPLOYEES.find(e=>e.name===r.mgr);
+  if(mgrEmp)addNotif(mgrEmp.id,'Resignation of '+r.empName+' was rejected by HR Admin. The employee may re-apply.');
+  showToast('Resignation rejected. Employee and manager have been notified.','w');
+  renderHR();
+}
+
+// ==================== TOAST ====================
+function showToast(msg,type=''){
+  const wrap=document.getElementById('toastWrap');
+  const t=document.createElement('div');
+  t.className='toast'+(type?' t'+type:'');
+  t.textContent=msg;
+  wrap.appendChild(t);
+  requestAnimationFrame(()=>{requestAnimationFrame(()=>t.classList.add('show'))});
+  setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),400)},3500);
+}
+
+// ==================== INIT ====================
+(function init(){
+  const custom=getCustomEmps();
+  custom.forEach(e=>{
+    const idx=EMPLOYEES.findIndex(x=>x.id===e.id);
+    if(idx>=0)EMPLOYEES[idx]=e; // HR edit overrides hardcoded record
+    else EMPLOYEES.push(e);     // new employee added by HR
+  });
+})();
+
+window.addEventListener('click',e=>{
+  if(e.target.classList.contains('modal-bg'))e.target.classList.remove('show');
+});
+</script>
+</body>
+</html>
