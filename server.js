@@ -40,6 +40,6 @@ app.post('/api', (req, res) => {
 
 // Serve portal
 app.use(express.static(path.join(__dirname, 'public')));
-app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
+app.use((req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
 app.listen(PORT, () => console.log(`Wiom DigiDesk running on port ${PORT}`));
