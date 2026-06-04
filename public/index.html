@@ -951,7 +951,7 @@ function renderEmpDashboard(){
       <div style="font-size:15px;font-weight:700">${todayAtt&&todayAtt.in?(todayAtt.out?'Checked Out':'Checked In'):'Not Marked'}</div>
       ${todayAtt&&todayAtt.in?`<div style="font-size:12px;color:#6b7280">In: <strong>${todayAtt.in}</strong>${todayAtt.out?' &nbsp;·&nbsp; Out: <strong>'+todayAtt.out+'</strong>':''}</div>`:'<div style="font-size:12px;color:#9ca3af">Mark your attendance for today</div>'}
     </div>
-    ${todayAtt&&todayAtt.out?'<button class="btn btn-sm" style="background:#e5e7eb;color:#6b7280;cursor:default" disabled>Done ✓</button>':todayAtt&&todayAtt.in?'<button class="btn btn-sm btn-primary" onclick="checkOut();renderDashboard()">Check Out</button>':'<button class="btn btn-sm btn-primary" onclick="checkIn();renderDashboard()">Check In</button>'}
+    ${todayAtt&&todayAtt.in?'<button class="btn btn-sm" style="background:#e5e7eb;color:#6b7280;cursor:default" disabled>Checked In ✓</button>':'<button class="btn btn-sm btn-primary" onclick="checkIn();renderDashboard()">Check In</button>'}
   </div>
 </div>
 <div class="card">
