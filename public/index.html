@@ -1420,9 +1420,6 @@ function renderAttendance(){
     <button class="att-btn att-btn-in" onclick="checkIn()" ${att&&att.in?'disabled':''}>
       ${att&&att.in?'✅ Checked In':'Check In'}
     </button>
-    <button class="att-btn" style="background:#fff;color:#1d4ed8;border:1.5px solid #1d4ed8" onclick="checkOut()" ${(!att||!att.in||att.out)?'disabled':''}>
-      ${att&&att.out?'✅ Checked Out':'Check Out'}
-    </button>
   </div>
 </div>
 <div class="stats-row">
