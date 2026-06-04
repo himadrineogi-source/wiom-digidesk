@@ -946,7 +946,7 @@ function renderEmpDashboard(){
 <div class="card">
   <div class="card-hdr"><h3>Today</h3><span style="font-size:12px;color:#6b7280">${new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'short'})}</span></div>
   <div style="display:flex;align-items:center;gap:12px">
-    <div style="font-size:32px">${todayAtt&&todayAtt.in?'🟢':'🔴'}</div>
+    <div style="width:10px;height:10px;border-radius:50%;background:${todayAtt&&todayAtt.in?'#16a34a':'#dc2626'};flex-shrink:0"></div>
     <div style="flex:1">
       <div style="font-size:15px;font-weight:700">${todayAtt&&todayAtt.in?'Checked In':'Not Marked'}</div>
       ${todayAtt&&todayAtt.in?`<div style="font-size:12px;color:#6b7280">In: <strong>${todayAtt.in}</strong></div>`:'<div style="font-size:12px;color:#9ca3af">Mark your attendance for today</div>'}
