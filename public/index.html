@@ -951,7 +951,7 @@ function renderEmpDashboard(){
       <div style="font-size:15px;font-weight:700">${todayAtt&&todayAtt.in?(todayAtt.out?'Checked Out':'Checked In'):'Not Marked'}</div>
       ${todayAtt&&todayAtt.in?`<div style="font-size:12px;color:#6b7280">In: <strong>${todayAtt.in}</strong>${todayAtt.out?' &nbsp;·&nbsp; Out: <strong>'+todayAtt.out+'</strong>':''}</div>`:'<div style="font-size:12px;color:#9ca3af">Mark your attendance for today</div>'}
     </div>
-    <button class="btn btn-sm btn-primary" onclick="showPage('attendance')">Mark →</button>
+    ${todayAtt&&todayAtt.out?'<button class="btn btn-sm" style="background:#e5e7eb;color:#6b7280;cursor:default" disabled>Done ✓</button>':todayAtt&&todayAtt.in?'<button class="btn btn-sm btn-primary" onclick="checkOut();renderDashboard()">Check Out</button>':'<button class="btn btn-sm btn-primary" onclick="checkIn();renderDashboard()">Check In</button>'}
   </div>
 </div>
 <div class="card">
@@ -1420,6 +1420,9 @@ function renderAttendance(){
     <button class="att-btn att-btn-in" onclick="checkIn()" ${att&&att.in?'disabled':''}>
       ${att&&att.in?'✅ Checked In':'Check In'}
     </button>
+    <button class="att-btn" style="background:#fff;color:#1d4ed8;border:1.5px solid #1d4ed8" onclick="checkOut()" ${(!att||!att.in||att.out)?'disabled':''}>
+      ${att&&att.out?'✅ Checked Out':'Check Out'}
+    </button>
   </div>
 </div>
 <div class="stats-row">
@@ -1479,9 +1482,22 @@ function buildCalendar(empId,y,m){
 function checkIn(){
   const emp=S.user&&S.user.emp;
   if(!emp){showToast('Please log in as employee','e');return}
+  const att=getEmpAtt(emp.id,today());
+  if(att&&att.in){showToast('Already checked in','e');return;}
   const now=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true});
   setEmpAtt(emp.id,today(),{in:now});
   showToast('Checked in at '+now,'s');
+  renderAttendance();
+}
+function checkOut(){
+  const emp=S.user&&S.user.emp;
+  if(!emp){showToast('Please log in as employee','e');return}
+  const att=getEmpAtt(emp.id,today());
+  if(!att||!att.in){showToast('Please check in first','e');return;}
+  if(att.out){showToast('Already checked out','e');return;}
+  const now=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true});
+  setEmpAtt(emp.id,today(),{in:att.in,out:now});
+  showToast('Checked out at '+now,'s');
   renderAttendance();
 }
 
