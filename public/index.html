@@ -1407,20 +1407,15 @@ function renderAttendance(){
   const daysInMonth=new Date(y,m+1,0).getDate();
 
   document.getElementById('attContent').innerHTML=`
-<div class="att-today">
-  <h3>Mark Today's Attendance</h3>
-  <div style="font-size:13px;opacity:.85;margin-bottom:12px">${new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</div>
-  <div class="time-chips">
-    <div class="time-chip">
-      <div class="tc-val">${att&&att.in?att.in:'--:--'}</div>
-      <div class="tc-lbl">Check In</div>
-    </div>
+<div style="display:flex;align-items:center;justify-content:space-between;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:10px 14px;margin-bottom:12px">
+  <div>
+    <div style="font-size:13px;font-weight:700;color:#065f46">Today's Attendance</div>
+    <div style="font-size:11px;color:#6b7280;margin-top:1px">${new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'short'})}</div>
+    ${att&&att.in?`<div style="font-size:11px;color:#059669;margin-top:2px;font-weight:600">In: ${att.in}</div>`:''}
   </div>
-  <div class="att-btns" style="margin-top:12px">
-    <button class="att-btn att-btn-in" onclick="checkIn()" ${att&&att.in?'disabled':''}>
-      ${att&&att.in?'✅ Checked In':'Check In'}
-    </button>
-  </div>
+  <button class="btn btn-sm" style="background:${att&&att.in?'#e5e7eb':'#059669'};color:${att&&att.in?'#6b7280':'#fff'};min-width:90px" onclick="checkIn()" ${att&&att.in?'disabled':''}>
+    ${att&&att.in?'Checked In ✓':'Check In'}
+  </button>
 </div>
 <div class="stats-row">
   <div class="scard"><div class="sv sv-green">${presentCount}</div><div class="sl">Present</div></div>
