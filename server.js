@@ -9,7 +9,11 @@ const PORT = process.env.PORT || 8306;
 const GH_TOKEN = process.env.GH_TOKEN;
 const GH_REPO = 'Wiom-using-AI/wiom-digidesk';
 const GH_FILE = 'data.json';
-const SLACK_WEBHOOK = process.env.SLACK_WEBHOOK; // e.g. https://hooks.slack.com/services/...
+const SLACK_TOKEN = process.env.SLACK_TOKEN;
+// Manager name → Slack User ID mapping (add more managers here via SLACK_MGR_IDS env var)
+// Format: '{"Pramod":"U07GW5ML467","Rohit":"UXXXXXXX"}'
+let SLACK_MGR_IDS = {};
+try { SLACK_MGR_IDS = JSON.parse(process.env.SLACK_MGR_IDS || '{"Pramod":"U07GW5ML467"}'); } catch(e) {}
 
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
@@ -69,19 +73,24 @@ async function writeData(data) {
 }
 
 // ==================== SLACK ====================
-function slackPost(payload) {
-  if (!SLACK_WEBHOOK) return;
-  const webhookPath = SLACK_WEBHOOK.replace('https://hooks.slack.com', '');
-  const data = JSON.stringify(payload);
-  const req = https.request({
-    hostname: 'hooks.slack.com',
-    path: webhookPath,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(data) }
-  }, () => {});
-  req.on('error', e => console.error('Slack error', e));
-  req.write(data);
-  req.end();
+function slackDM(userId, text) {
+  if (!SLACK_TOKEN || !userId) return Promise.resolve();
+  return new Promise((resolve) => {
+    const data = JSON.stringify({ channel: userId, text });
+    const req = https.request({
+      hostname: 'slack.com',
+      path: '/api/chat.postMessage',
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${SLACK_TOKEN}`,
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(data)
+      }
+    }, res => { let r=''; res.on('data',c=>r+=c); res.on('end',()=>{ console.log('Slack DM:', r); resolve(); }); });
+    req.on('error', e => { console.error('Slack error', e); resolve(); });
+    req.write(data);
+    req.end();
+  });
 }
 
 // ==================== CRON (daily 12:30 PM IST = 07:00 UTC) ====================
@@ -99,14 +108,15 @@ function startCron() {
 }
 
 async function sendDailyAttendance() {
-  if (!SLACK_WEBHOOK) return;
+  if (!SLACK_TOKEN) return;
   try {
     const data = await readData();
     const att = data.wiom_att ? JSON.parse(data.wiom_att) : {};
     const emps = data.wiom_custom_emps ? JSON.parse(data.wiom_custom_emps) : [];
-    const today = new Date().toISOString().split('T')[0];
+    const todayStr = new Date().toLocaleDateString('en-IN', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+    const todayKey = new Date().toISOString().split('T')[0];
 
-    // Group employees by manager
+    // Group by manager
     const byMgr = {};
     emps.forEach(e => {
       if (!e.mgr) return;
@@ -114,38 +124,34 @@ async function sendDailyAttendance() {
       byMgr[e.mgr].push(e);
     });
 
-    // Send one message per manager (all in one webhook message)
-    const allLines = [];
-    Object.entries(byMgr).forEach(([mgr, team]) => {
-      allLines.push(`*Manager: ${mgr}*`);
+    // DM each manager individually
+    for (const [mgrName, team] of Object.entries(byMgr)) {
+      const slackId = SLACK_MGR_IDS[mgrName];
+      if (!slackId) { console.log(`No Slack ID for manager: ${mgrName}`); continue; }
+
+      const present = [], absent = [];
       team.forEach(e => {
-        const key = `${e.id}_${today}`;
-        const rec = att[key];
-        const status = rec && rec.in ? `✅ Checked In at ${rec.in}` : `❌ Not Marked`;
-        allLines.push(`  • ${e.name} (${e.id}) — ${status}`);
+        const rec = att[`${e.id}_${todayKey}`];
+        if (rec && rec.in) present.push(`✅ ${e.name} — In: ${rec.in}`);
+        else absent.push(`❌ ${e.name} — Not Marked`);
       });
-      allLines.push('');
-    });
 
-    if (allLines.length === 0) {
-      slackPost({ text: `📋 *Daily Attendance Report — ${today}*\nNo employees found.` });
-      return;
+      const msg = `📋 *Daily Attendance Report — ${todayStr}*\n*Your Team (${team.length} employees)*\n\n${[...present,...absent].join('\n')}\n\n*Present: ${present.length} | Absent: ${absent.length}*`;
+      await slackDM(slackId, msg);
     }
-
-    slackPost({
-      text: `📋 *Daily Attendance Report — ${today}*\n\n${allLines.join('\n')}`
-    });
-    console.log('Daily attendance sent to Slack');
+    console.log('Daily attendance DMs sent');
   } catch (e) { console.error('Cron error', e); }
 }
 
 // ==================== LEAVE NOTIFICATION ====================
 app.post('/api/notify-leave', async (req, res) => {
-  if (!SLACK_WEBHOOK) return res.json({ ok: true });
+  if (!SLACK_TOKEN) return res.json({ ok: true });
   const { empName, empId, manager, leaveType, from, to, days, reason } = req.body;
-  slackPost({
-    text: `🏖️ *New Leave Request*\n*Employee:* ${empName} (${empId})\n*Manager:* ${manager}\n*Type:* ${leaveType}\n*Dates:* ${from} to ${to} (${days} day${days>1?'s':''})\n*Reason:* ${reason||'—'}\n\n👉 Approve/Reject here: https://wiom-digidesk-production.up.railway.app`
-  });
+  const slackId = SLACK_MGR_IDS[manager];
+  if (slackId) {
+    const msg = `🏖️ *New Leave Request*\n*Employee:* ${empName} (${empId})\n*Type:* ${leaveType}\n*Dates:* ${from} to ${to} (${days} day${days>1?'s':''})\n*Reason:* ${reason||'—'}\n\n👉 *Approve/Reject:* https://wiom-digidesk-production.up.railway.app`;
+    await slackDM(slackId, msg);
+  }
   res.json({ ok: true });
 });
 
