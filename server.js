@@ -132,11 +132,11 @@ async function sendDailyAttendance() {
       const present = [], absent = [];
       team.forEach(e => {
         const rec = att[`${e.id}_${todayKey}`];
-        if (rec && rec.in) present.push(`✅ ${e.name} — In: ${rec.in}`);
-        else absent.push(`❌ ${e.name} — Not Marked`);
+        if (rec && rec.in) present.push(`:white_check_mark: ${e.name} — In: ${rec.in}`);
+        else absent.push(`:x: ${e.name} — Not Marked`);
       });
 
-      const msg = `📋 *Daily Attendance Report — ${todayStr}*\n*Your Team (${team.length} employees)*\n\n${[...present,...absent].join('\n')}\n\n*Present: ${present.length} | Absent: ${absent.length}*`;
+      const msg = `:clipboard: *Daily Attendance Report — ${todayStr}*\n*Your Team (${team.length} employees)*\n\n${[...present,...absent].join('\n')}\n\n*Present: ${present.length} | Absent: ${absent.length}*`;
       await slackDM(slackId, msg);
     }
     console.log('Daily attendance DMs sent');
@@ -149,7 +149,7 @@ app.post('/api/notify-leave', async (req, res) => {
   const { empName, empId, manager, leaveType, from, to, days, reason } = req.body;
   const slackId = SLACK_MGR_IDS[manager];
   if (slackId) {
-    const msg = `🏖️ *New Leave Request*\n*Employee:* ${empName} (${empId})\n*Type:* ${leaveType}\n*Dates:* ${from} to ${to} (${days} day${days>1?'s':''})\n*Reason:* ${reason||'—'}\n\n👉 *Approve/Reject:* https://wiom-digidesk-production.up.railway.app`;
+    const msg = `:beach_with_umbrella: *New Leave Request*\n*Employee:* ${empName} (${empId})\n*Type:* ${leaveType}\n*Dates:* ${from} to ${to} (${days} day${days>1?'s':''})\n*Reason:* ${reason||'-'}\n\n:point_right: *Approve/Reject:* https://wiom-digidesk-production.up.railway.app`;
     await slackDM(slackId, msg);
   }
   res.json({ ok: true });
