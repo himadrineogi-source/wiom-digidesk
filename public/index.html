@@ -10,7 +10,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 button{cursor:pointer;border:none;background:none;font-family:inherit;font-size:inherit}
 input,select,textarea{font-family:inherit}
 :root{
-  --blue:#1d4ed8;--blue-dk:#1e40af;--blue-lt:#dbeafe;--blue-xlt:#eff6ff;
+  --blue:#D91A75;--blue-dk:#b01560;--blue-lt:#fce7f0;--blue-xlt:#fdf2f7;
   --green:#16a34a;--green-lt:#dcfce7;
   --amber:#ca8a04;--amber-lt:#fef9c3;
   --red:#dc2626;--red-lt:#fee2e2;
@@ -55,10 +55,10 @@ input,select,textarea{font-family:inherit}
 .login-footer{text-align:center;margin-top:24px;font-size:12px;color:#9ca3af}
 .demo-box{background:#fef3c7;border:1.5px solid #fcd34d;border-radius:10px;padding:10px 14px;font-size:12px;color:#92400e;margin-bottom:18px;line-height:1.6}
 .demo-box strong{color:#78350f;display:block;margin-bottom:3px}
-.otp-reveal{margin-top:6px;font-size:16px;font-weight:800;color:#1d4ed8;letter-spacing:4px}
+.otp-reveal{margin-top:6px;font-size:16px;font-weight:800;color:#D91A75;letter-spacing:4px}
 .login-toggle{display:flex;gap:8px;margin-bottom:20px}
 .ltoggle{flex:1;padding:10px 8px;border-radius:9px;font-size:13px;font-weight:600;border:2px solid #e5e7eb;color:#6b7280;background:#fff;transition:all .2s}
-.ltoggle.on{border-color:#1d4ed8;color:#1d4ed8;background:#eff6ff}
+.ltoggle.on{border-color:#D91A75;color:#D91A75;background:#fdf2f7}
 .login-inp-wrap{position:relative;margin-bottom:16px}
 .login-inp-wrap label{display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:6px;letter-spacing:.3px}
 .login-inp-wrap input{width:100%;padding:12px 14px 12px 42px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:15px;color:#111827;background:#fff;transition:border-color .2s,box-shadow .2s;outline:none}
@@ -70,14 +70,14 @@ input,select,textarea{font-family:inherit}
 .fgroup{margin-bottom:14px}
 .fgroup label{display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:5px}
 .fgroup input,.fgroup select,.fgroup textarea{width:100%;padding:11px 13px;border:1.5px solid #e5e7eb;border-radius:9px;font-size:15px;color:#111827;background:#fff;transition:border-color .2s,box-shadow .2s;outline:none}
-.fgroup input:focus,.fgroup select:focus,.fgroup textarea:focus{border-color:#1d4ed8;box-shadow:0 0 0 3px rgba(29,78,216,.1)}
+.fgroup input:focus,.fgroup select:focus,.fgroup textarea:focus{border-color:#D91A75;box-shadow:0 0 0 3px rgba(217,26,117,.1)}
 .fgroup textarea{resize:vertical;min-height:76px}
 .fgroup .hint{font-size:12px;color:#6b7280;margin-top:5px}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:12px 18px;border-radius:10px;font-size:15px;font-weight:600;transition:all .15s;cursor:pointer;border:none}
 .btn-w{width:100%}
-.btn-primary{background:#1d4ed8;color:#fff}
-.btn-primary:hover{background:#1e40af}
-.btn-primary:active{background:#1e3a8a}
+.btn-primary{background:#D91A75;color:#fff}
+.btn-primary:hover{background:#b01560}
+.btn-primary:active{background:#8f1050}
 .btn-secondary{background:#f3f4f6;color:#374151;border:1.5px solid #e5e7eb}
 .btn-secondary:hover{background:#e5e7eb}
 .btn-success{background:#16a34a;color:#fff}
@@ -85,10 +85,10 @@ input,select,textarea{font-family:inherit}
 .btn-danger{background:#dc2626;color:#fff}
 .btn-danger:hover{background:#b91c1c}
 .btn-sm{padding:7px 13px;font-size:13px;border-radius:7px}
-.btn-outline{background:transparent;border:1.5px solid #1d4ed8;color:#1d4ed8}
-.btn-outline:hover{background:#eff6ff}
+.btn-outline{background:transparent;border:1.5px solid #D91A75;color:#D91A75}
+.btn-outline:hover{background:#fdf2f7}
 .mgr-link{text-align:center;margin-top:18px;font-size:13px;color:#6b7280}
-.mgr-link span{color:#1d4ed8;font-weight:600;cursor:pointer;text-decoration:underline}
+.mgr-link span{color:#D91A75;font-weight:600;cursor:pointer;text-decoration:underline}
 
 /* ===== MODAL ===== */
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:none;align-items:flex-end;justify-content:center}
@@ -107,7 +107,7 @@ input,select,textarea{font-family:inherit}
 /* ===== APP ===== */
 #app{display:none;flex-direction:column;min-height:100vh}
 #app.on{display:flex}
-.topbar{position:sticky;top:0;z-index:100;background:#1e3a8a;color:#fff;height:var(--top-h);display:flex;align-items:center;padding:0 14px;gap:10px;box-shadow:0 2px 8px rgba(0,0,0,.18)}
+.topbar{position:sticky;top:0;z-index:100;background:#8f1050;color:#fff;height:var(--top-h);display:flex;align-items:center;padding:0 14px;gap:10px;box-shadow:0 2px 8px rgba(0,0,0,.18)}
 .topbar .ttl{flex:1;font-size:16px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .topbar .uchip{font-size:11px;background:rgba(255,255,255,.15);padding:4px 9px;border-radius:20px;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .topbar .logbtn{font-size:12px;color:rgba(255,255,255,.85);padding:5px 10px;border:1px solid rgba(255,255,255,.3);border-radius:6px}
@@ -121,7 +121,7 @@ input,select,textarea{font-family:inherit}
 .bnav{position:fixed;bottom:0;left:0;right:0;z-index:100;background:#fff;border-top:1px solid #e5e7eb;height:var(--nav-h);display:flex;align-items:stretch;box-shadow:0 -2px 8px rgba(0,0,0,.06)}
 .nbtn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:6px 3px;color:#9ca3af;font-size:10px;font-weight:600;transition:color .15s}
 #app.role-manager #nav-leave,#app.role-manager #nav-attendance,#app.role-hr #nav-leave,#app.role-hr #nav-attendance{display:none}
-.nbtn.on{color:#1d4ed8}
+.nbtn.on{color:#D91A75}
 .nbtn .ni{font-size:20px;line-height:1}
 
 /* ===== CARDS ===== */
@@ -129,7 +129,7 @@ input,select,textarea{font-family:inherit}
 .card-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .card-hdr h3{font-size:15px;font-weight:700}
 .card-hdr .sub{font-size:12px;color:#6b7280;margin-top:2px}
-.welcome-card{background:linear-gradient(135deg,#1e3a8a,#1d4ed8);border-radius:14px;padding:18px;color:#fff;margin-bottom:12px}
+.welcome-card{background:linear-gradient(135deg,#8f1050,#D91A75);border-radius:14px;padding:18px;color:#fff;margin-bottom:12px}
 .welcome-card .wname{font-size:20px;font-weight:800;margin-bottom:4px}
 .welcome-card .winfo{font-size:13px;opacity:.85;line-height:1.6}
 .welcome-card .wid{display:inline-block;background:rgba(255,255,255,.2);padding:3px 10px;border-radius:12px;font-size:12px;margin-top:8px}
@@ -137,36 +137,36 @@ input,select,textarea{font-family:inherit}
 .scard{background:#fff;border-radius:12px;padding:13px 8px;text-align:center;box-shadow:var(--sh)}
 .scard .sv{font-size:22px;font-weight:800;line-height:1}
 .scard .sl{font-size:11px;color:#6b7280;margin-top:3px}
-.sv-blue{color:#1d4ed8}.sv-green{color:#16a34a}.sv-amber{color:#ca8a04}.sv-red{color:#dc2626}
+.sv-blue{color:#D91A75}.sv-green{color:#16a34a}.sv-amber{color:#ca8a04}.sv-red{color:#dc2626}
 
 /* ===== BADGES ===== */
 .badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600}
 .b-pending{background:#fef9c3;color:#a16207}
 .b-approved{background:#dcfce7;color:#15803d}
 .b-rejected{background:#fee2e2;color:#b91c1c}
-.b-blue{background:#dbeafe;color:#1d4ed8}
+.b-blue{background:#fce7f0;color:#D91A75}
 .b-gray{background:#f3f4f6;color:#6b7280}
 
 /* ===== TABS ===== */
 .tabs{display:flex;background:#f3f4f6;border-radius:10px;padding:4px;margin-bottom:14px}
 .tab-btn{flex:1;padding:9px 6px;border-radius:7px;font-size:13px;font-weight:600;color:#6b7280;transition:all .2s}
-.tab-btn.on{background:#fff;color:#1d4ed8;box-shadow:var(--sh)}
+.tab-btn.on{background:#fff;color:#D91A75;box-shadow:var(--sh)}
 
 /* ===== LEAVE ===== */
 .leave-item{display:flex;align-items:flex-start;gap:11px;padding:11px 0;border-bottom:1px solid #f3f4f6}
 .leave-item:last-child{border-bottom:none}
-.licon{width:38px;height:38px;border-radius:9px;background:#eff6ff;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.licon{width:38px;height:38px;border-radius:9px;background:#fdf2f7;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
 .ldetail{flex:1;min-width:0}
 .ldetail .ltype{font-size:14px;font-weight:600}
 .ldetail .ldates{font-size:12px;color:#6b7280;margin-top:2px}
 .ldetail .lreason{font-size:12px;color:#9ca3af;font-style:italic;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px}
 .bal-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
 .bal-card{background:#fff;border-radius:12px;padding:16px;box-shadow:var(--sh);text-align:center}
-.bal-card .bnum{font-size:34px;font-weight:800;color:#1d4ed8;line-height:1}
+.bal-card .bnum{font-size:34px;font-weight:800;color:#D91A75;line-height:1}
 .bal-card .btype{font-size:13px;font-weight:600;color:#374151;margin-top:4px}
 .bal-card .bsub{font-size:11px;color:#9ca3af;margin-top:2px}
 .prog{height:6px;background:#e5e7eb;border-radius:3px;margin-top:8px;overflow:hidden}
-.prog-fill{height:100%;background:#1d4ed8;border-radius:3px}
+.prog-fill{height:100%;background:#D91A75;border-radius:3px}
 .date-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 
 /* ===== ATTENDANCE ===== */
@@ -191,8 +191,8 @@ input,select,textarea{font-family:inherit}
 .cd-present{background:#dcfce7;color:#15803d}
 .cd-absent{background:#fee2e2;color:#b91c1c}
 .cd-leave{background:#fef9c3;color:#a16207}
-.cd-compoff{background:#ede9fe;color:#7c3aed}
-.cd-today{background:#1d4ed8;color:#fff;font-weight:700}
+.cd-compoff{background:#ede9fe;color:#D91A75}
+.cd-today{background:#D91A75;color:#fff;font-weight:700}
 .cd-future{background:#f9fafb;color:#d1d5db}
 .cd-empty{background:transparent}
 .cd-weekend{background:#f3f4f6;color:#9ca3af}
@@ -215,10 +215,10 @@ input,select,textarea{font-family:inherit}
 .doc-body h4{font-size:13px;font-weight:700;color:#111827;margin:10px 0 5px}
 .doc-body .doc-meta{font-size:11px;color:#9ca3af;margin-bottom:10px}
 .upload-zone{border:2px dashed #e5e7eb;border-radius:10px;padding:20px;text-align:center;cursor:pointer;transition:border-color .2s;margin-top:10px}
-.upload-zone:hover{border-color:#1d4ed8}
+.upload-zone:hover{border-color:#D91A75}
 .upload-zone .uz-icon{font-size:30px;margin-bottom:8px}
 .upload-zone p{font-size:13px;color:#6b7280}
-.upload-zone .uz-link{color:#1d4ed8;font-weight:600}
+.upload-zone .uz-link{color:#D91A75;font-weight:600}
 
 /* ===== MANAGER PANEL ===== */
 .appr-card{background:#fff;border-radius:12px;padding:15px;box-shadow:var(--sh);margin-bottom:10px}
@@ -230,19 +230,19 @@ input,select,textarea{font-family:inherit}
 /* ===== HR PANEL ===== */
 .hr-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
 .hrsc{background:#fff;border-radius:12px;padding:14px;box-shadow:var(--sh);text-align:center}
-.hrsc .hn{font-size:26px;font-weight:800;color:#1d4ed8}.hrsc .hl{font-size:12px;color:#6b7280;margin-top:3px}
+.hrsc .hn{font-size:26px;font-weight:800;color:#D91A75}.hrsc .hl{font-size:12px;color:#6b7280;margin-top:3px}
 .emp-row{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid #f3f4f6}
 .emp-row:last-child{border-bottom:none}
-.emp-av{width:36px;height:36px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#1d4ed8;flex-shrink:0}
+.emp-av{width:36px;height:36px;border-radius:50%;background:#fce7f0;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#D91A75;flex-shrink:0}
 .emp-row .en{font-size:13px;font-weight:600}
 .emp-row .em{font-size:11px;color:#9ca3af}
 .filter-row{display:flex;gap:7px;margin-bottom:12px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
 .filter-row::-webkit-scrollbar{display:none}
 .fchip{padding:6px 13px;border-radius:20px;font-size:12px;font-weight:600;background:#f3f4f6;color:#6b7280;white-space:nowrap;cursor:pointer;border:2px solid transparent;flex-shrink:0}
-.fchip.on{background:#dbeafe;color:#1d4ed8;border-color:#bfdbfe}
+.fchip.on{background:#fce7f0;color:#D91A75;border-color:#f9a8d4}
 
 /* ===== PROFILE ===== */
-.prof-av{width:72px;height:72px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:#1d4ed8;margin:0 auto 12px}
+.prof-av{width:72px;height:72px;border-radius:50%;background:#fce7f0;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:#D91A75;margin:0 auto 12px}
 .prof-row{display:flex;align-items:center;padding:11px 0;border-bottom:1px solid #f3f4f6}
 .prof-row:last-child{border-bottom:none}
 .prof-row .pl{font-size:13px;color:#6b7280;flex:1}
@@ -250,7 +250,7 @@ input,select,textarea{font-family:inherit}
 .access-card{background:#fff;border-radius:14px;padding:15px;box-shadow:var(--sh);margin-bottom:12px}
 .access-card h3{font-size:15px;font-weight:700;margin-bottom:12px}
 .access-btn{display:flex;align-items:center;gap:11px;padding:11px 14px;background:#f9fafb;border-radius:10px;margin-bottom:8px;cursor:pointer;border:none;width:100%;text-align:left;transition:background .2s}
-.access-btn:hover{background:#eff6ff}
+.access-btn:hover{background:#fdf2f7}
 .access-btn .ab-icon{font-size:22px}
 .access-btn .ab-text{flex:1}
 .access-btn .ab-title{font-size:14px;font-weight:600;color:#111827}
@@ -443,7 +443,7 @@ input,select,textarea{font-family:inherit}
         <input type="date" id="leaveTo">
       </div>
     </div>
-    <div id="leaveDaysNote" style="font-size:13px;color:#1d4ed8;font-weight:600;margin-bottom:12px"></div>
+    <div id="leaveDaysNote" style="font-size:13px;color:#D91A75;font-weight:600;margin-bottom:12px"></div>
     <div class="fgroup">
       <label>Reason</label>
       <textarea id="leaveReason" placeholder="Brief reason for leave..."></textarea>
@@ -528,7 +528,7 @@ input,select,textarea{font-family:inherit}
 <div class="modal-bg" id="editEmpModal">
   <div class="modal" style="max-height:88vh;overflow-y:auto">
     <div class="modal-hdr"><h3>Edit Employee Profile</h3><button class="modal-close" onclick="closeModal('editEmpModal')">✕</button></div>
-    <div style="background:#eff6ff;border-radius:10px;padding:10px 12px;margin-bottom:14px;font-size:12px;color:#1e40af">
+    <div style="background:#fdf2f7;border-radius:10px;padding:10px 12px;margin-bottom:14px;font-size:12px;color:#b01560">
       <strong>Employee ID:</strong> <span id="edit_emp_id_display" style="font-family:monospace;font-size:13px"></span> <span style="color:#6b7280">(cannot be changed)</span>
     </div>
     <input type="hidden" id="edit_emp_id">
@@ -987,12 +987,12 @@ function renderEmpDashboard(){
     </div>
     <div style="height:8px;background:#f3f4f6;border-radius:4px;overflow:hidden">
       <div style="height:100%;display:flex">
-        <div style="width:${Math.round(bal.used/3*100)}%;background:#1d4ed8"></div>
+        <div style="width:${Math.round(bal.used/3*100)}%;background:#D91A75"></div>
         <div style="width:${Math.round(bal.pending/3*100)}%;background:#93c5fd"></div>
       </div>
     </div>
     <div style="display:flex;gap:10px;margin-top:4px;font-size:11px;color:#9ca3af">
-      <span style="color:#1d4ed8">■ Used: ${bal.used}</span>${bal.pending?`<span style="color:#93c5fd">■ Pending: ${bal.pending}</span>`:''}
+      <span style="color:#D91A75">■ Used: ${bal.used}</span>${bal.pending?`<span style="color:#93c5fd">■ Pending: ${bal.pending}</span>`:''}
       <span>□ Available: ${bal.avail}</span>
     </div>
   </div>
@@ -1203,17 +1203,17 @@ function renderHRDashboard(){
   ${depts.map(d=>{const c=EMPLOYEES.filter(e=>e.dept===d).length;const pct=Math.round(c/EMPLOYEES.length*100);
   return `<div style="margin-bottom:10px">
     <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px"><span style="font-weight:600">${d}</span><span style="color:#6b7280">${c} employees</span></div>
-    <div style="height:8px;background:#f3f4f6;border-radius:4px;overflow:hidden"><div style="height:100%;width:${pct}%;background:#1d4ed8;border-radius:4px"></div></div>
+    <div style="height:8px;background:#f3f4f6;border-radius:4px;overflow:hidden"><div style="height:100%;width:${pct}%;background:#D91A75;border-radius:4px"></div></div>
   </div>`;}).join('')}
 </div>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
   <div class="card" style="margin-bottom:0">
     <div style="font-size:13px;font-weight:700;margin-bottom:10px">By Payroll</div>
-    ${payrolls.map(p=>{const c=EMPLOYEES.filter(e=>e.payroll===p).length;return `<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f3f4f6;font-size:13px"><span>${p}</span><span style="font-weight:700;color:#1d4ed8">${c}</span></div>`;}).join('')}
+    ${payrolls.map(p=>{const c=EMPLOYEES.filter(e=>e.payroll===p).length;return `<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f3f4f6;font-size:13px"><span>${p}</span><span style="font-weight:700;color:#D91A75">${c}</span></div>`;}).join('')}
   </div>
   <div class="card" style="margin-bottom:0">
     <div style="font-size:13px;font-weight:700;margin-bottom:10px">By Location</div>
-    ${locs.map(l=>{const c=EMPLOYEES.filter(e=>e.loc===l).length;return `<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f3f4f6;font-size:13px"><span>${l}</span><span style="font-weight:700;color:#1d4ed8">${c}</span></div>`;}).join('')}
+    ${locs.map(l=>{const c=EMPLOYEES.filter(e=>e.loc===l).length;return `<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f3f4f6;font-size:13px"><span>${l}</span><span style="font-weight:700;color:#D91A75">${c}</span></div>`;}).join('')}
   </div>
 </div>
 <div class="card">
@@ -1253,10 +1253,10 @@ function renderLeaveApply(){
   const bal=getLeaveBalance(emp.id);
   const {q,y}=currentQ();
   document.getElementById('leaveApplyContent').innerHTML=`
-<div class="card" style="background:#eff6ff;border:1.5px solid #bfdbfe">
-  <div style="font-size:13px;font-weight:600;color:#1e40af;margin-bottom:8px">Available Balance — ${quarterLabel(q,y)}</div>
+<div class="card" style="background:#fdf2f7;border:1.5px solid #f9a8d4">
+  <div style="font-size:13px;font-weight:600;color:#b01560;margin-bottom:8px">Available Balance — ${quarterLabel(q,y)}</div>
   <div style="display:flex;gap:14px">
-    <div><span style="font-size:22px;font-weight:800;color:#1d4ed8">${bal.avail}</span> <span style="font-size:12px;color:#374151">Leaves left</span></div>
+    <div><span style="font-size:22px;font-weight:800;color:#D91A75">${bal.avail}</span> <span style="font-size:12px;color:#374151">Leaves left</span></div>
     <div><span style="font-size:22px;font-weight:800;color:#6b7280">${bal.used}</span> <span style="font-size:12px;color:#374151">Used</span></div>
     ${bal.pending>0?`<div><span style="font-size:22px;font-weight:800;color:#ca8a04">${bal.pending}</span> <span style="font-size:12px;color:#374151">Pending</span></div>`:''}
   </div>
@@ -1324,7 +1324,7 @@ function renderLeaveBalance(){
       <div class="bsub">Awaiting approval</div>
     </div>
   </div>
-  <div class="prog" style="margin-top:10px"><div class="prog-fill" style="width:${usedPct}%;background:#1d4ed8"></div></div>
+  <div class="prog" style="margin-top:10px"><div class="prog-fill" style="width:${usedPct}%;background:#D91A75"></div></div>
   <div style="font-size:11px;color:#9ca3af;margin-top:4px">${bal.used} of 3 leaves used this quarter</div>
 </div>
 <div class="card" style="background:#fef9c3;border:1.5px solid #fcd34d">
@@ -1339,7 +1339,7 @@ function renderLeaveBalance(){
     return `<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid #f3f4f6">
       <span style="font-size:13px;color:#374151">${['Q1 Jan–Mar','Q2 Apr–Jun','Q3 Jul–Sep','Q4 Oct–Dec'][qi]} ${y}</span>
       <div style="display:flex;gap:8px;align-items:center">
-        <span style="font-size:13px;font-weight:600;color:#1d4ed8">${qUsed} used</span>
+        <span style="font-size:13px;font-weight:600;color:#D91A75">${qUsed} used</span>
         ${qi===q?'<span class="badge b-blue">Current</span>':'<span style="font-size:11px;color:#9ca3af">Lapsed: '+(3-qUsed)+'</span>'}
       </div>
     </div>`;
@@ -1439,8 +1439,8 @@ function renderAttendance(){
     <div class="leg-item"><div class="leg-badge" style="background:#fee2e2;color:#b91c1c">A</div> Absent</div>
     <div class="leg-item"><div class="leg-badge" style="background:#fef9c3;color:#a16207">L</div> Leave</div>
     <div class="leg-item"><div class="leg-badge" style="background:#f3f4f6;color:#9ca3af">WO</div> Week Off</div>
-    <div class="leg-item"><div class="leg-badge" style="background:#ede9fe;color:#7c3aed">CO</div> Comp Off</div>
-    <div class="leg-item"><div class="leg-badge" style="background:#1d4ed8;color:#fff">•</div> Today</div>
+    <div class="leg-item"><div class="leg-badge" style="background:#ede9fe;color:#D91A75">CO</div> Comp Off</div>
+    <div class="leg-item"><div class="leg-badge" style="background:#D91A75;color:#fff">•</div> Today</div>
   </div>
 </div>`;
 }
@@ -1502,7 +1502,7 @@ function renderDocuments(){
   const customDocs=getDocs();
   document.getElementById('docsContent').innerHTML=`
 <p class="sec-title">Company Policies</p>
-${docCard('📋','Leave Policy','leave','bg:#dbeafe',true)}
+${docCard('📋','Leave Policy','leave','bg:#fce7f0',true)}
 ${docCard('⚖️','Disciplinary Policy','disciplinary','background:#fef3c7')}
 ${docCard('🤝','Code of Conduct','conduct','background:#dcfce7')}
 <p class="sec-title" style="margin-top:16px">Other Documents</p>
@@ -1665,7 +1665,7 @@ function rosterListHTML(filterByMgr){
         <div style="font-size:11px;color:#9ca3af;margin-top:2px">Uploaded: ${fmtDate(r.date)} · ${r.size} KB · By: ${r.uploadedBy}</div>
       </div>
       <div style="display:flex;gap:6px;flex-shrink:0;margin-left:8px">
-        <button class="btn btn-sm" style="background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;padding:5px 10px;font-size:12px" onclick="downloadRoster(${gi})">⬇ Download</button>
+        <button class="btn btn-sm" style="background:#fdf2f7;color:#D91A75;border:1px solid #f9a8d4;padding:5px 10px;font-size:12px" onclick="downloadRoster(${gi})">⬇ Download</button>
         <button class="btn btn-sm btn-danger" style="padding:5px 10px;font-size:12px" onclick="deleteRoster(${gi})">✕</button>
       </div>
     </div>`;
@@ -1785,8 +1785,8 @@ function renderManager(){
   const teamEmps=S.user.role==='hr'?EMPLOYEES:EMPLOYEES.filter(e=>e.mgr===mgrName);
 
   document.getElementById('mgrContent').innerHTML=`
-<div class="card" style="background:#eff6ff;border:1.5px solid #bfdbfe">
-  <div style="font-size:13px;color:#1e40af">Welcome, <strong>${mgrName||'HR Admin'}</strong></div>
+<div class="card" style="background:#fdf2f7;border:1.5px solid #f9a8d4">
+  <div style="font-size:13px;color:#b01560">Welcome, <strong>${mgrName||'HR Admin'}</strong></div>
   <div style="font-size:12px;color:#6b7280;margin-top:3px">${teamEmps.length} team members · ${pending.length} pending approval${pending.length!==1?'s':''}</div>
 </div>
 <p class="sec-title">Pending Approvals ${pending.length?`<span class="badge b-pending">${pending.length}</span>`:''}</p>
@@ -1956,7 +1956,7 @@ function renderHR(){
       <div class="em">${e.id} · ${e.designation} · ${e.loc}</div>
       <div style="font-size:11px;color:#9ca3af;margin-top:1px">${e.dept} · ${e.payroll}${getCustomEmps().find(c=>c.id===e.id)?' · <span style="color:#16a34a;font-weight:600">New</span>':''}</div>
     </div>
-    <button class="btn btn-sm" style="background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;padding:5px 10px;font-size:12px;border-radius:7px;flex-shrink:0;margin-top:2px" onclick="openEditEmpModal('${e.id}')">✏️ Edit</button>
+    <button class="btn btn-sm" style="background:#fdf2f7;color:#D91A75;border:1px solid #f9a8d4;padding:5px 10px;font-size:12px;border-radius:7px;flex-shrink:0;margin-top:2px" onclick="openEditEmpModal('${e.id}')">✏️ Edit</button>
   </div>`).join('')}
 </div>
 
@@ -2042,13 +2042,13 @@ ${emp?`
     ['Email',emp.email||'—'],['Mobile',emp.mobile],['Status','Active · Offroll'],
   ].map(([l,v])=>`<div class="prof-row"><span class="pl">${l}</span><span class="pv">${v}</span></div>`).join('')}
 </div>`:''}
-${isMgr?`<div class="card" style="background:#eff6ff;border:1.5px solid #bfdbfe;text-align:center;padding:16px">
-  <div style="font-size:16px;font-weight:700;color:#1e40af">${user.mgrName}</div>
+${isMgr?`<div class="card" style="background:#fdf2f7;border:1.5px solid #f9a8d4;text-align:center;padding:16px">
+  <div style="font-size:16px;font-weight:700;color:#b01560">${user.mgrName}</div>
   <div style="font-size:13px;color:#3b82f6;margin-top:3px">Manager Account</div>
   <div style="font-size:12px;color:#6b7280;margin-top:4px">${EMPLOYEES.filter(e=>e.mgr===user.mgrName).length} reportees</div>
 </div>`:''}
-${isHR?`<div class="card" style="background:#eff6ff;border:1.5px solid #bfdbfe;text-align:center;padding:16px">
-  <div style="font-size:16px;font-weight:700;color:#1e40af">HR Admin</div>
+${isHR?`<div class="card" style="background:#fdf2f7;border:1.5px solid #f9a8d4;text-align:center;padding:16px">
+  <div style="font-size:16px;font-weight:700;color:#b01560">HR Admin</div>
   <div style="font-size:13px;color:#3b82f6;margin-top:3px">Full Access Account</div>
 </div>`:''}
 <div class="access-card">
@@ -2354,7 +2354,7 @@ function showToast(msg,type=''){
 
 // ==================== INIT ====================
 (async function init(){
-  document.body.insertAdjacentHTML('beforeend','<div id="appLoader" style="position:fixed;inset:0;background:#7c3aed;display:flex;align-items:center;justify-content:center;z-index:9999"><div style="text-align:center;color:#fff"><div style="font-size:26px;font-weight:800;margin-bottom:10px">Wiom DigiDesk</div><div style="font-size:14px;opacity:0.75">Loading, please wait…</div></div></div>');
+  document.body.insertAdjacentHTML('beforeend','<div id="appLoader" style="position:fixed;inset:0;background:#D91A75;display:flex;align-items:center;justify-content:center;z-index:9999"><div style="text-align:center;color:#fff"><div style="font-size:26px;font-weight:800;margin-bottom:10px">Wiom DigiDesk</div><div style="font-size:14px;opacity:0.75">Loading, please wait…</div></div></div>');
   await loadCache();
   const custom=getCustomEmps();
   custom.forEach(e=>{
