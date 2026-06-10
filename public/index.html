@@ -2171,6 +2171,17 @@ function downloadEmpTemplate(){
   showToast('Template downloaded!','s');
 }
 
+function parseCSVLine(line){
+  const res=[];let cur='';let inQ=false;
+  for(let i=0;i<line.length;i++){
+    if(line[i]==='"'){inQ=!inQ;}
+    else if(line[i]===','&&!inQ){res.push(cur.trim());cur='';}
+    else{cur+=line[i];}
+  }
+  res.push(cur.trim());
+  return res;
+}
+
 function bulkUploadEmployees(input){
   const file=input.files[0];if(!file)return;
   const reader=new FileReader();
@@ -2180,7 +2191,7 @@ function bulkUploadEmployees(input){
     const custom=getCustomEmps();
     let added=0,updated=0,skipped=0,errors=[];
     for(let i=1;i<lines.length;i++){
-      const cols=lines[i].split(',').map(c=>c.trim());
+      const cols=parseCSVLine(lines[i]);
       if(cols.length<6){skipped++;continue;}
       const [id,name,mobile,email,doj,designation,dept,loc,payroll,mgr,role]=cols;
       if(!id||!name||!mobile){errors.push('Row '+(i+1)+': ID, Name and Mobile are required');skipped++;continue;}
