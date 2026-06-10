@@ -467,18 +467,21 @@ input,select,textarea{font-family:inherit}
     <div class="fgroup"><label>Department *</label>
       <select id="ne_dept">
         <option value="">— Select —</option>
-        <option>Customer Experience</option><option>Supply</option>
-        <option>Execution Team</option><option>User Insights</option><option>Other</option>
+        <option>Customer Experience</option><option>Supply</option><option>Execution Team</option>
+        <option>User Insights</option><option>Sales</option><option>Operations</option>
+        <option>Technology</option><option>Finance</option><option>HR</option><option>Marketing</option><option>Other</option>
       </select>
     </div>
     <div class="fgroup"><label>Location *</label>
       <select id="ne_loc"><option value="">— Select —</option>
-        <option>Gurugram</option><option>New Delhi</option><option>Mumbai</option><option>Other</option>
+        <option>Gurugram</option><option>New Delhi</option><option>Mumbai</option>
+        <option>Bangalore</option><option>Hyderabad</option><option>Pune</option>
+        <option>Chennai</option><option>Noida</option><option>Other</option>
       </select>
     </div>
     <div class="fgroup"><label>Payroll *</label>
       <select id="ne_payroll"><option value="">— Select —</option>
-        <option>Betterplace</option><option>Bigtree</option>
+        <option>Betterplace</option><option>Bigtree</option><option>Wiom</option><option>Offroll</option><option>Contract</option><option>Other</option>
       </select>
     </div>
     <div class="fgroup"><label>Reporting Manager *</label>
@@ -541,18 +544,20 @@ input,select,textarea{font-family:inherit}
     <div class="fgroup"><label>Designation *</label><input type="text" id="edit_desig" placeholder="e.g. CX Agent"></div>
     <div class="fgroup"><label>Department *</label>
       <select id="edit_dept">
-        <option>Customer Experience</option><option>Sales</option><option>Operations</option>
-        <option>Technology</option><option>Finance</option><option>HR</option><option>Marketing</option>
+        <option>Customer Experience</option><option>Supply</option><option>Execution Team</option>
+        <option>User Insights</option><option>Sales</option><option>Operations</option>
+        <option>Technology</option><option>Finance</option><option>HR</option><option>Marketing</option><option>Other</option>
       </select>
     </div>
     <div class="fgroup"><label>Location *</label>
       <select id="edit_loc">
-        <option>Delhi</option><option>Mumbai</option><option>Bangalore</option>
-        <option>Hyderabad</option><option>Pune</option><option>Chennai</option><option>Noida</option><option>Gurugram</option>
+        <option>Gurugram</option><option>New Delhi</option><option>Mumbai</option>
+        <option>Bangalore</option><option>Hyderabad</option><option>Pune</option>
+        <option>Chennai</option><option>Noida</option><option>Other</option>
       </select>
     </div>
     <div class="fgroup"><label>Payroll *</label>
-      <select id="edit_payroll"><option>Wiom</option><option>Offroll</option><option>Contract</option></select>
+      <select id="edit_payroll"><option>Betterplace</option><option>Bigtree</option><option>Wiom</option><option>Offroll</option><option>Contract</option><option>Other</option></select>
     </div>
     <div class="fgroup"><label>Reporting Manager *</label>
       <input type="text" id="edit_mgr" placeholder="Type or select manager name" list="mgrList" autocomplete="off">
@@ -2124,8 +2129,13 @@ function openEditEmpModal(empId){
   document.getElementById('edit_doj').value=e.doj||'';
   document.getElementById('edit_desig').value=e.designation||'';
   document.getElementById('edit_dept').value=e.dept||'Customer Experience';
-  document.getElementById('edit_loc').value=e.loc||'Delhi';
-  document.getElementById('edit_payroll').value=e.payroll||'Wiom';
+  document.getElementById('edit_loc').value=e.loc||'Gurugram';
+  // If saved payroll value not in dropdown, add it dynamically
+  const pSel=document.getElementById('edit_payroll');
+  if(e.payroll && ![...pSel.options].some(o=>o.value===e.payroll)){
+    const opt=document.createElement('option');opt.value=e.payroll;opt.text=e.payroll;pSel.add(opt);
+  }
+  pSel.value=e.payroll||'Betterplace';
   document.getElementById('edit_mgr').value=e.mgr||'';
   document.getElementById('edit_status').value=e.status||'Active';
   document.getElementById('edit_role').value=e.role||'employee';
