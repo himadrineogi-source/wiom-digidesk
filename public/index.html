@@ -431,6 +431,8 @@ input,select,textarea{font-family:inherit}
       <select id="leaveType">
         <option value="CL">Casual Leave (CL)</option>
         <option value="SL">Sick Leave (SL)</option>
+        <option value="CO">Comp Off (CO)</option>
+        <option value="EL">Earned Leave (EL)</option>
       </select>
     </div>
     <div class="date-row fgroup">
@@ -1003,9 +1005,9 @@ ${upcomingLeaves.length?`
   <div class="card-hdr"><h3>Upcoming Leaves</h3></div>
   ${upcomingLeaves.slice(0,3).map(l=>`
   <div class="leave-item">
-    <div class="licon">${l.type==='SL'?'🤒':'🏖️'}</div>
+    <div class="licon">${l.type==='SL'?'🤒':l.type==='CO'?'🔄':l.type==='EL'?'📅':'🏖️'}</div>
     <div class="ldetail">
-      <div class="ltype">${l.type==='CL'?'Casual':'Sick'} · ${l.days} day${l.days>1?'s':''}</div>
+      <div class="ltype">${l.type==='CL'?'Casual':l.type==='SL'?'Sick':l.type==='CO'?'Comp Off':'Earned'} · ${l.days} day${l.days>1?'s':''}</div>
       <div class="ldates">${fmtDate(l.from)}${l.days>1?' – '+fmtDate(l.to):''}</div>
     </div>
     <span class="badge b-approved">Approved</span>
@@ -1016,7 +1018,7 @@ ${recentLeaves.length?`
   <div class="card-hdr"><h3>Recent Leave Requests</h3><button class="btn btn-sm btn-secondary" onclick="showPage('leave');leaveTab('history')">All →</button></div>
   ${recentLeaves.map(l=>`
   <div class="leave-item">
-    <div class="licon">${l.type==='SL'?'🤒':'🏖️'}</div>
+    <div class="licon">${l.type==='SL'?'🤒':l.type==='CO'?'🔄':l.type==='EL'?'📅':'🏖️'}</div>
     <div class="ldetail">
       <div class="ltype">${l.type==='CL'?'Casual Leave':'Sick Leave'} · ${l.days}d</div>
       <div class="ldates">${fmtDate(l.from)}${l.days>1?' – '+fmtDate(l.to):''}</div>
@@ -1225,7 +1227,7 @@ function renderHRDashboard(){
   </div>
   ${recentLeaves.length?`<div style="font-size:13px;font-weight:700;margin-bottom:8px">Recent Applications</div>
   ${recentLeaves.map(l=>`<div class="leave-item">
-    <div class="licon">${l.type==='SL'?'🤒':'🏖️'}</div>
+    <div class="licon">${l.type==='SL'?'🤒':l.type==='CO'?'🔄':l.type==='EL'?'📅':'🏖️'}</div>
     <div class="ldetail"><div class="ltype">${l.empName} · ${l.type}</div><div class="ldates">${fmtDate(l.from)} – ${fmtDate(l.to)}</div></div>
     <span class="badge ${l.status==='Approved'?'b-approved':l.status==='Rejected'?'b-rejected':'b-pending'}">${l.status}</span>
   </div>`).join('')}`:''}
@@ -1283,7 +1285,7 @@ function renderLeaveHistory(){
 <div class="card">
   ${leaves.map(l=>`
   <div class="leave-item">
-    <div class="licon">${l.type==='SL'?'🤒':'🏖️'}</div>
+    <div class="licon">${l.type==='SL'?'🤒':l.type==='CO'?'🔄':l.type==='EL'?'📅':'🏖️'}</div>
     <div class="ldetail">
       <div class="ltype">${l.type==='CL'?'Casual Leave':'Sick Leave'} · ${l.days} day${l.days>1?'s':''}</div>
       <div class="ldates">${fmtDate(l.from)} – ${fmtDate(l.to)}</div>
@@ -1814,7 +1816,7 @@ ${approved.length?`
 <div class="card">
   ${approved.map(l=>`
   <div class="leave-item">
-    <div class="licon">${l.type==='SL'?'🤒':'🏖️'}</div>
+    <div class="licon">${l.type==='SL'?'🤒':l.type==='CO'?'🔄':l.type==='EL'?'📅':'🏖️'}</div>
     <div class="ldetail">
       <div class="ltype">${l.empName} · ${l.type}</div>
       <div class="ldates">${fmtDate(l.from)} – ${fmtDate(l.to)}</div>
@@ -2004,7 +2006,7 @@ ${resignations.length?`<div class="card">
 <div class="card">
   ${leaves.length?leaves.slice().sort((a,b)=>b.applied.localeCompare(a.applied)).slice(0,20).map(l=>`
   <div class="leave-item">
-    <div class="licon">${l.type==='SL'?'🤒':'🏖️'}</div>
+    <div class="licon">${l.type==='SL'?'🤒':l.type==='CO'?'🔄':l.type==='EL'?'📅':'🏖️'}</div>
     <div class="ldetail">
       <div class="ltype">${l.empName} · ${l.type}</div>
       <div class="ldates">${fmtDate(l.from)} – ${fmtDate(l.to)} · ${l.days}d</div>
