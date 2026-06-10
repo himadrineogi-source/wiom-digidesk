@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const https = require('https');
+const crypto = require('crypto');
 
 const app = express();
 const PORT = process.env.PORT || 8306;
@@ -10,13 +11,15 @@ const GH_TOKEN = process.env.GH_TOKEN;
 const GH_REPO = 'Wiom-using-AI/wiom-digidesk';
 const GH_FILE = 'data.json';
 const SLACK_TOKEN = process.env.SLACK_TOKEN;
-// Manager name → Slack User ID mapping (add more managers here via SLACK_MGR_IDS env var)
-// Format: '{"Pramod":"U07GW5ML467","Rohit":"UXXXXXXX"}'
+const SLACK_SIGNING_SECRET = process.env.SLACK_SIGNING_SECRET;
 let SLACK_MGR_IDS = {};
-try { SLACK_MGR_IDS = JSON.parse(process.env.SLACK_MGR_IDS || '{"Pramod":"U07GW5ML467"}'); } catch(e) {}
+try { SLACK_MGR_IDS = JSON.parse(process.env.SLACK_MGR_IDS || '{"Pramod":"U099S3YG6SW","Devashish Mukherjee":"U07GW5ML467"}'); } catch(e) {}
 
+// Raw body needed for Slack signature verification
+app.use('/slack/actions', express.raw({ type: '*/*' }));
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true }));
 
 let _memCache = null;
 let _memSha = null;
@@ -25,15 +28,8 @@ function ghRequest(method, path, body) {
   return new Promise((resolve, reject) => {
     const data = body ? JSON.stringify(body) : null;
     const opts = {
-      hostname: 'api.github.com',
-      path,
-      method,
-      headers: {
-        'Authorization': `token ${GH_TOKEN}`,
-        'User-Agent': 'wiom-digidesk',
-        'Accept': 'application/vnd.github.v3+json',
-        'Content-Type': 'application/json',
-      }
+      hostname: 'api.github.com', path, method,
+      headers: { 'Authorization': `token ${GH_TOKEN}`, 'User-Agent': 'wiom-digidesk', 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' }
     };
     if (data) opts.headers['Content-Length'] = Buffer.byteLength(data);
     const req = https.request(opts, res => {
@@ -51,11 +47,7 @@ async function readData() {
   if (_memCache !== null) return _memCache;
   try {
     const r = await ghRequest('GET', `/repos/${GH_REPO}/contents/${GH_FILE}`);
-    if (r.content) {
-      _memSha = r.sha;
-      _memCache = JSON.parse(Buffer.from(r.content, 'base64').toString('utf8'));
-      return _memCache;
-    }
+    if (r.content) { _memSha = r.sha; _memCache = JSON.parse(Buffer.from(r.content, 'base64').toString('utf8')); return _memCache; }
   } catch (e) {}
   _memCache = {};
   return _memCache;
@@ -73,25 +65,128 @@ async function writeData(data) {
 }
 
 // ==================== SLACK ====================
-function slackDM(userId, text) {
-  if (!SLACK_TOKEN || !userId) return Promise.resolve();
+function slackAPI(endpoint, payload) {
+  if (!SLACK_TOKEN) return Promise.resolve({});
   return new Promise((resolve) => {
-    const data = JSON.stringify({ channel: userId, text });
+    const data = JSON.stringify(payload);
     const req = https.request({
-      hostname: 'slack.com',
-      path: '/api/chat.postMessage',
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${SLACK_TOKEN}`,
-        'Content-Type': 'application/json',
-        'Content-Length': Buffer.byteLength(data)
-      }
-    }, res => { let r=''; res.on('data',c=>r+=c); res.on('end',()=>{ console.log('Slack DM:', r); resolve(); }); });
-    req.on('error', e => { console.error('Slack error', e); resolve(); });
+      hostname: 'slack.com', path: `/api/${endpoint}`, method: 'POST',
+      headers: { 'Authorization': `Bearer ${SLACK_TOKEN}`, 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(data) }
+    }, res => { let r = ''; res.on('data', c => r += c); res.on('end', () => { try { resolve(JSON.parse(r)); } catch { resolve({}); } }); });
+    req.on('error', e => { console.error('Slack error', e); resolve({}); });
     req.write(data);
     req.end();
   });
 }
+
+function slackDM(userId, text, blocks) {
+  const payload = { channel: userId, text };
+  if (blocks) payload.blocks = blocks;
+  return slackAPI('chat.postMessage', payload);
+}
+
+function slackUpdate(channel, ts, text, blocks) {
+  const payload = { channel, ts, text };
+  if (blocks) payload.blocks = blocks;
+  else payload.blocks = [];
+  return slackAPI('chat.update', payload);
+}
+
+// ==================== LEAVE NOTIFICATION WITH BUTTONS ====================
+function leaveBlocks(empName, empId, leaveType, from, to, days, reason, leaveId) {
+  return [
+    {
+      type: 'section',
+      text: { type: 'mrkdwn', text: `:beach_with_umbrella: *New Leave Request*\n*Employee:* ${empName} (${empId})\n*Type:* ${leaveType}\n*Dates:* ${from} to ${to} (${days} day${days > 1 ? 's' : ''})\n*Reason:* ${reason || '-'}` }
+    },
+    {
+      type: 'actions',
+      elements: [
+        { type: 'button', text: { type: 'plain_text', text: ':white_check_mark: Approve' }, style: 'primary', action_id: 'approve_leave', value: leaveId },
+        { type: 'button', text: { type: 'plain_text', text: ':x: Reject' }, style: 'danger', action_id: 'reject_leave', value: leaveId }
+      ]
+    }
+  ];
+}
+
+app.post('/api/notify-leave', async (req, res) => {
+  if (!SLACK_TOKEN) return res.json({ ok: true });
+  const { empName, empId, manager, leaveType, from, to, days, reason, leaveId } = req.body;
+  const slackId = SLACK_MGR_IDS[manager];
+  if (slackId) {
+    await slackDM(slackId,
+      `:beach_with_umbrella: New leave request from ${empName}`,
+      leaveBlocks(empName, empId, leaveType, from, to, days, reason, leaveId)
+    );
+  }
+  res.json({ ok: true });
+});
+
+// ==================== SLACK INTERACTIVE ACTIONS ====================
+app.post('/slack/actions', async (req, res) => {
+  // Verify Slack signature
+  if (SLACK_SIGNING_SECRET) {
+    const ts = req.headers['x-slack-request-timestamp'];
+    const sig = req.headers['x-slack-signature'];
+    const rawBody = req.body.toString();
+    const baseStr = `v0:${ts}:${rawBody}`;
+    const myHash = 'v0=' + crypto.createHmac('sha256', SLACK_SIGNING_SECRET).update(baseStr).digest('hex');
+    if (myHash !== sig) { return res.status(401).send('Unauthorized'); }
+  }
+
+  const rawBody = req.body.toString();
+  const payload = JSON.parse(decodeURIComponent(rawBody.replace('payload=', '')));
+  const action = payload.actions && payload.actions[0];
+  if (!action) return res.send('');
+
+  const leaveId = action.value;
+  const actionId = action.action_id; // approve_leave or reject_leave
+  const mgrSlackId = payload.user.id;
+  const mgrName = Object.keys(SLACK_MGR_IDS).find(k => SLACK_MGR_IDS[k] === mgrSlackId) || 'Manager';
+  const channel = payload.channel.id;
+  const msgTs = payload.message.ts;
+
+  res.send(''); // Respond immediately to Slack
+
+  // Update leave in data
+  const data = await readData();
+  const leaves = data.wiom_leaves ? JSON.parse(data.wiom_leaves) : [];
+  const leaveIdx = leaves.findIndex(l => l.id === leaveId);
+
+  if (leaveIdx === -1) {
+    await slackAPI('chat.postMessage', { channel, text: ':warning: Leave request not found. It may have already been processed.' });
+    return;
+  }
+
+  const leave = leaves[leaveIdx];
+  const approved = actionId === 'approve_leave';
+  leave.status = approved ? 'Approved' : 'Rejected';
+  leave.approvedBy = mgrName;
+  leave.approvedAt = new Date().toISOString();
+
+  data.wiom_leaves = JSON.stringify(leaves);
+  await writeData(data);
+
+  // Update the Slack message to show decision
+  const decisionText = approved
+    ? `:white_check_mark: *Approved* by ${mgrName}\n*Employee:* ${leave.empName} (${leave.empId}) | *Type:* ${leave.type} | *Dates:* ${leave.from} to ${leave.to}`
+    : `:x: *Rejected* by ${mgrName}\n*Employee:* ${leave.empName} (${leave.empId}) | *Type:* ${leave.type} | *Dates:* ${leave.from} to ${leave.to}`;
+
+  await slackUpdate(channel, msgTs, decisionText, [
+    { type: 'section', text: { type: 'mrkdwn', text: decisionText } }
+  ]);
+
+  // Notify employee (find manager's Slack ID for employee — find employee's manager's slackId)
+  const empSlackId = SLACK_MGR_IDS[leave.empName]; // if employee also has Slack ID
+  if (empSlackId) {
+    await slackDM(empSlackId, approved
+      ? `:white_check_mark: *Leave Approved!*\nYour ${leave.type} from ${leave.from} to ${leave.to} has been approved by ${mgrName}.`
+      : `:x: *Leave Rejected*\nYour ${leave.type} from ${leave.from} to ${leave.to} has been rejected by ${mgrName}.`
+    );
+  }
+
+  console.log(`Leave ${leaveId} ${leave.status} by ${mgrName}`);
+});
 
 // ==================== CRON (daily 12:30 PM IST = 07:00 UTC) ====================
 function startCron() {
@@ -104,7 +199,7 @@ function startCron() {
     await sendDailyAttendance();
     setTimeout(tick, 24 * 60 * 60 * 1000);
   }, delay);
-  console.log(`Daily attendance cron scheduled in ${Math.round(delay/60000)} minutes`);
+  console.log(`Daily attendance cron scheduled in ${Math.round(delay / 60000)} minutes`);
 }
 
 async function sendDailyAttendance() {
@@ -113,47 +208,27 @@ async function sendDailyAttendance() {
     const data = await readData();
     const att = data.wiom_att ? JSON.parse(data.wiom_att) : {};
     const emps = data.wiom_custom_emps ? JSON.parse(data.wiom_custom_emps) : [];
-    const todayStr = new Date().toLocaleDateString('en-IN', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+    const todayStr = new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
     const todayKey = new Date().toISOString().split('T')[0];
 
-    // Group by manager
     const byMgr = {};
-    emps.forEach(e => {
-      if (!e.mgr) return;
-      if (!byMgr[e.mgr]) byMgr[e.mgr] = [];
-      byMgr[e.mgr].push(e);
-    });
+    emps.forEach(e => { if (!e.mgr) return; if (!byMgr[e.mgr]) byMgr[e.mgr] = []; byMgr[e.mgr].push(e); });
 
-    // DM each manager individually
     for (const [mgrName, team] of Object.entries(byMgr)) {
       const slackId = SLACK_MGR_IDS[mgrName];
       if (!slackId) { console.log(`No Slack ID for manager: ${mgrName}`); continue; }
-
       const present = [], absent = [];
       team.forEach(e => {
         const rec = att[`${e.id}_${todayKey}`];
         if (rec && rec.in) present.push(`:white_check_mark: ${e.name} — In: ${rec.in}`);
         else absent.push(`:x: ${e.name} — Not Marked`);
       });
-
-      const msg = `:clipboard: *Daily Attendance Report — ${todayStr}*\n*Your Team (${team.length} employees)*\n\n${[...present,...absent].join('\n')}\n\n*Present: ${present.length} | Absent: ${absent.length}*`;
+      const msg = `:clipboard: *Daily Attendance Report — ${todayStr}*\n*Your Team (${team.length} employees)*\n\n${[...present, ...absent].join('\n')}\n\n*Present: ${present.length} | Absent: ${absent.length}*`;
       await slackDM(slackId, msg);
     }
     console.log('Daily attendance DMs sent');
   } catch (e) { console.error('Cron error', e); }
 }
-
-// ==================== LEAVE NOTIFICATION ====================
-app.post('/api/notify-leave', async (req, res) => {
-  if (!SLACK_TOKEN) return res.json({ ok: true });
-  const { empName, empId, manager, leaveType, from, to, days, reason } = req.body;
-  const slackId = SLACK_MGR_IDS[manager];
-  if (slackId) {
-    const msg = `:beach_with_umbrella: *New Leave Request*\n*Employee:* ${empName} (${empId})\n*Type:* ${leaveType}\n*Dates:* ${from} to ${to} (${days} day${days>1?'s':''})\n*Reason:* ${reason||'-'}\n\n:point_right: *Approve/Reject:* https://wiom-digidesk-production.up.railway.app`;
-    await slackDM(slackId, msg);
-  }
-  res.json({ ok: true });
-});
 
 // ==================== API ROUTES ====================
 app.get('/api', async (req, res) => {
@@ -172,7 +247,6 @@ app.post('/api', async (req, res) => {
   res.json({ ok: true });
 });
 
-// Serve portal
 app.use(express.static(path.join(__dirname, 'public')));
 app.use((req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 

@@ -1394,7 +1394,7 @@ function submitLeave(){
   const mgrEmp=EMPLOYEES.find(e=>e.name===emp.mgr);
   if(mgrEmp)addNotif(mgrEmp.id,`Leave Request: ${emp.name} applied for ${type} from ${fmtDate(from)} to ${fmtDate(to)} (${days} day${days>1?'s':''}). Awaiting your approval.`);
   // Slack notification to manager
-  fetch(window.location.origin+'/api/notify-leave',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({empName:emp.name,empId:emp.id,manager:emp.mgr,leaveType:type,from,to,days,reason})}).catch(()=>{});
+  fetch(window.location.origin+'/api/notify-leave',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({empName:emp.name,empId:emp.id,manager:emp.mgr,leaveType:type,from,to,days,reason,leaveId:leave.id})}).catch(()=>{});
   closeModal('leaveModal');
   showToast(`Leave application submitted! Pending ${emp.mgr}'s approval.`,'s');
   renderPage(S.page);
