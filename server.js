@@ -193,7 +193,22 @@ function startCron() {
   const now = new Date();
   const nextRun = new Date();
   nextRun.setUTCHours(7, 0, 0, 0);
-  if (nextRun <= now) nextRun.setUTCDate(nextRun.getUTCDate() + 1);
+  // If today's 07:00 UTC already passed, send immediately then schedule for tomorrow
+  if (nextRun <= now) {
+    console.log('Missed today\'s cron window — sending attendance now');
+    sendDailyAttendance().then(() => {
+      const tomorrow = new Date();
+      tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
+      tomorrow.setUTCHours(7, 0, 0, 0);
+      const delay = tomorrow - new Date();
+      setTimeout(async function tick() {
+        await sendDailyAttendance();
+        setTimeout(tick, 24 * 60 * 60 * 1000);
+      }, delay);
+      console.log(`Next attendance cron in ${Math.round(delay / 60000)} minutes`);
+    });
+    return;
+  }
   const delay = nextRun - now;
   setTimeout(async function tick() {
     await sendDailyAttendance();
@@ -214,6 +229,7 @@ async function sendDailyAttendance() {
     const byMgr = {};
     emps.forEach(e => { if (!e.mgr) return; if (!byMgr[e.mgr]) byMgr[e.mgr] = []; byMgr[e.mgr].push(e); });
 
+    // Send each manager their own team report
     for (const [mgrName, team] of Object.entries(byMgr)) {
       const slackId = SLACK_MGR_IDS[mgrName];
       if (!slackId) { console.log(`No Slack ID for manager: ${mgrName}`); continue; }
@@ -223,12 +239,36 @@ async function sendDailyAttendance() {
         if (rec && rec.in) present.push(`:white_check_mark: ${e.name} — In: ${rec.in}`);
         else absent.push(`:x: ${e.name} — Not Marked`);
       });
-      const msg = `:clipboard: *Daily Attendance Report — ${todayStr}*\n*Your Team (${team.length} employees)*\n\n${[...present, ...absent].join('\n')}\n\n*Present: ${present.length} | Absent: ${absent.length}*`;
+      const msg = `:clipboard: *Daily Attendance Report — ${todayStr}*\n*Team: ${mgrName} (${team.length} employees)*\n\n${[...present, ...absent].join('\n')}\n\n*Present: ${present.length} | Absent: ${absent.length}*`;
       await slackDM(slackId, msg);
     }
+
+    // Send Pramod a consolidated all-teams report
+    const pramodId = SLACK_MGR_IDS['Pramod'];
+    if (pramodId && emps.length > 0) {
+      const allLines = [];
+      let totalPresent = 0, totalAbsent = 0;
+      for (const [mgrName, team] of Object.entries(byMgr)) {
+        allLines.push(`\n*Manager: ${mgrName}*`);
+        team.forEach(e => {
+          const rec = att[`${e.id}_${todayKey}`];
+          if (rec && rec.in) { allLines.push(`:white_check_mark: ${e.name} — In: ${rec.in}`); totalPresent++; }
+          else { allLines.push(`:x: ${e.name} — Not Marked`); totalAbsent++; }
+        });
+      }
+      const consolidatedMsg = `:bar_chart: *All-Teams Attendance — ${todayStr}*\n${allLines.join('\n')}\n\n*Total: ${emps.length} | Present: ${totalPresent} | Absent: ${totalAbsent}*`;
+      await slackDM(pramodId, consolidatedMsg);
+    }
+
     console.log('Daily attendance DMs sent');
   } catch (e) { console.error('Cron error', e); }
 }
+
+// ==================== MANUAL TRIGGER ====================
+app.post('/api/send-attendance-now', async (req, res) => {
+  await sendDailyAttendance();
+  res.json({ ok: true, message: 'Attendance report sent' });
+});
 
 // ==================== API ROUTES ====================
 app.get('/api', async (req, res) => {
