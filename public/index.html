@@ -2192,6 +2192,26 @@ function parseCSVLine(line){
   return res;
 }
 
+function normalizeDOJ(s){
+  if(!s)return '';
+  s=s.trim();
+  if(/^\d{4}-\d{2}-\d{2}$/.test(s))return s;
+  const mon={jan:'01',feb:'02',mar:'03',apr:'04',may:'05',jun:'06',jul:'07',aug:'08',sep:'09',oct:'10',nov:'11',dec:'12'};
+  // DD-Mon-YY or DD-Mon-YYYY  e.g. 24-Jul-25 or 24-Jul-2025
+  const m1=s.match(/^(\d{1,2})[-\/\s]([A-Za-z]{3})[-\/\s](\d{2,4})$/);
+  if(m1){
+    const day=m1[1].padStart(2,'0');
+    const mo=mon[m1[2].toLowerCase()];
+    let yr=m1[3];
+    if(yr.length===2)yr=parseInt(yr)>50?'19'+yr:'20'+yr;
+    if(mo)return `${yr}-${mo}-${day}`;
+  }
+  // DD/MM/YYYY or DD-MM-YYYY
+  const m2=s.match(/^(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})$/);
+  if(m2)return `${m2[3]}-${m2[2].padStart(2,'0')}-${m2[1].padStart(2,'0')}`;
+  return s;
+}
+
 function bulkUploadEmployees(input){
   const file=input.files[0];if(!file)return;
   const reader=new FileReader();
@@ -2206,7 +2226,7 @@ function bulkUploadEmployees(input){
       const [id,name,mobile,email,doj,designation,dept,loc,payroll,mgr,role]=cols;
       if(!id||!name||!mobile){errors.push('Row '+(i+1)+': ID, Name and Mobile are required');skipped++;continue;}
       if(mobile.length!==10||isNaN(mobile)){errors.push('Row '+(i+1)+': Invalid mobile – '+mobile);skipped++;continue;}
-      const emp={id:id.toUpperCase(),name,mobile,email:email||'',doj:doj||'',designation:designation||'Associate',dept:dept||'Customer Experience',loc:loc||'Gurugram',payroll:payroll||'Betterplace',mgr:mgr||'',status:'Active',role:['manager','hr'].includes((role||'').toLowerCase())?(role||'').toLowerCase():'employee'};
+      const emp={id:id.toUpperCase(),name,mobile,email:email||'',doj:normalizeDOJ(doj),designation:designation||'Associate',dept:dept||'Customer Experience',loc:loc||'Gurugram',payroll:payroll||'Betterplace',mgr:mgr||'',status:'Active',role:['manager','hr'].includes((role||'').toLowerCase())?(role||'').toLowerCase():'employee'};
       const gi=EMPLOYEES.findIndex(x=>x.id===emp.id);
       if(gi>=0){EMPLOYEES[gi]=emp;updated++;}else{EMPLOYEES.push(emp);added++;}
       const ci=custom.findIndex(x=>x.id===emp.id);
