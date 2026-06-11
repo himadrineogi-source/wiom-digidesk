@@ -816,6 +816,7 @@ function verifyOTP(){
 
 async function loginSuccess(user){
   await loadCache();
+  getCustomEmps().forEach(e=>{const idx=EMPLOYEES.findIndex(x=>x.id===e.id);if(idx>=0)EMPLOYEES[idx]=e;else EMPLOYEES.push(e);});
   S.user=user;
   document.getElementById('loginPage').style.display='none';
   const app=document.getElementById('app');
@@ -831,6 +832,7 @@ async function loginSuccess(user){
 
 function logout(){
   S.user=null;S.generatedOTP=null;
+  _cacheLoaded=false;
   document.getElementById('loginPage').style.display='flex';
   const app=document.getElementById('app');
   app.classList.remove('on','role-manager','role-hr','role-employee');

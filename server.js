@@ -235,7 +235,7 @@ async function sendDailyAttendance() {
       if (!slackId) { console.log(`No Slack ID for manager: ${mgrName}`); continue; }
       const present = [], absent = [];
       team.forEach(e => {
-        const rec = att[`${e.id}_${todayKey}`];
+        const rec = att[`${e.id}__${todayKey}`] || att[`${e.id}_${todayKey}`];
         if (rec && rec.in) present.push(`:white_check_mark: ${e.name} — In: ${rec.in}`);
         else absent.push(`:x: ${e.name} — Not Marked`);
       });
@@ -251,7 +251,7 @@ async function sendDailyAttendance() {
       for (const [mgrName, team] of Object.entries(byMgr)) {
         allLines.push(`\n*Manager: ${mgrName}*`);
         team.forEach(e => {
-          const rec = att[`${e.id}_${todayKey}`];
+          const rec = att[`${e.id}__${todayKey}`] || att[`${e.id}_${todayKey}`];
           if (rec && rec.in) { allLines.push(`:white_check_mark: ${e.name} — In: ${rec.in}`); totalPresent++; }
           else { allLines.push(`:x: ${e.name} — Not Marked`); totalAbsent++; }
         });
