@@ -1716,7 +1716,7 @@ function downloadAttendanceCSV(scope,mgrName){
       const onLeave=leaves.some(l=>l.empId===emp.id&&l.status==='Approved'&&ds>=l.from&&ds<=l.to);
       if(onLeave)return 'L';
       const rec=att[getAttKey(emp.id,ds)];
-      if(rec&&rec.in)return rec.in;
+      if(rec&&rec.in)return 'P - '+rec.in;
       return 'A';
     });
     csv+=csvRow([...fixedCols,...dateCols]);
