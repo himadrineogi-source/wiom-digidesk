@@ -1703,10 +1703,11 @@ function downloadAttendanceCSV(scope,mgrName){
   // Header row 1: fixed cols + date headers (DD-Mon format)
   const fixedHdrs=['E code','Full Name','Area','Agency','Department','DOJ','Mobile Number','Status','LWD Date'];
   const dateHdrs=dates.map(ds=>{
-    const dt=new Date(ds);
-    const day=String(dt.getDate()).padStart(2,'0');
+    const dt=new Date(ds+'T00:00:00');
+    const day=dt.getDate();
     const mon=monthNames[dt.getMonth()].slice(0,3);
-    return `${day}-${mon}`;
+    const yr=String(dt.getFullYear()).slice(2);
+    return `${day}-${mon}-${yr}`;
   });
   const csvRow=r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')+'\n';
   let csv=csvRow([...fixedHdrs,...dateHdrs]);
