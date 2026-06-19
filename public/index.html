@@ -1682,33 +1682,52 @@ function rosterListHTML(filterByMgr){
 }
 
 function downloadAttendanceCSV(scope,mgrName){
-  const emps=scope==='all'?EMPLOYEES.filter(e=>e.role!=='manager'):EMPLOYEES.filter(e=>e.mgr===mgrName);
-  const att=getAtt();const leaves=getLeaves();
+  const emps=scope==='all'?EMPLOYEES.filter(e=>e.role!=='hr'):EMPLOYEES.filter(e=>e.mgr===mgrName&&e.role!=='hr');
+  const att=getAtt();const leaves=getLeaves();const resignations=getResignations();
   const now=new Date();const y=now.getFullYear();const m=now.getMonth();
   const daysInMonth=new Date(y,m+1,0).getDate();
-  const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-  let csv='Employee ID,Name,Department,Manager,Date,Day,Status,Check-In,Check-Out\n';
-  emps.forEach(emp=>{
-    for(let d=1;d<=daysInMonth;d++){
-      const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-      if(ds>today())break;
-      const dow=new Date(y,m,d).getDay();
-      if(dow===0||dow===6)continue;
-      const key=getAttKey(emp.id,ds);
-      const rec=att[key];
-      const onLeave=leaves.some(l=>l.empId===emp.id&&l.status==='Approved'&&ds>=l.from&&ds<=l.to);
-      let status='Absent',checkIn='',checkOut='';
-      if(onLeave){status='On Leave';}
-      else if(rec&&rec.in){status=rec.out?'Present':'Present (Not Checked Out)';checkIn=rec.in;checkOut=rec.out||'';}
-      csv+=`${emp.id},"${emp.name}","${emp.dept}","${emp.mgr}",${ds},${days[dow]},${status},${checkIn},${checkOut}\n`;
-    }
+  const todayStr=today();
+  // Build date list for this month (all days)
+  const dates=[];
+  for(let d=1;d<=daysInMonth;d++){
+    const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    dates.push(ds);
+  }
+  const monthNames=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  // Header row 1: fixed cols + date headers (DD-Mon format)
+  const fixedHdrs=['E code','Full Name','Area','Agency','Department','DOJ','Mobile Number','Status','LWD Date'];
+  const dateHdrs=dates.map(ds=>{
+    const dt=new Date(ds);
+    const day=String(dt.getDate()).padStart(2,'0');
+    const mon=monthNames[dt.getMonth()].slice(0,3);
+    return `${day}-${mon}`;
   });
-  const blob=new Blob([csv],{type:'text/csv'});
+  const csvRow=r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')+'\n';
+  let csv=csvRow([...fixedHdrs,...dateHdrs]);
+  emps.forEach(emp=>{
+    // Find LWD from approved resignation
+    const resign=resignations.find(r=>r.empId===emp.id&&r.status==='HR Approved');
+    const lwd=resign?resign.lwd:'';
+    const fixedCols=[emp.id,emp.name,emp.loc||'',emp.payroll||'',emp.dept||'',emp.doj||'',emp.mobile||'',emp.status||'Active',lwd];
+    const dateCols=dates.map(ds=>{
+      const dt=new Date(ds);const dow=dt.getDay();
+      if(dow===0)return 'WO'; // Sunday
+      if(ds>todayStr)return ''; // Future dates blank
+      const onLeave=leaves.some(l=>l.empId===emp.id&&l.status==='Approved'&&ds>=l.from&&ds<=l.to);
+      if(onLeave)return 'L';
+      const rec=att[getAttKey(emp.id,ds)];
+      if(rec&&rec.in)return 'P';
+      return 'A';
+    });
+    csv+=csvRow([...fixedCols,...dateCols]);
+  });
+  const blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'});
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
   a.href=url;
   const label=scope==='all'?'All_Employees':mgrName.replace(/\s+/g,'_')+'_Team';
-  a.download=`Attendance_${label}_${today()}.csv`;
+  const mon=String(m+1).padStart(2,'0');
+  a.download=`Attendance_${label}_${y}-${mon}.csv`;
   a.click();URL.revokeObjectURL(url);
   showToast('Attendance report downloaded!','s');
 }
