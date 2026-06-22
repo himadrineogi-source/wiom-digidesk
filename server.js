@@ -53,15 +53,25 @@ async function readData() {
   return _memCache;
 }
 
+let _writeQueue = Promise.resolve();
+
 async function writeData(data) {
   _memCache = data;
-  const content = Buffer.from(JSON.stringify(data)).toString('base64');
-  const body = { message: 'update data', content };
-  if (_memSha) body.sha = _memSha;
-  try {
-    const r = await ghRequest('PUT', `/repos/${GH_REPO}/contents/${GH_FILE}`, body);
-    if (r.content) _memSha = r.content.sha;
-  } catch (e) { console.error('GitHub write failed', e); }
+  _writeQueue = _writeQueue.then(async () => {
+    try {
+      // Always fetch latest SHA before writing to avoid conflicts
+      const cur = await ghRequest('GET', `/repos/${GH_REPO}/contents/${GH_FILE}`);
+      if (cur.sha) _memSha = cur.sha;
+    } catch (e) {}
+    const content = Buffer.from(JSON.stringify(_memCache)).toString('base64');
+    const body = { message: 'update data', content };
+    if (_memSha) body.sha = _memSha;
+    try {
+      const r = await ghRequest('PUT', `/repos/${GH_REPO}/contents/${GH_FILE}`, body);
+      if (r.content) _memSha = r.content.sha;
+    } catch (e) { console.error('GitHub write failed', e.message); }
+  });
+  return _writeQueue;
 }
 
 // ==================== SLACK ====================
@@ -264,11 +274,27 @@ async function sendDailyAttendance() {
   } catch (e) { console.error('Cron error', e); }
 }
 
+// ==================== LOGIN TRACKING ====================
+app.post('/api/track-login', async (req, res) => {
+  const { empId, empName, role, time } = req.body;
+  if (!empId) return res.json({ ok: true });
+  const data = await readData();
+  const logins = data.wiom_logins ? JSON.parse(data.wiom_logins) : [];
+  logins.unshift({ empId, empName, role, time, date: new Date().toISOString().split('T')[0] });
+  if (logins.length > 1000) logins.splice(1000); // keep last 1000
+  data.wiom_logins = JSON.stringify(logins);
+  writeData(data);
+  res.json({ ok: true });
+});
+
 // ==================== MANUAL TRIGGER ====================
 app.post('/api/send-attendance-now', async (req, res) => {
   await sendDailyAttendance();
   res.json({ ok: true, message: 'Attendance report sent' });
 });
+
+// ==================== VERSION ====================
+app.get('/api/version', (req, res) => res.json({ version: '2.1.0', feature: 'manual-att-override' }));
 
 // ==================== API ROUTES ====================
 app.get('/api', async (req, res) => {
