@@ -757,7 +757,14 @@ function getLeaveBalance(empId){
 // ==================== ATTENDANCE HELPERS ====================
 function getAttKey(empId,dateStr){return empId+'__'+dateStr}
 function getEmpAtt(empId,dateStr){const a=getAtt();return a[getAttKey(empId,dateStr)]||null}
-function setEmpAtt(empId,dateStr,data){const a=getAtt();a[getAttKey(empId,dateStr)]={...a[getAttKey(empId,dateStr)],...data};saveAtt(a)}
+function setEmpAtt(empId,dateStr,data){
+  const a=getAtt();const attKey=getAttKey(empId,dateStr);
+  a[attKey]={...(a[attKey]||{}),...data};
+  _cache.wiom_att=a; // update local cache immediately
+  // Send ONLY this single record atomically — prevents race condition
+  fetch(window.location.origin+'/api/att-record',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({attKey,attValue:a[attKey]})}).catch(()=>{});
+}
 function countPresent(empId,y,m){
   const att=getAtt();let c=0;
   const days=new Date(y,m+1,0).getDate();

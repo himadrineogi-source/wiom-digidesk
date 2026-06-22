@@ -304,6 +304,22 @@ app.get('/api', async (req, res) => {
   res.json({ ok: true, value: key ? (data[key] || null) : null });
 });
 
+// Atomic attendance record — merges a SINGLE att record, never overwrites others
+let _opQueue = Promise.resolve();
+app.post('/api/att-record', async (req, res) => {
+  const { attKey, attValue } = req.body;
+  if (!attKey) return res.status(400).json({ ok: false });
+  _opQueue = _opQueue.then(async () => {
+    const data = await readData();
+    const att = data.wiom_att ? JSON.parse(data.wiom_att) : {};
+    att[attKey] = attValue;
+    data.wiom_att = JSON.stringify(att);
+    await writeData(data);
+  });
+  await _opQueue;
+  res.json({ ok: true });
+});
+
 app.post('/api', async (req, res) => {
   const { key, value } = req.body;
   if (!key) return res.status(400).json({ ok: false });
