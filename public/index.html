@@ -2012,6 +2012,29 @@ function renderHR(){
 <div style="display:flex;justify-content:flex-end;margin-top:10px;margin-bottom:4px">
   <button class="btn btn-sm" style="background:#f0fdf4;color:#15803d;border:1.5px solid #bbf7d0;font-weight:600" onclick="downloadAttendanceCSV('all','')">⬇ Download All Employees Attendance (CSV)</button>
 </div>
+
+<p class="sec-title" style="margin-top:16px">Manual Attendance Override</p>
+<div class="card">
+  <div style="font-size:12px;color:#6b7280;margin-bottom:10px">Mark or correct attendance for any employee on any past date.</div>
+  <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end">
+    <div style="flex:2;min-width:160px">
+      <div style="font-size:11px;color:#6b7280;margin-bottom:4px;font-weight:600">Employee</div>
+      <select id="manualAttEmp" style="width:100%;border:1.5px solid #e5e7eb;border-radius:8px;padding:7px 10px;font-size:13px;outline:none">
+        <option value="">Select employee...</option>
+        ${EMPLOYEES.filter(e=>e.role!=='hr').map(e=>`<option value="${e.id}">${e.name} (${e.id})</option>`).join('')}
+      </select>
+    </div>
+    <div style="flex:1;min-width:130px">
+      <div style="font-size:11px;color:#6b7280;margin-bottom:4px;font-weight:600">Date</div>
+      <input type="date" id="manualAttDate" max="${today()}" style="width:100%;border:1.5px solid #e5e7eb;border-radius:8px;padding:7px 10px;font-size:13px;outline:none">
+    </div>
+    <div style="flex:1;min-width:120px">
+      <div style="font-size:11px;color:#6b7280;margin-bottom:4px;font-weight:600">Check-in Time</div>
+      <input type="time" id="manualAttTime" style="width:100%;border:1.5px solid #e5e7eb;border-radius:8px;padding:7px 10px;font-size:13px;outline:none">
+    </div>
+    <button class="btn btn-primary btn-sm" style="flex-shrink:0;padding:8px 18px" onclick="saveManualAtt()">Save</button>
+  </div>
+</div>
 <p class="sec-title" style="margin-top:16px">Resignation Approvals ${pendingResigns.length?`<span class="badge b-pending">${pendingResigns.length}</span>`:''}</p>
 ${resignations.length?`<div class="card">
   ${resignations.sort((a,b)=>b.submittedOn.localeCompare(a.submittedOn)).map(r=>`
@@ -2421,6 +2444,30 @@ function hrApproveResignation(id){
   if(mgrEmp)addNotif(mgrEmp.id,'Resignation of '+r.empName+' has been approved by HR Admin. Last Working Day: '+fmtDate(r.lwd)+'.');
   showToast('Resignation approved. LWD: '+fmtDate(r.lwd)+'. Employee & manager notified.','s');
   renderHR();
+}
+
+function saveManualAtt(){
+  const empId=document.getElementById('manualAttEmp').value;
+  const date=document.getElementById('manualAttDate').value;
+  const time24=document.getElementById('manualAttTime').value;
+  if(!empId||!date||!time24){showToast('Please fill all fields.','e');return;}
+  if(date>today()){showToast('Cannot mark future date.','e');return;}
+  // Convert 24h to 12h format
+  const [hh,mm]=time24.split(':');
+  const h=parseInt(hh);
+  const ampm=h>=12?'pm':'am';
+  const h12=h%12||12;
+  const timeStr=`${String(h12).padStart(2,'0')}:${mm} ${ampm}`;
+  const att=getAtt();
+  const key=getAttKey(empId,date);
+  att[key]={in:timeStr};
+  saveAtt(att);
+  const emp=EMPLOYEES.find(e=>e.id===empId);
+  showToast(`Attendance saved: ${emp?emp.name:empId} on ${date} at ${timeStr}`,'s');
+  // Reset form
+  document.getElementById('manualAttEmp').value='';
+  document.getElementById('manualAttDate').value='';
+  document.getElementById('manualAttTime').value='';
 }
 
 function hrRejectResignation(id){
