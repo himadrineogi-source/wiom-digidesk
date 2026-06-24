@@ -23,6 +23,8 @@ app.use(express.urlencoded({ extended: true }));
 
 let _memCache = null;
 let _memSha = null;
+let _memCacheTime = 0;
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
 function ghRequest(method, path, body) {
   return new Promise((resolve, reject) => {
@@ -44,11 +46,12 @@ function ghRequest(method, path, body) {
 }
 
 async function readData() {
-  if (_memCache !== null) return _memCache;
+  if (_memCache !== null && (Date.now() - _memCacheTime) < CACHE_TTL) return _memCache;
   try {
     const r = await ghRequest('GET', `/repos/${GH_REPO}/contents/${GH_FILE}`);
-    if (r.content) { _memSha = r.sha; _memCache = JSON.parse(Buffer.from(r.content, 'base64').toString('utf8')); return _memCache; }
+    if (r.content) { _memSha = r.sha; _memCache = JSON.parse(Buffer.from(r.content, 'base64').toString('utf8')); _memCacheTime = Date.now(); return _memCache; }
   } catch (e) {}
+  if (_memCache !== null) return _memCache; // fallback to stale cache on error
   _memCache = {};
   return _memCache;
 }
