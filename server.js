@@ -325,7 +325,7 @@ app.post('/api', async (req, res) => {
   if (!key) return res.status(400).json({ ok: false });
   const data = await readData();
   data[key] = value;
-  writeData(data);
+  await writeData(data);
   res.json({ ok: true });
 });
 
