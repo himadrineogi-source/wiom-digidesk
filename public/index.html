@@ -601,10 +601,11 @@ input,select,textarea{font-family:inherit}
 
 <script>
 // ==================== EMPLOYEE DATA ====================
-let EMPLOYEES = [
+const _BASE_EMPLOYEES = [
   {id:'HRADMIN',name:'Pramod',mobile:'9716209931',email:'pramod@wiom.in',doj:'2023-01-01',designation:'HR Admin',dept:'HR',loc:'Gurugram',mgr:'',payroll:'Wiom',role:'hr'},
   {id:'ORA0023',name:'Udit Kumar',mobile:'9716209931',email:'',doj:'2025-07-24',designation:'Associate',dept:'Supply',loc:'New Delhi',mgr:'Pramod',payroll:'Betterplace'},
 ];
+let EMPLOYEES = [..._BASE_EMPLOYEES];
 
 const POLICIES = {
   leave:`<div class="doc-meta">Effective: 1 May 2026 | Applicable: All Off-Roll Employees</div>
@@ -823,6 +824,8 @@ function verifyOTP(){
 
 async function loginSuccess(user){
   await loadCache();
+  // Reset to base list first so deleted employees don't persist across logins
+  EMPLOYEES.length=0;_BASE_EMPLOYEES.forEach(e=>EMPLOYEES.push({...e}));
   getCustomEmps().forEach(e=>{const idx=EMPLOYEES.findIndex(x=>x.id===e.id);if(idx>=0)EMPLOYEES[idx]=e;else EMPLOYEES.push(e);});
   S.user=user;
   // Track login
@@ -1957,6 +1960,31 @@ function confirmReject(){
 }
 
 // ==================== HR PANEL ====================
+function buildLoginHistoryHTML(){
+  const logins=_cache.wiom_logins||[];
+  if(!logins.length)return '<div class="empty" style="padding:20px"><p>No login records yet.</p></div>';
+  let rows='';
+  logins.slice(0,50).forEach(function(l,i){
+    const bg=i%2?'#fafafa':'#fff';
+    const badge=l.role==='hr'?'b-blue':l.role==='manager'?'b-pending':'b-gray';
+    rows+='<tr style="border-bottom:1px solid #f9fafb;background:'+bg+'">'
+      +'<td style="padding:6px 8px;font-weight:500">'+(l.empName||'-')+'</td>'
+      +'<td style="padding:6px 8px;color:#6b7280">'+(l.empId||'-')+'</td>'
+      +'<td style="padding:6px 8px"><span class="badge '+badge+'" style="font-size:10px">'+(l.role||'-')+'</span></td>'
+      +'<td style="padding:6px 8px;color:#6b7280">'+(l.date||'-')+'</td>'
+      +'<td style="padding:6px 8px;color:#6b7280">'+(l.time||'-')+'</td>'
+      +'</tr>';
+  });
+  return '<table style="width:100%;border-collapse:collapse;font-size:13px">'
+    +'<thead><tr style="border-bottom:2px solid #f3f4f6;color:#6b7280;text-align:left">'
+    +'<th style="padding:6px 8px;font-weight:600">Employee</th>'
+    +'<th style="padding:6px 8px;font-weight:600">ID</th>'
+    +'<th style="padding:6px 8px;font-weight:600">Role</th>'
+    +'<th style="padding:6px 8px;font-weight:600">Date</th>'
+    +'<th style="padding:6px 8px;font-weight:600">Time</th>'
+    +'</tr></thead><tbody>'+rows+'</tbody></table>';
+}
+
 function renderHR(){
   if(!S.user||S.user.role!=='hr'){
     document.getElementById('hrContent').innerHTML='<div class="empty"><div class="ei">🔐</div><p>HR Admin access only.</p></div>';return;
@@ -2087,25 +2115,7 @@ ${resignations.length?`<div class="card">
   <span style="font-size:12px;color:#9ca3af">Last 50 logins</span>
 </div>
 <div class="card" style="overflow-x:auto">
-  ${(()=>{
-    const logins=_cache.wiom_logins||[];
-    if(!logins.length)return '<div class="empty" style="padding:20px"><p>No login records yet.</p></div>';
-    return `<table style="width:100%;border-collapse:collapse;font-size:13px">
-    <thead><tr style="border-bottom:2px solid #f3f4f6;color:#6b7280;text-align:left">
-      <th style="padding:6px 8px;font-weight:600">Employee</th>
-      <th style="padding:6px 8px;font-weight:600">ID</th>
-      <th style="padding:6px 8px;font-weight:600">Role</th>
-      <th style="padding:6px 8px;font-weight:600">Date</th>
-      <th style="padding:6px 8px;font-weight:600">Time</th>
-    </tr></thead>
-    <tbody>${logins.slice(0,50).map((l,i)=>`<tr style="border-bottom:1px solid #f9fafb;background:${i%2?'#fafafa':'#fff'}">
-      <td style="padding:6px 8px;font-weight:500">${l.empName||'-'}</td>
-      <td style="padding:6px 8px;color:#6b7280">${l.empId||'-'}</td>
-      <td style="padding:6px 8px"><span class="badge ${l.role==='hr'?'b-blue':l.role==='manager'?'b-pending':'b-gray'}" style="font-size:10px">${l.role||'-'}</span></td>
-      <td style="padding:6px 8px;color:#6b7280">${l.date||'-'}</td>
-      <td style="padding:6px 8px;color:#6b7280">${l.time||'-'}</td>
-    </tr>`).join('')}</tbody></table>`;
-  })()}
+  ${buildLoginHistoryHTML()}
 </div>`;
 }
 
