@@ -712,7 +712,12 @@ async function loadCache(){
   }catch(e){console.warn('Backend unavailable, using local cache');}
   _cacheLoaded=true;
 }
-function _save(key){fetch(BACKEND,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key,value:JSON.stringify(_cache[key])})}).catch(()=>{});}
+function _save(key,attempt){
+  attempt=attempt||1;
+  fetch(BACKEND,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key,value:JSON.stringify(_cache[key])})})
+  .then(r=>r.json()).then(r=>{if(!r.ok)throw new Error('not ok');})
+  .catch(()=>{if(attempt<3)setTimeout(()=>_save(key,attempt+1),2000);else showToast('Data save failed. Please refresh and try again.','e');});
+}
 function getLeaves(){return _cache.wiom_leaves;}
 function saveLeaves(d){_cache.wiom_leaves=d;_save('wiom_leaves');}
 function getAtt(){return _cache.wiom_att;}
