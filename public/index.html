@@ -1224,6 +1224,29 @@ function renderHRDashboard(){
   </div>
 </div>
 <div class="card">
+  <div class="card-hdr"><h3>Today's Attendance</h3><button class="btn btn-secondary btn-sm" onclick="renderHRDashboard()" style="font-size:11px;padding:4px 10px">↻ Refresh</button></div>
+  ${(()=>{
+    const nonHr=EMPLOYEES.filter(e=>e.role!=='hr');
+    const present=nonHr.filter(e=>{const a=getEmpAtt(e.id,t);return a&&a.in;});
+    const onLeave=nonHr.filter(e=>!getEmpAtt(e.id,t)?.in&&leaves.some(l=>l.empId===e.id&&l.status==='Approved'&&t>=l.from&&t<=l.to));
+    const notMarked=nonHr.filter(e=>{const a=getEmpAtt(e.id,t);return !(a&&a.in)&&!leaves.some(l=>l.empId===e.id&&l.status==='Approved'&&t>=l.from&&t<=l.to);});
+    let html='';
+    if(present.length){
+      html+=`<div style="font-size:11px;font-weight:700;color:#15803d;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">✅ Present (${present.length})</div>`;
+      html+=present.map(e=>{const a=getEmpAtt(e.id,t);return `<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid #f3f4f6"><div><div style="font-size:13px;font-weight:600">${e.name}</div><div style="font-size:11px;color:#6b7280">${e.dept} · ${e.mgr||'-'}</div></div><div style="text-align:right"><span style="font-size:12px;font-weight:700;color:#15803d">${a.in}</span>${a.out?`<div style="font-size:10px;color:#6b7280">Out: ${a.out}</div>`:''}</div></div>`;}).join('');
+    }
+    if(onLeave.length){
+      html+=`<div style="font-size:11px;font-weight:700;color:#a16207;margin-top:12px;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">🏖️ On Leave (${onLeave.length})</div>`;
+      html+=onLeave.map(e=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid #f3f4f6"><div style="font-size:13px;font-weight:600">${e.name}</div><span style="font-size:11px;color:#a16207;font-weight:600">On Leave</span></div>`).join('');
+    }
+    if(notMarked.length){
+      html+=`<div style="font-size:11px;font-weight:700;color:#b91c1c;margin-top:12px;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">❌ Not Marked (${notMarked.length})</div>`;
+      html+=notMarked.map(e=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid #f3f4f6"><div><div style="font-size:13px;font-weight:600">${e.name}</div><div style="font-size:11px;color:#6b7280">${e.dept} · ${e.mgr||'-'}</div></div><span style="font-size:11px;color:#b91c1c;font-weight:600">Not Marked</span></div>`).join('');
+    }
+    return html||'<div class="empty" style="padding:10px 0"><p>No employees found.</p></div>';
+  })()}
+</div>
+<div class="card">
   <div class="card-hdr"><h3>By Department</h3></div>
   ${depts.map(d=>{const c=EMPLOYEES.filter(e=>e.dept===d).length;const pct=Math.round(c/EMPLOYEES.length*100);
   return `<div style="margin-bottom:10px">
