@@ -739,8 +739,8 @@ function getQuarter(dateStr){
   return Math.floor(m/3);
 }
 function quarterLabel(q,y){return ['Q1 (Jan–Mar)','Q2 (Apr–Jun)','Q3 (Jul–Sep)','Q4 (Oct–Dec)'][q]+' '+y}
-function quarterStart(q,y){return new Date(y,[0,3,6,9][q],1).toISOString().slice(0,10)}
-function quarterEnd(q,y){return new Date(y,[2,5,8,11][q],[31,30,30,31][q]).toISOString().slice(0,10)}
+function quarterStart(q,y){const m=[1,4,7,10][q];return `${y}-${String(m).padStart(2,'0')}-01`}
+function quarterEnd(q,y){const m=[3,6,9,12][q];const d=[31,30,30,31][q];return `${y}-${String(m).padStart(2,'0')}-${d}`}
 function currentQ(){const n=new Date();return{q:getQuarter(today()),y:n.getFullYear()}}
 function initials(n){return n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()}
 
@@ -835,7 +835,7 @@ async function loginSuccess(user,skipTrack){
   const now=new Date();
   const timeStr=now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true});
   if(!skipTrack)fetch(window.location.origin+'/api/track-login',{method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({empId:user.role==='employee'?user.emp.id:'HRADMIN',empName,role:user.role,time:timeStr})}).catch(()=>{});
+    body:JSON.stringify({empId:user.emp?user.emp.id:'HRADMIN',empName,role:user.role,time:timeStr})}).catch(()=>{});
   document.getElementById('loginPage').style.display='none';
   const app=document.getElementById('app');
   app.classList.add('on');
@@ -1202,8 +1202,9 @@ function renderHRDashboard(){
   const depts=[...new Set(EMPLOYEES.map(e=>e.dept))];
   const payrolls=[...new Set(EMPLOYEES.map(e=>e.payroll))];
   const locs=[...new Set(EMPLOYEES.map(e=>e.loc))];
-  const presentToday=EMPLOYEES.filter(e=>{const a=getEmpAtt(e.id,t);return a&&a.in;}).length;
-  const onLeaveToday=EMPLOYEES.filter(e=>leaves.some(l=>l.empId===e.id&&l.status==='Approved'&&t>=l.from&&t<=l.to)).length;
+  const trackableEmps=EMPLOYEES.filter(e=>e.role!=='hr');
+  const presentToday=trackableEmps.filter(e=>{const a=getEmpAtt(e.id,t);return a&&a.in;}).length;
+  const onLeaveToday=trackableEmps.filter(e=>leaves.some(l=>l.empId===e.id&&l.status==='Approved'&&t>=l.from&&t<=l.to)).length;
   const pendingAll=leaves.filter(l=>l.status==='Pending').length;
   const approvedAll=leaves.filter(l=>l.status==='Approved').length;
   const recentLeaves=leaves.slice().sort((a,b)=>b.applied.localeCompare(a.applied)).slice(0,5);
@@ -1223,7 +1224,7 @@ function renderHRDashboard(){
   <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
     <div style="text-align:center;background:#dcfce7;border-radius:10px;padding:10px"><div style="font-size:20px;font-weight:800;color:#15803d">${presentToday}</div><div style="font-size:11px;color:#166534">Present</div></div>
     <div style="text-align:center;background:#fef9c3;border-radius:10px;padding:10px"><div style="font-size:20px;font-weight:800;color:#a16207">${onLeaveToday}</div><div style="font-size:11px;color:#854d0e">On Leave</div></div>
-    <div style="text-align:center;background:#fee2e2;border-radius:10px;padding:10px"><div style="font-size:20px;font-weight:800;color:#b91c1c">${Math.max(0,EMPLOYEES.length-presentToday-onLeaveToday)}</div><div style="font-size:11px;color:#991b1b">Not Marked</div></div>
+    <div style="text-align:center;background:#fee2e2;border-radius:10px;padding:10px"><div style="font-size:20px;font-weight:800;color:#b91c1c">${Math.max(0,trackableEmps.length-presentToday-onLeaveToday)}</div><div style="font-size:11px;color:#991b1b">Not Marked</div></div>
   </div>
 </div>
 <div class="card">
@@ -1336,7 +1337,7 @@ function renderLeaveHistory(){
   <div class="leave-item">
     <div class="licon">${l.type==='SL'?'🤒':l.type==='CO'?'🔄':l.type==='EL'?'📅':'🏖️'}</div>
     <div class="ldetail">
-      <div class="ltype">${l.type==='CL'?'Casual Leave':'Sick Leave'} · ${l.days} day${l.days>1?'s':''}</div>
+      <div class="ltype">${({CL:'Casual Leave',SL:'Sick Leave',CO:'Comp Off',EL:'Earned Leave'}[l.type]||l.type)} · ${l.days} day${l.days>1?'s':''}</div>
       <div class="ldates">${fmtDate(l.from)} – ${fmtDate(l.to)}</div>
       <div class="lreason">${l.reason||''}</div>
       ${l.rejectReason?`<div style="font-size:11px;color:#dc2626;margin-top:2px">Reason: ${l.rejectReason}</div>`:''}
@@ -1434,7 +1435,7 @@ function submitLeave(){
   if(!reason){showToast('Please enter a reason','e');return}
   const days=daysBetween(from,to);
   const bal=getLeaveBalance(emp.id);
-  if(days>bal.avail){showToast(`Insufficient leave balance. Available: ${bal.avail} day${bal.avail!==1?'s':''}','e`);return}
+  if(days>bal.avail){showToast(`Insufficient leave balance. Available: ${bal.avail} day${bal.avail!==1?'s':''}`,'e');return}
   const leave={
     id:'LV'+Date.now(),empId:emp.id,empName:emp.name,mgr:emp.mgr,dept:emp.dept,
     type,from,to,days,reason,status:'Pending',applied:today(),rejectReason:''
@@ -1459,8 +1460,13 @@ function renderAttendance(){
   const presentCount=emp?countPresent(empId,y,m):0;
   const daysInMonth=new Date(y,m+1,0).getDate();
 
+  const myResign=emp?getMyResignation(emp.id):null;
+  const lwdOver=myResign&&today()>myResign.lwd;
   document.getElementById('attContent').innerHTML=`
-<div style="display:flex;align-items:center;justify-content:space-between;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:10px 14px;margin-bottom:12px">
+${lwdOver?`<div style="background:#fee2e2;border:1px solid #fca5a5;border-radius:12px;padding:12px 14px;margin-bottom:12px;text-align:center">
+  <div style="font-size:14px;font-weight:700;color:#b91c1c">Attendance Closed</div>
+  <div style="font-size:12px;color:#6b7280;margin-top:4px">Your last working day was <strong>${myResign.lwd}</strong>. Attendance is no longer available.</div>
+</div>`:`<div style="display:flex;align-items:center;justify-content:space-between;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:10px 14px;margin-bottom:12px">
   <div>
     <div style="font-size:13px;font-weight:700;color:#065f46">Today's Attendance</div>
     <div style="font-size:11px;color:#6b7280;margin-top:1px">${new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'short'})}</div>
@@ -1469,7 +1475,7 @@ function renderAttendance(){
   <button class="btn btn-sm" style="background:${att&&att.in?'#e5e7eb':'#059669'};color:${att&&att.in?'#6b7280':'#fff'};min-width:90px" onclick="checkIn()" ${att&&att.in?'disabled':''}>
     ${att&&att.in?'Checked In ✓':'Check In'}
   </button>
-</div>
+</div>`}
 <div class="stats-row">
   <div class="scard"><div class="sv sv-green">${presentCount}</div><div class="sl">Present</div></div>
   <div class="scard"><div class="sv sv-red">${Math.max(0,(new Date()<new Date(y,m+1,0)?new Date().getDate()-1:daysInMonth)-presentCount-(emp?getLeaves().filter(l=>l.empId===empId&&l.status==='Approved'&&new Date(l.from).getMonth()===m).reduce((s,l)=>s+l.days,0):0))}</div><div class="sl">Absent</div></div>
@@ -1524,9 +1530,13 @@ function buildCalendar(empId,y,m){
   return html;
 }
 
+function getMyResignation(empId){return getResignations().find(r=>r.empId===empId&&r.status==='HR Approved');}
+function isLwdPassed(empId){const r=getMyResignation(empId);return r&&today()>r.lwd;}
 function checkIn(){
   const emp=S.user&&S.user.emp;
   if(!emp){showToast('Please log in as employee','e');return}
+  const r=getMyResignation(emp.id);
+  if(r&&today()>r.lwd){showToast('Your last working day was '+r.lwd+'. Attendance is no longer available.','e');return;}
   const att=getEmpAtt(emp.id,today());
   if(att&&att.in){showToast('Already checked in','e');return;}
   const now=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true});
@@ -1636,8 +1646,6 @@ function uploadDoc(input){
 }
 
 // ==================== ROSTER ====================
-function getRosters(){return JSON.parse(localStorage.getItem('wiom_rosters')||'[]')}
-function saveRosters(d){localStorage.setItem('wiom_rosters',JSON.stringify(d))}
 
 function uploadRoster(input,uploadedBy){
   const file=input.files[0];
@@ -2514,7 +2522,7 @@ function saveManualAtt(){
   const timeStr=`${String(h12).padStart(2,'0')}:${mm} ${ampm}`;
   const att=getAtt();
   const key=getAttKey(empId,date);
-  att[key]={in:timeStr};
+  att[key]={...(att[key]||{}),in:timeStr};
   saveAtt(att);
   const emp=EMPLOYEES.find(e=>e.id===empId);
   showToast(`Attendance saved: ${emp?emp.name:empId} on ${date} at ${timeStr}`,'s');
@@ -2568,6 +2576,7 @@ function showToast(msg,type=''){
       const user=JSON.parse(saved);
       // Validate saved session — ensure employee still exists
       if(user.role==='hr'||(user.emp&&EMPLOYEES.find(e=>e.id===user.emp.id))){
+        if(user.emp){const fresh=EMPLOYEES.find(e=>e.id===user.emp.id);if(fresh)user.emp=fresh;}
         await loginSuccess(user,true);
         return;
       } else {
