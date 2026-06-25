@@ -763,23 +763,41 @@ function getLeaveBalance(empId){
 // ==================== ATTENDANCE HELPERS ====================
 function getAttKey(empId,dateStr){return empId+'__'+dateStr}
 function getEmpAtt(empId,dateStr){const a=getAtt();return a[getAttKey(empId,dateStr)]||null}
+// ---- Attendance: localStorage-first, backend sync in background ----
+function _attPendingGet(){try{return JSON.parse(localStorage.getItem('wiom_att_pending')||'{}');}catch(e){return {};}}
+function _attPendingSet(p){try{localStorage.setItem('wiom_att_pending',JSON.stringify(p));}catch(e){}}
+function _attPendingAdd(attKey,attValue){const p=_attPendingGet();p[attKey]=attValue;_attPendingSet(p);}
+function _attPendingRemove(attKey){const p=_attPendingGet();delete p[attKey];_attPendingSet(p);}
+
+function _attSyncOne(attKey,attValue,retries){
+  retries=retries||0;
+  fetch(window.location.origin+'/api/att-record',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({attKey,attValue})})
+  .then(r=>r.json()).then(r=>{
+    if(!r.ok)throw new Error();
+    _attPendingRemove(attKey); // confirmed saved — remove from pending
+    // Merge into live cache in case it was loaded stale
+    const a=getAtt();a[attKey]=attValue;_cache.wiom_att=a;
+  })
+  .catch(()=>{
+    // Will retry on next login automatically — no toast needed, data is safe in localStorage
+    if(retries<5)setTimeout(()=>_attSyncOne(attKey,attValue,retries+1),(retries+1)*3000);
+  });
+}
+
+function _attSyncAll(){
+  const pending=_attPendingGet();
+  Object.entries(pending).forEach(([k,v])=>_attSyncOne(k,v,0));
+}
+
 function setEmpAtt(empId,dateStr,data){
   const a=getAtt();const attKey=getAttKey(empId,dateStr);
   a[attKey]={...(a[attKey]||{}),...data};
   _cache.wiom_att=a;
-  // Retry up to 3 times so network glitches don't silently lose data
-  function trySave(attempt){
-    fetch(window.location.origin+'/api/att-record',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({attKey,attValue:a[attKey]})})
-    .then(r=>r.json()).then(r=>{
-      if(!r.ok)throw new Error('not ok');
-    })
-    .catch(()=>{
-      if(attempt<3){setTimeout(()=>trySave(attempt+1),2000);}
-      else{showToast('Attendance save failed. Please check-in again.','e');}
-    });
-  }
-  trySave(1);
+  // 1. Save to localStorage immediately — attendance can NEVER be lost
+  _attPendingAdd(attKey,a[attKey]);
+  // 2. Sync to backend in background — if it fails, next login will retry
+  _attSyncOne(attKey,a[attKey],0);
 }
 function countPresent(empId,y,m){
   const att=getAtt();let c=0;
@@ -839,6 +857,7 @@ function verifyOTP(){
 
 async function loginSuccess(user,skipTrack){
   await loadCache();
+  _attSyncAll(); // push any pending localStorage attendance to backend
   // Reset to base list first so deleted employees don't persist across logins
   EMPLOYEES.length=0;_BASE_EMPLOYEES.forEach(e=>EMPLOYEES.push({...e}));
   getCustomEmps().forEach(e=>{const idx=EMPLOYEES.findIndex(x=>x.id===e.id);if(idx>=0)EMPLOYEES[idx]=e;else EMPLOYEES.push(e);});
