@@ -2112,9 +2112,13 @@ ${resignations.length?`<div class="card">
       <span class="badge ${r.status==='HR Approved'?'b-approved':r.status==='HR Rejected'?'b-rejected':r.status==='Manager Approved'?'b-pending':'b-gray'}">${r.status}</span>
     </div>
     ${r.status==='Manager Approved'?`
-    <div style="display:flex;gap:8px;margin-top:10px">
-      <button class="btn btn-success btn-sm" style="flex:1" onclick="hrApproveResignation('${r.id}')">✓ Approve</button>
-      <button class="btn btn-danger btn-sm" style="flex:1" onclick="hrRejectResignation('${r.id}')">✕ Reject</button>
+    <div style="margin-top:10px">
+      <div style="font-size:11px;color:#6b7280;margin-bottom:4px;font-weight:600">Last Working Day (editable)</div>
+      <input type="date" id="hr_lwd_${r.id}" value="${r.lwd}" min="${today()}" style="width:100%;border:1.5px solid #e5e7eb;border-radius:8px;padding:6px 10px;font-size:13px;margin-bottom:8px">
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-success btn-sm" style="flex:1" onclick="hrApproveResignation('${r.id}')">✓ Approve</button>
+        <button class="btn btn-danger btn-sm" style="flex:1" onclick="hrRejectResignation('${r.id}')">✕ Reject</button>
+      </div>
     </div>`:''}
   </div>`).join('')}
 </div>`:`<div class="empty"><div class="ei">📭</div><p>No resignation requests.</p></div>`}
@@ -2435,7 +2439,7 @@ function openMgrApproveModal(id){
     <div style="margin-top:4px;font-style:italic;color:#6b7280">"${r.reason}"</div>`;
   const lwdInput=document.getElementById('mgr_lwd_edit');
   lwdInput.value=r.lwd;
-  lwdInput.min=r.lwd;
+  lwdInput.min=today();
   document.getElementById('mgrResignModal').classList.add('show');
 }
 
@@ -2483,6 +2487,8 @@ function hrApproveResignation(id){
   const resignations=getResignations();
   const idx=resignations.findIndex(r=>r.id===id);
   if(idx<0)return;
+  const newLwd=document.getElementById('hr_lwd_'+id)?.value||resignations[idx].lwd;
+  if(newLwd)resignations[idx].lwd=newLwd;
   resignations[idx].status='HR Approved';
   resignations[idx].hrApprovedOn=today();
   saveResignations(resignations);
