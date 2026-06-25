@@ -2332,8 +2332,13 @@ function normalizeDOJ(s){
   return s;
 }
 
-function bulkUploadEmployees(input){
+async function bulkUploadEmployees(input){
   const file=input.files[0];if(!file)return;
+  // Always fetch fresh from backend before merging to avoid overwriting existing data
+  _cacheLoaded=false;
+  await loadCache();
+  EMPLOYEES.length=0;_BASE_EMPLOYEES.forEach(e=>EMPLOYEES.push({...e}));
+  getCustomEmps().forEach(e=>{const idx=EMPLOYEES.findIndex(x=>x.id===e.id);if(idx>=0)EMPLOYEES[idx]=e;else EMPLOYEES.push(e);});
   const reader=new FileReader();
   reader.onload=function(e){
     const lines=e.target.result.split('\n').map(l=>l.trim()).filter(l=>l);
