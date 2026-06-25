@@ -761,10 +761,20 @@ function getEmpAtt(empId,dateStr){const a=getAtt();return a[getAttKey(empId,date
 function setEmpAtt(empId,dateStr,data){
   const a=getAtt();const attKey=getAttKey(empId,dateStr);
   a[attKey]={...(a[attKey]||{}),...data};
-  _cache.wiom_att=a; // update local cache immediately
-  // Send ONLY this single record atomically — prevents race condition
-  fetch(window.location.origin+'/api/att-record',{method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({attKey,attValue:a[attKey]})}).catch(()=>{});
+  _cache.wiom_att=a;
+  // Retry up to 3 times so network glitches don't silently lose data
+  function trySave(attempt){
+    fetch(window.location.origin+'/api/att-record',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({attKey,attValue:a[attKey]})})
+    .then(r=>r.json()).then(r=>{
+      if(!r.ok)throw new Error('not ok');
+    })
+    .catch(()=>{
+      if(attempt<3){setTimeout(()=>trySave(attempt+1),2000);}
+      else{showToast('Attendance save failed. Please check-in again.','e');}
+    });
+  }
+  trySave(1);
 }
 function countPresent(empId,y,m){
   const att=getAtt();let c=0;
