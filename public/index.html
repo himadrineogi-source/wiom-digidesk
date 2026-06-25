@@ -751,7 +751,7 @@ function getLeaveBalance(empId){
   const leaves=getLeaves().filter(l=>l.empId===empId&&l.status==='Approved');
   const qStart=quarterStart(q,y);const qEnd=quarterEnd(q,y);
   const used=leaves.filter(l=>l.from>=qStart&&l.from<=qEnd).reduce((s,l)=>s+l.days,0);
-  const pending=getLeaves().filter(l=>l.empId===empId&&l.status==='Pending'&&l.from>=qStart).reduce((s,l)=>s+l.days,0);
+  const pending=getLeaves().filter(l=>l.empId===empId&&l.status==='Pending'&&l.from>=qStart&&l.from<=qEnd).reduce((s,l)=>s+l.days,0);
   return{alloc,used,pending,avail:Math.max(0,alloc-used-pending)};
 }
 
@@ -1056,7 +1056,7 @@ ${recentLeaves.length?`
   <div class="leave-item">
     <div class="licon">${l.type==='SL'?'🤒':l.type==='CO'?'🔄':l.type==='EL'?'📅':'🏖️'}</div>
     <div class="ldetail">
-      <div class="ltype">${l.type==='CL'?'Casual Leave':'Sick Leave'} · ${l.days}d</div>
+      <div class="ltype">${({CL:'Casual Leave',SL:'Sick Leave',CO:'Comp Off',EL:'Earned Leave'}[l.type]||l.type)} · ${l.days}d</div>
       <div class="ldates">${fmtDate(l.from)}${l.days>1?' – '+fmtDate(l.to):''}</div>
       <div class="lreason">${l.reason}</div>
     </div>
@@ -1885,7 +1885,7 @@ ${pending.length?pending.map(l=>`
     <div>
       <div class="acname">${l.empName}</div>
       <div class="acmeta">
-        ${l.type==='CL'?'Casual Leave':'Sick Leave'} · ${l.days} day${l.days>1?'s':''}<br>
+        ${({CL:'Casual Leave',SL:'Sick Leave',CO:'Comp Off',EL:'Earned Leave'}[l.type]||l.type)} · ${l.days} day${l.days>1?'s':''}<br>
         ${fmtDate(l.from)} – ${fmtDate(l.to)}<br>
         Applied: ${fmtDate(l.applied)}
       </div>
@@ -2440,6 +2440,8 @@ function submitResignation(){
     mgrApprovedOn:null,hrApprovedOn:null,hrComment:''
   });
   saveResignations(resignations);
+  const mgrEmp=EMPLOYEES.find(e=>e.name===emp.mgr);
+  if(mgrEmp)addNotif(mgrEmp.id,`Resignation: ${emp.name} has submitted a resignation. Last Working Day: ${fmtDate(lwd)}. Please review.`);
   closeModal('resignModal');
   showToast('Resignation submitted. Pending your manager\'s review.','s');
   renderProfile();
@@ -2530,10 +2532,7 @@ function saveManualAtt(){
   const ampm=h>=12?'pm':'am';
   const h12=h%12||12;
   const timeStr=`${String(h12).padStart(2,'0')}:${mm} ${ampm}`;
-  const att=getAtt();
-  const key=getAttKey(empId,date);
-  att[key]={...(att[key]||{}),in:timeStr};
-  saveAtt(att);
+  setEmpAtt(empId,date,{in:timeStr});
   const emp=EMPLOYEES.find(e=>e.id===empId);
   showToast(`Attendance saved: ${emp?emp.name:empId} on ${date} at ${timeStr}`,'s');
   // Reset form
