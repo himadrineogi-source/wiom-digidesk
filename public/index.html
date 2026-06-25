@@ -822,17 +822,19 @@ function verifyOTP(){
   else loginSuccess({emp,role:'employee'});
 }
 
-async function loginSuccess(user){
+async function loginSuccess(user,skipTrack){
   await loadCache();
   // Reset to base list first so deleted employees don't persist across logins
   EMPLOYEES.length=0;_BASE_EMPLOYEES.forEach(e=>EMPLOYEES.push({...e}));
   getCustomEmps().forEach(e=>{const idx=EMPLOYEES.findIndex(x=>x.id===e.id);if(idx>=0)EMPLOYEES[idx]=e;else EMPLOYEES.push(e);});
   S.user=user;
+  // Persist session for browser refresh
+  try{localStorage.setItem('wiom_session',JSON.stringify(user));}catch(e){}
   // Track login
   const empName=user.role==='employee'?user.emp.name:(user.mgrName||'HR Admin');
   const now=new Date();
   const timeStr=now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true});
-  fetch(window.location.origin+'/api/track-login',{method:'POST',headers:{'Content-Type':'application/json'},
+  if(!skipTrack)fetch(window.location.origin+'/api/track-login',{method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({empId:user.role==='employee'?user.emp.id:'HRADMIN',empName,role:user.role,time:timeStr})}).catch(()=>{});
   document.getElementById('loginPage').style.display='none';
   const app=document.getElementById('app');
@@ -849,6 +851,7 @@ async function loginSuccess(user){
 function logout(){
   S.user=null;S.generatedOTP=null;
   _cacheLoaded=false;
+  try{localStorage.removeItem('wiom_session');}catch(e){}
   document.getElementById('loginPage').style.display='flex';
   const app=document.getElementById('app');
   app.classList.remove('on','role-manager','role-hr','role-employee');
@@ -2547,6 +2550,20 @@ function showToast(msg,type=''){
     else EMPLOYEES.push(e);
   });
   document.getElementById('appLoader').remove();
+  // Restore session after browser refresh
+  try{
+    const saved=localStorage.getItem('wiom_session');
+    if(saved){
+      const user=JSON.parse(saved);
+      // Validate saved session — ensure employee still exists
+      if(user.role==='hr'||(user.emp&&EMPLOYEES.find(e=>e.id===user.emp.id))){
+        await loginSuccess(user,true);
+        return;
+      } else {
+        localStorage.removeItem('wiom_session');
+      }
+    }
+  }catch(e){}
 })();
 
 window.addEventListener('click',e=>{
