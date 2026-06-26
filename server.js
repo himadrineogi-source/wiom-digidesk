@@ -58,8 +58,13 @@ async function readData() {
 
 let _writeQueue = Promise.resolve();
 
+// writeData returns true if GitHub confirmed the write, false if all retries failed.
+// _writeQueue never rejects (poisoning prevented via .catch).
 async function writeData(data) {
   _memCache = data;
+  let resolveResult;
+  const result = new Promise(res => { resolveResult = res; });
+
   _writeQueue = _writeQueue.then(async () => {
     for (let attempt = 0; attempt < 5; attempt++) {
       try {
@@ -71,13 +76,20 @@ async function writeData(data) {
       if (_memSha) body.sha = _memSha;
       try {
         const r = await ghRequest('PUT', `/repos/${GH_REPO}/contents/${GH_FILE}`, body);
-        if (r.content) { _memSha = r.content.sha; return; }
+        if (r.content) { _memSha = r.content.sha; resolveResult(true); return; }
       } catch (e) { console.error('GitHub write attempt', attempt + 1, 'failed:', e?.message); }
-      await new Promise(r => setTimeout(r, (attempt + 1) * 2000));
+      if (attempt < 4) await new Promise(r => setTimeout(r, (attempt + 1) * 2000));
     }
     console.error('GitHub write failed after 5 attempts');
+    resolveResult(false);
+  }).catch(e => {
+    console.error('writeQueue error:', e?.message);
+    resolveResult(false);
   });
-  return _writeQueue;
+
+  const myQueue = _writeQueue;
+  await myQueue;
+  return result; // already resolved by the time myQueue settles
 }
 
 // ==================== SLACK ====================
@@ -309,11 +321,8 @@ app.post('/api/att-record', async (req, res) => {
     const att = data.wiom_att ? JSON.parse(data.wiom_att) : {};
     att[attKey] = attValue;
     data.wiom_att = JSON.stringify(att);
-    await writeData(data);
-    saved = true;
+    saved = await writeData(data); // true only if GitHub confirmed
   }).catch(e => {
-    // .catch() is CRITICAL — without it, a single failure poisons the queue
-    // and ALL subsequent attendance writes silently fail
     console.error('att-record write error:', e?.message);
   });
   await _opQueue;
@@ -325,8 +334,8 @@ app.post('/api', async (req, res) => {
   if (!key) return res.status(400).json({ ok: false });
   const data = await readData();
   data[key] = value;
-  await writeData(data);
-  res.json({ ok: true });
+  const ok = await writeData(data);
+  res.json({ ok });
 });
 
 app.use(express.static(path.join(__dirname, 'public')));
