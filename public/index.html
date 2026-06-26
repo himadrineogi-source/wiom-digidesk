@@ -780,8 +780,8 @@ function _attSyncOne(attKey,attValue,retries){
     const a=getAtt();a[attKey]=attValue;_cache.wiom_att=a;
   })
   .catch(()=>{
-    // Will retry on next login automatically — no toast needed, data is safe in localStorage
-    if(retries<5)setTimeout(()=>_attSyncOne(attKey,attValue,retries+1),(retries+1)*3000);
+    if(retries<5){setTimeout(()=>_attSyncOne(attKey,attValue,retries+1),(retries+1)*3000);}
+    else{showToast('Attendance save failed. Please inform HR to restore your attendance manually.','e');}
   });
 }
 
@@ -2034,6 +2034,32 @@ function confirmReject(){
 }
 
 // ==================== HR PANEL ====================
+function buildMissingAttHTML(){
+  const logins=_cache.wiom_logins||[];
+  const att=getAtt();
+  const t=today();
+  const seen={};
+  logins.filter(l=>l.date===t&&l.role==='employee').forEach(l=>{
+    if(!seen[l.empId])seen[l.empId]=l;
+  });
+  const missing=Object.values(seen).filter(l=>{const k=getAttKey(l.empId,t);return !att[k]||!att[k].in;});
+  if(!missing.length)return '<div style="color:#16a34a;font-size:13px;padding:6px 0">All employees who logged in today have attendance saved.</div>';
+  return '<div style="font-size:12px;color:#dc2626;font-weight:600;margin-bottom:8px">'+missing.length+' employee(s) logged in today but attendance is missing:</div>'
+    +missing.map(l=>'<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid #f3f4f6">'
+      +'<div style="flex:1;font-size:13px;font-weight:600">'+(l.empName||l.empId)+'</div>'
+      +'<div style="font-size:12px;color:#6b7280">'+l.empId+'</div>'
+      +'<div style="font-size:12px;color:#6b7280">Login: '+l.time+'</div>'
+      +'<button class="btn btn-sm" style="background:#dcfce7;color:#15803d;border:1.5px solid #bbf7d0;font-size:12px;flex-shrink:0" '
+      +'onclick="restoreMissingAtt(\''+l.empId+'\',\''+t+'\',\''+l.time+'\',\''+(l.empName||l.empId)+'\')">Restore</button>'
+      +'</div>').join('');
+}
+
+function restoreMissingAtt(empId,dateStr,loginTime,empName){
+  setEmpAtt(empId,dateStr,{in:loginTime});
+  showToast(empName+' attendance restored: '+loginTime,'s');
+  setTimeout(()=>renderHR(),1500);
+}
+
 function buildLoginHistoryHTML(){
   const logins=_cache.wiom_logins||[];
   if(!logins.length)return '<div class="empty" style="padding:20px"><p>No login records yet.</p></div>';
@@ -2120,6 +2146,14 @@ function renderHR(){
 </div>
 <div style="display:flex;justify-content:flex-end;margin-top:10px;margin-bottom:4px">
   <button class="btn btn-sm" style="background:#f0fdf4;color:#15803d;border:1.5px solid #bbf7d0;font-weight:600" onclick="downloadAttendanceCSV('all','')">⬇ Download All Employees Attendance (CSV)</button>
+</div>
+
+<div style="display:flex;align-items:center;justify-content:space-between;margin-top:16px;margin-bottom:6px">
+  <p class="sec-title" style="margin-bottom:0">Restore Missing Attendance</p>
+  <button class="btn btn-sm btn-secondary" onclick="renderHR()" style="font-size:11px;padding:4px 10px">↻ Refresh</button>
+</div>
+<div class="card">
+  ${buildMissingAttHTML()}
 </div>
 
 <p class="sec-title" style="margin-top:16px">Manual Attendance Override</p>
