@@ -375,6 +375,7 @@ input,select,textarea{font-family:inherit}
   <div class="topbar">
     <span class="ttl" id="pageTitle">Dashboard</span>
     <span class="uchip" id="userChip"></span>
+    <span id="attSyncBadge" style="display:none;font-size:11px;font-weight:600;padding:3px 8px;border-radius:20px;margin-right:6px"></span>
     <button class="logbtn" onclick="logout()">Logout</button>
   </div>
 
@@ -775,20 +776,45 @@ function _attSyncOne(attKey,attValue,retries){
     body:JSON.stringify({attKey,attValue})})
   .then(r=>r.json()).then(r=>{
     if(!r.ok)throw new Error();
-    _attPendingRemove(attKey); // confirmed saved — remove from pending
-    // Merge into live cache in case it was loaded stale
+    _attPendingRemove(attKey);
+    _updateSyncBadge();
     const a=getAtt();a[attKey]=attValue;_cache.wiom_att=a;
   })
   .catch(()=>{
     if(retries<5){setTimeout(()=>_attSyncOne(attKey,attValue,retries+1),(retries+1)*3000);}
-    else{showToast('Attendance save failed. Please inform HR to restore your attendance manually.','e');}
+    // background sync will keep retrying every 3 min — no action needed from employee
   });
 }
 
+function _updateSyncBadge(){
+  const pending=_attPendingGet();
+  const badge=document.getElementById('attSyncBadge');
+  if(!badge)return;
+  const count=Object.keys(pending).length;
+  if(count>0){
+    badge.style.display='inline-block';
+    badge.style.background='#fef9c3';
+    badge.style.color='#92400e';
+    badge.style.border='1px solid #fde047';
+    badge.textContent='Syncing...';
+  } else {
+    badge.style.display='none';
+  }
+}
+
+let _bgSyncInterval=null;
 function _attSyncAll(){
   const pending=_attPendingGet();
+  if(Object.keys(pending).length>0)_updateSyncBadge();
   Object.entries(pending).forEach(([k,v])=>_attSyncOne(k,v,0));
 }
+function _startBgSync(){
+  if(_bgSyncInterval)clearInterval(_bgSyncInterval);
+  _bgSyncInterval=setInterval(()=>{
+    if(S.user)_attSyncAll();
+  },3*60*1000);
+}
+function _stopBgSync(){if(_bgSyncInterval){clearInterval(_bgSyncInterval);_bgSyncInterval=null;}}
 
 function setEmpAtt(empId,dateStr,data){
   const a=getAtt();const attKey=getAttKey(empId,dateStr);
@@ -857,7 +883,8 @@ function verifyOTP(){
 
 async function loginSuccess(user,skipTrack){
   await loadCache();
-  _attSyncAll(); // push any pending localStorage attendance to backend
+  _attSyncAll();
+  _startBgSync();
   // Reset to base list first so deleted employees don't persist across logins
   EMPLOYEES.length=0;_BASE_EMPLOYEES.forEach(e=>EMPLOYEES.push({...e}));
   getCustomEmps().forEach(e=>{const idx=EMPLOYEES.findIndex(x=>x.id===e.id);if(idx>=0)EMPLOYEES[idx]=e;else EMPLOYEES.push(e);});
@@ -883,6 +910,7 @@ async function loginSuccess(user,skipTrack){
 }
 
 function logout(){
+  _stopBgSync();
   S.user=null;S.generatedOTP=null;
   _cacheLoaded=false;
   try{localStorage.removeItem('wiom_session');}catch(e){}

@@ -61,18 +61,21 @@ let _writeQueue = Promise.resolve();
 async function writeData(data) {
   _memCache = data;
   _writeQueue = _writeQueue.then(async () => {
-    try {
-      // Always fetch latest SHA before writing to avoid conflicts
-      const cur = await ghRequest('GET', `/repos/${GH_REPO}/contents/${GH_FILE}`);
-      if (cur.sha) _memSha = cur.sha;
-    } catch (e) {}
-    const content = Buffer.from(JSON.stringify(_memCache)).toString('base64');
-    const body = { message: 'update data', content };
-    if (_memSha) body.sha = _memSha;
-    try {
-      const r = await ghRequest('PUT', `/repos/${GH_REPO}/contents/${GH_FILE}`, body);
-      if (r.content) _memSha = r.content.sha;
-    } catch (e) { console.error('GitHub write failed', e.message); }
+    for (let attempt = 0; attempt < 5; attempt++) {
+      try {
+        const cur = await ghRequest('GET', `/repos/${GH_REPO}/contents/${GH_FILE}`);
+        if (cur.sha) _memSha = cur.sha;
+      } catch (e) {}
+      const content = Buffer.from(JSON.stringify(_memCache)).toString('base64');
+      const body = { message: 'update data', content };
+      if (_memSha) body.sha = _memSha;
+      try {
+        const r = await ghRequest('PUT', `/repos/${GH_REPO}/contents/${GH_FILE}`, body);
+        if (r.content) { _memSha = r.content.sha; return; }
+      } catch (e) { console.error('GitHub write attempt', attempt + 1, 'failed:', e?.message); }
+      await new Promise(r => setTimeout(r, (attempt + 1) * 2000));
+    }
+    console.error('GitHub write failed after 5 attempts');
   });
   return _writeQueue;
 }
