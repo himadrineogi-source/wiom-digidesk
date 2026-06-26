@@ -312,15 +312,21 @@ let _opQueue = Promise.resolve();
 app.post('/api/att-record', async (req, res) => {
   const { attKey, attValue } = req.body;
   if (!attKey) return res.status(400).json({ ok: false });
+  let saved = false;
   _opQueue = _opQueue.then(async () => {
     const data = await readData();
     const att = data.wiom_att ? JSON.parse(data.wiom_att) : {};
     att[attKey] = attValue;
     data.wiom_att = JSON.stringify(att);
     await writeData(data);
+    saved = true;
+  }).catch(e => {
+    // .catch() is CRITICAL — without it, a single failure poisons the queue
+    // and ALL subsequent attendance writes silently fail
+    console.error('att-record write error:', e?.message);
   });
   await _opQueue;
-  res.json({ ok: true });
+  res.json({ ok: saved });
 });
 
 app.post('/api', async (req, res) => {
