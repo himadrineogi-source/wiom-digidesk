@@ -209,21 +209,9 @@ function startCron() {
   const now = new Date();
   const nextRun = new Date();
   nextRun.setUTCHours(7, 0, 0, 0);
-  // If today's 07:00 UTC already passed, send immediately then schedule for tomorrow
+  // If today's 07:00 UTC already passed, schedule for tomorrow (do NOT fire immediately on restart)
   if (nextRun <= now) {
-    console.log('Missed today\'s cron window — sending attendance now');
-    sendDailyAttendance().then(() => {
-      const tomorrow = new Date();
-      tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
-      tomorrow.setUTCHours(7, 0, 0, 0);
-      const delay = tomorrow - new Date();
-      setTimeout(async function tick() {
-        await sendDailyAttendance();
-        setTimeout(tick, 24 * 60 * 60 * 1000);
-      }, delay);
-      console.log(`Next attendance cron in ${Math.round(delay / 60000)} minutes`);
-    });
-    return;
+    nextRun.setUTCDate(nextRun.getUTCDate() + 1);
   }
   const delay = nextRun - now;
   setTimeout(async function tick() {
