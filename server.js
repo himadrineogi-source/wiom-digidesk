@@ -336,3 +336,11 @@ app.listen(PORT, () => {
   console.log(`Wiom DigiDesk running on port ${PORT}`);
   startCron();
 });
+
+// Graceful shutdown — wait for any pending GitHub writes before exiting
+process.on('SIGTERM', async () => {
+  console.log('SIGTERM received — flushing pending writes...');
+  try { await _writeQueue; } catch (e) {}
+  console.log('Write queue flushed. Exiting.');
+  process.exit(0);
+});
