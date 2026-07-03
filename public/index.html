@@ -55,7 +55,6 @@ input,select,textarea{font-family:inherit}
 .login-footer{text-align:center;margin-top:24px;font-size:12px;color:#9ca3af}
 .demo-box{background:#fef3c7;border:1.5px solid #fcd34d;border-radius:10px;padding:10px 14px;font-size:12px;color:#92400e;margin-bottom:18px;line-height:1.6}
 .demo-box strong{color:#78350f;display:block;margin-bottom:3px}
-.otp-reveal{margin-top:6px;font-size:16px;font-weight:800;color:#D9008D;letter-spacing:4px}
 .login-toggle{display:flex;gap:8px;margin-bottom:20px}
 .ltoggle{flex:1;padding:10px 8px;border-radius:9px;font-size:13px;font-weight:600;border:2px solid #e5e7eb;color:#6b7280;background:#fff;transition:all .2s}
 .ltoggle.on{border-color:#D9008D;color:#D9008D;background:#fdf2f7}
@@ -320,49 +319,22 @@ input,select,textarea{font-family:inherit}
     <div class="login-step" id="loginStepBar">
       <div class="login-step-item active" id="step1Item">
         <div class="login-step-num">1</div>
-        <span>Credentials</span>
-      </div>
-      <div class="login-step-line"></div>
-      <div class="login-step-item" id="step2Item">
-        <div class="login-step-num">2</div>
-        <span>Verify OTP</span>
+        <span>Google SSO</span>
       </div>
     </div>
 
-    <!-- OTP banner -->
-    <div id="demoBanner" style="display:none" class="demo-box">
-      <strong id="otpBannerTitle">Your OTP</strong>
-      <span id="otpDisplay"></span>
-    </div>
+    <div id="loginAuthMessage" style="display:none" class="demo-box"></div>
 
-    <!-- Step 1: Credentials -->
+    <!-- Google SSO -->
     <div id="credStep">
       <p class="login-title">Sign in</p>
-      <p class="login-sub">Enter your Employee ID and registered mobile number</p>
-      <div class="login-inp-wrap">
-        <label>EMPLOYEE ID</label>
-        <span class="inp-icon">🪪</span>
-        <input type="text" id="loginEmpId" placeholder="e.g. ORA0023 or 202018314" oninput="this.value=this.value.toUpperCase()">
-      </div>
-      <div class="login-inp-wrap">
-        <label>MOBILE NUMBER</label>
-        <span class="inp-icon">📱</span>
-        <input type="tel" id="loginMobile" placeholder="10-digit mobile number" maxlength="10">
-      </div>
-      <button class="btn btn-primary btn-w" onclick="sendOTP()" id="sendOTPBtn" style="background:linear-gradient(135deg,#7b0a5e,#d4188e);border-radius:10px;padding:13px;font-size:15px;margin-top:4px">Send OTP →</button>
-    </div>
-
-    <!-- Step 2: OTP -->
-    <div id="otpSection" style="display:none">
-      <p class="login-title">Enter OTP</p>
-      <p class="login-sub">A 6-digit OTP has been sent to your registered mobile number</p>
-      <div class="login-inp-wrap">
-        <label>ONE-TIME PASSWORD</label>
-        <span class="inp-icon">🔐</span>
-        <input type="tel" id="loginOTP" placeholder="6-digit OTP" maxlength="6" style="letter-spacing:6px;font-size:20px;font-weight:700;text-align:center;padding-left:14px">
-      </div>
-      <button class="btn btn-success btn-w" onclick="verifyOTP()" style="border-radius:10px;padding:13px;font-size:15px;margin-top:4px">Verify &amp; Login →</button>
-      <p style="text-align:center;margin-top:14px;font-size:13px;color:#6b7280">Wrong number? <span style="color:#b5127a;cursor:pointer;font-weight:600" onclick="resetLoginStep()">Go back</span></p>
+      <p class="login-sub">Use the Google account mapped to your DigiDesk employee record</p>
+      <button class="btn btn-primary btn-w" onclick="startGoogleSignIn()" id="googleSignInBtn" style="background:#fff;color:#111827;border:1.5px solid #e5e7eb;border-radius:10px;padding:13px;font-size:15px;margin-top:4px;box-shadow:0 1px 2px rgba(15,23,42,.06)">
+        <span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;margin-right:8px;font-weight:800;color:#4285F4">G</span>
+        Continue with Google
+      </button>
+      <input type="hidden" id="loginEmpId">
+      <input type="hidden" id="loginMobile">
     </div>
 
     <div class="login-footer">© 2026 Wiom DigiDesk · All rights reserved</div>
@@ -693,7 +665,6 @@ let S = {
   user: null,  // { emp, role: 'employee'|'manager'|'hr', mgrName }
   page: 'dashboard',
   leaveTabId: 'apply',
-  generatedOTP: null,
   rejectingLeaveId: null,
   calYear: new Date().getFullYear(),
   calMonth: new Date().getMonth(),
@@ -708,6 +679,8 @@ async function loadCache(){
   if(_cacheLoaded)return;
   try{
     const r=await fetch(BACKEND+'?action=getAll');
+    if(r.status===401||r.status===403)throw new Error('auth');
+    if(!r.ok)throw new Error('backend');
     const d=await r.json();
     if(d.ok){for(const k of Object.keys(_cache)){if(d.data[k])_cache[k]=JSON.parse(d.data[k]);}}
   }catch(e){console.warn('Backend unavailable, using local cache');}
@@ -839,46 +812,34 @@ function countPresent(empId,y,m){
 
 // ==================== LOGIN ====================
 
-function sendOTP(){
-  const empId=document.getElementById('loginEmpId').value.trim().toUpperCase();
-  const mobile=document.getElementById('loginMobile').value.trim();
-  if(!empId){showToast('Please enter your Employee ID','e');return;}
-  if(!mobile||mobile.length!==10){showToast('Please enter a valid 10-digit mobile number','e');return;}
-  const emp=EMPLOYEES.find(e=>e.id===empId);
-  if(!emp){showToast('Employee ID not found','e');return;}
-  if(emp.mobile!==mobile){showToast('Mobile number does not match our records','e');return;}
-  S.generatedOTP=String(Math.floor(100000+Math.random()*900000));
-  const btn=document.getElementById('sendOTPBtn');
-  btn.disabled=true;btn.textContent='Sending…';
-  function goToStep2(){
-    document.getElementById('credStep').style.display='none';
-    document.getElementById('otpSection').style.display='block';
-    document.getElementById('step1Item').className='login-step-item done';
-    document.getElementById('step2Item').className='login-step-item active';
-    document.getElementById('loginOTP').value='';
-    document.getElementById('loginOTP').focus();
-  }
-  function showOTPOnScreen(){
-    document.getElementById('otpBannerTitle').textContent='Your OTP';
-    document.getElementById('otpDisplay').textContent=S.generatedOTP;
-    document.getElementById('demoBanner').style.display='block';
-    goToStep2();
-  }
-  btn.disabled=false;btn.textContent='Send OTP';
-  showOTPOnScreen();
+function showLoginAuthMessage(msg,type){
+  const box=document.getElementById('loginAuthMessage');
+  if(!box)return;
+  if(!msg){box.style.display='none';box.textContent='';return;}
+  box.textContent=msg;
+  box.style.display='block';
+  box.style.borderColor=type==='error'?'#fecaca':'#bbf7d0';
+  box.style.background=type==='error'?'#fef2f2':'#f0fdf4';
+  box.style.color=type==='error'?'#991b1b':'#166534';
 }
 
-function verifyOTP(){
-  const empId=document.getElementById('loginEmpId').value.trim().toUpperCase();
-  const otp=document.getElementById('loginOTP').value.trim();
-  if(!otp){showToast('Enter OTP','e');return;}
-  if(otp!==S.generatedOTP){showToast('Incorrect OTP. Please try again.','e');return;}
-  const emp=EMPLOYEES.find(e=>e.id===empId);
-  if(!emp){showToast('Employee not found','e');return;}
-  const role=emp.role||'employee';
-  if(role==='hr') loginSuccess({emp,role:'hr',mgrName:emp.name});
-  else if(role==='manager') loginSuccess({emp,role:'manager',mgrName:emp.name});
-  else loginSuccess({emp,role:'employee'});
+function startGoogleSignIn(){
+  const btn=document.getElementById('googleSignInBtn');
+  if(btn){btn.disabled=true;btn.textContent='Redirecting to Google...';}
+  window.location.href='/auth/sign-in';
+}
+
+async function restoreGoogleSession(){
+  try{
+    const r=await fetch('/api/auth/me',{headers:{'Accept':'application/json'}});
+    if(!r.ok)return false;
+    const d=await r.json();
+    if(!d.ok||!d.user)return false;
+    await loginSuccess(d.user,true);
+    return true;
+  }catch(e){
+    return false;
+  }
 }
 
 async function loginSuccess(user,skipTrack){
@@ -919,29 +880,23 @@ async function loginSuccess(user,skipTrack){
 
 function logout(){
   _stopBgSync();
-  S.user=null;S.generatedOTP=null;
+  S.user=null;
   _cacheLoaded=false;
   try{localStorage.removeItem('wiom_session');}catch(e){}
+  window.location.href='/auth/sign-out';
+  return;
   document.getElementById('loginPage').style.display='flex';
   const app=document.getElementById('app');
   app.classList.remove('on','role-manager','role-hr','role-employee');
   document.getElementById('loginEmpId').value='';
   document.getElementById('loginMobile').value='';
-  document.getElementById('loginOTP').value='';
-  document.getElementById('demoBanner').style.display='none';
-  document.getElementById('otpSection').style.display='none';
   document.getElementById('credStep').style.display='block';
   document.getElementById('step1Item').className='login-step-item active';
-  document.getElementById('step2Item').className='login-step-item';
 }
 
 function resetLoginStep(){
-  S.generatedOTP=null;
-  document.getElementById('otpSection').style.display='none';
-  document.getElementById('demoBanner').style.display='none';
   document.getElementById('credStep').style.display='block';
   document.getElementById('step1Item').className='login-step-item active';
-  document.getElementById('step2Item').className='login-step-item';
 }
 
 // ==================== NAVIGATION ====================
@@ -2670,29 +2625,19 @@ function showToast(msg,type=''){
 // ==================== INIT ====================
 (async function init(){
   document.body.insertAdjacentHTML('beforeend','<div id="appLoader" style="position:fixed;inset:0;background:#D9008D;display:flex;align-items:center;justify-content:center;z-index:9999"><div style="text-align:center;color:#fff"><div style="font-size:26px;font-weight:800;margin-bottom:10px">Wiom DigiDesk</div><div style="font-size:14px;opacity:0.75">Loading, please wait…</div></div></div>');
-  await loadCache();
-  const custom=getCustomEmps();
-  custom.forEach(e=>{
-    const idx=EMPLOYEES.findIndex(x=>x.id===e.id);
-    if(idx>=0)EMPLOYEES[idx]=e;
-    else EMPLOYEES.push(e);
-  });
+  const params=new URLSearchParams(window.location.search);
+  if(params.get('authError'))showLoginAuthMessage(params.get('authError'),'error');
+  else if(params.get('signedOut'))showLoginAuthMessage('You have been signed out.','success');
+  else showLoginAuthMessage('',null);
   document.getElementById('appLoader').remove();
-  // Restore session after browser refresh
-  try{
-    const saved=localStorage.getItem('wiom_session');
-    if(saved){
-      const user=JSON.parse(saved);
-      // Validate saved session — ensure employee still exists
-      if(user.role==='hr'||(user.emp&&EMPLOYEES.find(e=>e.id===user.emp.id))){
-        if(user.emp){const fresh=EMPLOYEES.find(e=>e.id===user.emp.id);if(fresh)user.emp=fresh;}
-        await loginSuccess(user,true);
-        return;
-      } else {
-        localStorage.removeItem('wiom_session');
-      }
+  const restored=await restoreGoogleSession();
+  if(restored){
+    if(window.location.search){
+      history.replaceState(null,'',window.location.pathname);
     }
-  }catch(e){}
+    return;
+  }
+  try{localStorage.removeItem('wiom_session');}catch(e){}
 })();
 
 window.addEventListener('click',e=>{

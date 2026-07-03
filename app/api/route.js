@@ -1,9 +1,13 @@
 import { readData, setDataKey } from '../../lib/data-store.js';
+import { requireDigideskUser } from '../../lib/digidesk-auth.js';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function GET(request) {
+  const auth = await requireDigideskUser();
+  if (auth.response) return auth.response;
+
   const url = new URL(request.url);
   const data = await readData();
 
@@ -16,6 +20,9 @@ export async function GET(request) {
 }
 
 export async function POST(request) {
+  const auth = await requireDigideskUser();
+  if (auth.response) return auth.response;
+
   const { key, value } = await request.json();
   if (!key) return Response.json({ ok: false }, { status: 400 });
 

@@ -9,7 +9,7 @@ const app = express();
 const PORT = process.env.PORT || 8306;
 
 const GH_TOKEN = process.env.GH_TOKEN;
-const GH_REPO = 'Wiom-using-AI/wiom-digidesk';
+const GH_REPO = 'himadrineogi-source/wiom-digidesk';
 const GH_FILE = 'data.json';
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
