@@ -3,6 +3,7 @@ const cors = require('cors');
 const path = require('path');
 const https = require('https');
 const crypto = require('crypto');
+const { createClient } = require('@supabase/supabase-js');
 
 const app = express();
 const PORT = process.env.PORT || 8306;
@@ -10,10 +11,20 @@ const PORT = process.env.PORT || 8306;
 const GH_TOKEN = process.env.GH_TOKEN;
 const GH_REPO = 'Wiom-using-AI/wiom-digidesk';
 const GH_FILE = 'data.json';
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const SUPABASE_STATE_TABLE = process.env.SUPABASE_STATE_TABLE || 'digidesk_state';
+const DATA_BACKEND = (SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY) ? 'supabase' : 'github';
 const SLACK_TOKEN = process.env.SLACK_TOKEN;
 const SLACK_SIGNING_SECRET = process.env.SLACK_SIGNING_SECRET;
 let SLACK_MGR_IDS = {};
 try { SLACK_MGR_IDS = JSON.parse(process.env.SLACK_MGR_IDS || '{"Pramod":"U099S3YG6SW","Devashish Mukherjee":"U07GW5ML467"}'); } catch(e) {}
+
+const supabase = DATA_BACKEND === 'supabase'
+  ? createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+      auth: { persistSession: false, autoRefreshToken: false }
+    })
+  : null;
 
 // Raw body needed for Slack signature verification
 app.use('/slack/actions', express.raw({ type: '*/*' }));
@@ -25,6 +36,24 @@ let _memCache = null;
 let _memSha = null;
 let _memCacheTime = 0;
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function cloneData(data) {
+  return JSON.parse(JSON.stringify(data || {}));
+}
+
+function parseLegacyValue(value) {
+  if (value === undefined) return null;
+  if (typeof value !== 'string') return value;
+  try { return JSON.parse(value); } catch { return value; }
+}
+
+function stringifyStoredValue(value) {
+  return JSON.stringify(value);
+}
 
 function ghRequest(method, path, body) {
   return new Promise((resolve, reject) => {
@@ -46,14 +75,57 @@ function ghRequest(method, path, body) {
 }
 
 async function readData() {
-  if (_memCache !== null && (Date.now() - _memCacheTime) < CACHE_TTL) return JSON.parse(JSON.stringify(_memCache));
+  if (_memCache !== null && (Date.now() - _memCacheTime) < CACHE_TTL) return cloneData(_memCache);
+  if (DATA_BACKEND === 'supabase') {
+    try {
+      const { data, error } = await supabase.from(SUPABASE_STATE_TABLE).select('key,value');
+      if (error) throw error;
+      const state = {};
+      (data || []).forEach(row => {
+        state[row.key] = stringifyStoredValue(row.value);
+      });
+      _memCache = state;
+      _memCacheTime = Date.now();
+      return cloneData(_memCache);
+    } catch (e) {
+      console.error('Supabase read failed:', e?.message);
+      if (_memCache !== null) return cloneData(_memCache);
+      return {};
+    }
+  }
   try {
     const r = await ghRequest('GET', `/repos/${GH_REPO}/contents/${GH_FILE}`);
-    if (r.content) { _memSha = r.sha; _memCache = JSON.parse(Buffer.from(r.content, 'base64').toString('utf8')); _memCacheTime = Date.now(); return JSON.parse(JSON.stringify(_memCache)); }
+    if (r.content) { _memSha = r.sha; _memCache = JSON.parse(Buffer.from(r.content, 'base64').toString('utf8')); _memCacheTime = Date.now(); return cloneData(_memCache); }
   } catch (e) {}
-  if (_memCache !== null) return JSON.parse(JSON.stringify(_memCache));
+  if (_memCache !== null) return cloneData(_memCache);
   _memCache = {};
   return {};
+}
+
+async function writeSupabaseData(snapshot) {
+  const keys = Object.keys(snapshot);
+  const rows = keys.map(key => ({
+    key,
+    value: parseLegacyValue(snapshot[key]),
+    updated_at: new Date().toISOString()
+  }));
+
+  const { data: existingRows, error: selectError } = await supabase.from(SUPABASE_STATE_TABLE).select('key');
+  if (selectError) throw selectError;
+
+  const keep = new Set(keys);
+  const deleteKeys = (existingRows || []).map(row => row.key).filter(key => !keep.has(key));
+  if (deleteKeys.length) {
+    const { error: deleteError } = await supabase.from(SUPABASE_STATE_TABLE).delete().in('key', deleteKeys);
+    if (deleteError) throw deleteError;
+  }
+
+  if (rows.length) {
+    const { error: upsertError } = await supabase.from(SUPABASE_STATE_TABLE).upsert(rows, { onConflict: 'key' });
+    if (upsertError) throw upsertError;
+  }
+
+  return true;
 }
 
 let _writeQueue = Promise.resolve();
@@ -68,6 +140,22 @@ async function writeData(data) {
   const result = new Promise(res => { resolveResult = res; });
 
   _writeQueue = _writeQueue.then(async () => {
+    if (DATA_BACKEND === 'supabase') {
+      for (let attempt = 0; attempt < 3; attempt++) {
+        try {
+          await writeSupabaseData(snapshot);
+          resolveResult(true);
+          return;
+        } catch (e) {
+          console.error('Supabase write attempt', attempt + 1, 'failed:', e?.message);
+        }
+        if (attempt < 2) await sleep((attempt + 1) * 1000);
+      }
+      console.error('Supabase write failed after 3 attempts');
+      resolveResult(false);
+      return;
+    }
+
     for (let attempt = 0; attempt < 5; attempt++) {
       try {
         const cur = await ghRequest('GET', `/repos/${GH_REPO}/contents/${GH_FILE}`);
@@ -80,7 +168,7 @@ async function writeData(data) {
         const r = await ghRequest('PUT', `/repos/${GH_REPO}/contents/${GH_FILE}`, body);
         if (r.content) { _memSha = r.content.sha; resolveResult(true); return; }
       } catch (e) { console.error('GitHub write attempt', attempt + 1, 'failed:', e?.message); }
-      if (attempt < 4) await new Promise(r => setTimeout(r, (attempt + 1) * 2000));
+      if (attempt < 4) await sleep((attempt + 1) * 2000);
     }
     console.error('GitHub write failed after 5 attempts');
     resolveResult(false);
@@ -310,7 +398,7 @@ app.post('/api/send-attendance-now', async (req, res) => {
 });
 
 // ==================== VERSION ====================
-app.get('/api/version', (req, res) => res.json({ version: '2.2.0', feature: 'opqueue-fire-and-forget' }));
+app.get('/api/version', (req, res) => res.json({ version: '2.3.0', feature: `data-backend-${DATA_BACKEND}` }));
 
 // ==================== API ROUTES ====================
 app.get('/api', async (req, res) => {
@@ -360,6 +448,7 @@ app.use((req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html'))
 
 app.listen(PORT, () => {
   console.log(`Wiom DigiDesk running on port ${PORT}`);
+  console.log(`Data backend: ${DATA_BACKEND}`);
   startCron();
 });
 

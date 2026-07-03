@@ -2,15 +2,19 @@
   "name": "digidesk-backend",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "check": "node -c server.js && node -c scripts/seed_supabase_state.js",
+    "start": "node server.js",
+    "supabase:seed": "node scripts/seed_supabase_state.js --replace",
+    "test": "npm run check"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@supabase/supabase-js": "2.104.0",
     "cors": "^2.8.6",
     "express": "^5.2.1"
   }
