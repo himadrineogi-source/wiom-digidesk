@@ -4,13 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Wiom DigiDesk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f0f4f8;color:#1a202c;min-height:100vh}
+body{font-family:'Noto Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f0f4f8;color:#1a202c;min-height:100vh}
 button{cursor:pointer;border:none;background:none;font-family:inherit;font-size:inherit}
 input,select,textarea{font-family:inherit}
 :root{
-  --blue:#D9008D;--blue-dk:#b01560;--blue-lt:#fce7f0;--blue-xlt:#fdf2f7;
+  --blue:#E5178F;--blue-dk:#111827;--blue-lt:#fce7f3;--blue-xlt:#fdf2f8;
   --green:#16a34a;--green-lt:#dcfce7;
   --amber:#ca8a04;--amber-lt:#fef9c3;
   --red:#dc2626;--red-lt:#fee2e2;
@@ -24,11 +27,10 @@ input,select,textarea{font-family:inherit}
 
 /* ===== LOGIN ===== */
 #loginPage{min-height:100vh;display:flex;align-items:stretch}
-.login-left{flex:1;background:linear-gradient(145deg,#5a0645 0%,#930d70 45%,#d4188e 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 48px;position:relative;overflow:hidden}
-.login-left::before{content:'';position:absolute;top:-80px;right:-80px;width:320px;height:320px;border-radius:50%;background:rgba(255,255,255,.06)}
-.login-left::after{content:'';position:absolute;bottom:-60px;left:-60px;width:240px;height:240px;border-radius:50%;background:rgba(255,255,255,.05)}
+.login-left{flex:1;background:#111827;border-right:6px solid #E5178F;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 48px;position:relative;overflow:hidden}
+.login-left::before,.login-left::after{display:none}
 .login-left-content{position:relative;z-index:1;text-align:center;color:#fff}
-.login-left-icon{width:72px;height:72px;background:rgba(255,255,255,.18);border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:900;margin:0 auto 28px;letter-spacing:-1px;backdrop-filter:blur(10px);border:1.5px solid rgba(255,255,255,.25)}
+.login-left-icon{width:72px;height:72px;background:#E5178F;border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:900;margin:0 auto 28px;letter-spacing:-1px;box-shadow:0 12px 32px rgba(229,23,143,.28)}
 .login-left-content h2{font-size:30px;font-weight:800;margin-bottom:12px;letter-spacing:-.5px}
 .login-left-content p{font-size:15px;opacity:.85;line-height:1.6;max-width:280px;margin:0 auto 40px}
 .login-left-features{display:flex;flex-direction:column;gap:14px;text-align:left}
@@ -37,27 +39,28 @@ input,select,textarea{font-family:inherit}
 .login-right{width:480px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 48px;background:#fff}
 .login-card{width:100%;max-width:380px}
 .login-brand{text-align:left;margin-bottom:32px}
-.brand-icon{width:44px;height:44px;background:linear-gradient(135deg,#7b0a5e,#d4188e);border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;color:#fff;margin:0 0 16px;letter-spacing:-1px;box-shadow:0 4px 14px rgba(180,18,122,.3)}
+.brand-icon{width:44px;height:44px;background:#E5178F;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;color:#fff;margin:0 0 16px;letter-spacing:-1px;box-shadow:0 6px 18px rgba(229,23,143,.24)}
 .login-brand h1{font-size:24px;font-weight:800;color:#111827;margin-bottom:4px}
 .login-brand p{font-size:13px;color:#6b7280}
 @media(max-width:860px){.login-left{display:none}.login-right{width:100%;padding:40px 28px}}
 @media(max-width:400px){.login-right{padding:32px 20px}}
-.login-step{display:flex;align-items:center;gap:8px;margin-bottom:24px}
-.login-step-item{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#9ca3af}
-.login-step-item.active{color:#b5127a}
-.login-step-num{width:22px;height:22px;border-radius:50%;border:2px solid currentColor;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
-.login-step-item.active .login-step-num{background:#b5127a;border-color:#b5127a;color:#fff}
-.login-step-item.done .login-step-num{background:#16a34a;border-color:#16a34a;color:#fff}
-.login-step-item.done{color:#16a34a}
-.login-step-line{flex:1;height:1px;background:#e5e7eb}
 .login-title{font-size:18px;font-weight:700;color:#111827;margin-bottom:4px}
 .login-sub{font-size:13px;color:#6b7280;margin-bottom:22px;line-height:1.5}
+.google-sso-btn{width:100%;min-height:50px;display:inline-flex;align-items:center;justify-content:center;gap:12px;padding:13px 16px;margin-top:4px;border:1.5px solid #d1d5db;border-radius:10px;background:#fff;color:#111827;font-size:15px;font-weight:700;line-height:1.2;box-shadow:0 1px 2px rgba(15,23,42,.06),0 6px 18px rgba(15,23,42,.06);transition:background .18s,border-color .18s,box-shadow .18s,transform .18s}
+.google-sso-btn:hover{background:#f9fafb;border-color:#9ca3af;box-shadow:0 2px 4px rgba(15,23,42,.08),0 10px 24px rgba(15,23,42,.08);transform:translateY(-1px)}
+.google-sso-btn:active{background:#f3f4f6;box-shadow:0 1px 2px rgba(15,23,42,.08);transform:translateY(0)}
+.google-sso-btn:focus-visible{outline:3px solid rgba(229,23,143,.22);outline-offset:3px;border-color:#E5178F}
+.google-sso-btn:disabled{cursor:wait;opacity:.82;transform:none;box-shadow:0 1px 2px rgba(15,23,42,.06)}
+.google-sso-mark{width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+.google-sso-mark svg{display:block;width:20px;height:20px}
+.google-sso-text{white-space:nowrap}
+.google-sso-note{margin-top:10px;font-size:12px;line-height:1.45;color:#6b7280;text-align:center}
 .login-footer{text-align:center;margin-top:24px;font-size:12px;color:#9ca3af}
 .demo-box{background:#fef3c7;border:1.5px solid #fcd34d;border-radius:10px;padding:10px 14px;font-size:12px;color:#92400e;margin-bottom:18px;line-height:1.6}
 .demo-box strong{color:#78350f;display:block;margin-bottom:3px}
 .login-toggle{display:flex;gap:8px;margin-bottom:20px}
 .ltoggle{flex:1;padding:10px 8px;border-radius:9px;font-size:13px;font-weight:600;border:2px solid #e5e7eb;color:#6b7280;background:#fff;transition:all .2s}
-.ltoggle.on{border-color:#D9008D;color:#D9008D;background:#fdf2f7}
+.ltoggle.on{border-color:#E5178F;color:#E5178F;background:#fdf2f7}
 .login-inp-wrap{position:relative;margin-bottom:16px}
 .login-inp-wrap label{display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:6px;letter-spacing:.3px}
 .login-inp-wrap input{width:100%;padding:12px 14px 12px 42px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:15px;color:#111827;background:#fff;transition:border-color .2s,box-shadow .2s;outline:none}
@@ -69,14 +72,14 @@ input,select,textarea{font-family:inherit}
 .fgroup{margin-bottom:14px}
 .fgroup label{display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:5px}
 .fgroup input,.fgroup select,.fgroup textarea{width:100%;padding:11px 13px;border:1.5px solid #e5e7eb;border-radius:9px;font-size:15px;color:#111827;background:#fff;transition:border-color .2s,box-shadow .2s;outline:none}
-.fgroup input:focus,.fgroup select:focus,.fgroup textarea:focus{border-color:#D9008D;box-shadow:0 0 0 3px rgba(217,0,141,.1)}
+.fgroup input:focus,.fgroup select:focus,.fgroup textarea:focus{border-color:#E5178F;box-shadow:0 0 0 3px rgba(217,0,141,.1)}
 .fgroup textarea{resize:vertical;min-height:76px}
 .fgroup .hint{font-size:12px;color:#6b7280;margin-top:5px}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:12px 18px;border-radius:10px;font-size:15px;font-weight:600;transition:all .15s;cursor:pointer;border:none}
 .btn-w{width:100%}
-.btn-primary{background:#D9008D;color:#fff}
-.btn-primary:hover{background:#b01560}
-.btn-primary:active{background:#8f1050}
+.btn-primary{background:#E5178F;color:#fff}
+.btn-primary:hover{background:#111827}
+.btn-primary:active{background:#000}
 .btn-secondary{background:#f3f4f6;color:#374151;border:1.5px solid #e5e7eb}
 .btn-secondary:hover{background:#e5e7eb}
 .btn-success{background:#16a34a;color:#fff}
@@ -84,10 +87,10 @@ input,select,textarea{font-family:inherit}
 .btn-danger{background:#dc2626;color:#fff}
 .btn-danger:hover{background:#b91c1c}
 .btn-sm{padding:7px 13px;font-size:13px;border-radius:7px}
-.btn-outline{background:transparent;border:1.5px solid #D9008D;color:#D9008D}
+.btn-outline{background:transparent;border:1.5px solid #E5178F;color:#E5178F}
 .btn-outline:hover{background:#fdf2f7}
 .mgr-link{text-align:center;margin-top:18px;font-size:13px;color:#6b7280}
-.mgr-link span{color:#D9008D;font-weight:600;cursor:pointer;text-decoration:underline}
+.mgr-link span{color:#E5178F;font-weight:600;cursor:pointer;text-decoration:underline}
 
 /* ===== MODAL ===== */
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:none;align-items:flex-end;justify-content:center}
@@ -106,7 +109,7 @@ input,select,textarea{font-family:inherit}
 /* ===== APP ===== */
 #app{display:none;flex-direction:column;min-height:100vh}
 #app.on{display:flex}
-.topbar{position:sticky;top:0;z-index:100;background:#8f1050;color:#fff;height:var(--top-h);display:flex;align-items:center;padding:0 14px;gap:10px;box-shadow:0 2px 8px rgba(0,0,0,.18)}
+.topbar{position:sticky;top:0;z-index:100;background:#111827;color:#fff;height:var(--top-h);display:flex;align-items:center;padding:0 14px;gap:10px;box-shadow:0 2px 8px rgba(0,0,0,.18);border-bottom:3px solid #E5178F}
 .topbar .ttl{flex:1;font-size:16px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .topbar .uchip{font-size:11px;background:rgba(255,255,255,.15);padding:4px 9px;border-radius:20px;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .topbar .logbtn{font-size:12px;color:rgba(255,255,255,.85);padding:5px 10px;border:1px solid rgba(255,255,255,.3);border-radius:6px}
@@ -120,7 +123,7 @@ input,select,textarea{font-family:inherit}
 .bnav{position:fixed;bottom:0;left:0;right:0;z-index:100;background:#fff;border-top:1px solid #e5e7eb;height:var(--nav-h);display:flex;align-items:stretch;box-shadow:0 -2px 8px rgba(0,0,0,.06)}
 .nbtn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:6px 3px;color:#9ca3af;font-size:10px;font-weight:600;transition:color .15s}
 #app.role-manager #nav-leave,#app.role-manager #nav-attendance,#app.role-hr #nav-leave,#app.role-hr #nav-attendance{display:none}
-.nbtn.on{color:#D9008D}
+.nbtn.on{color:#E5178F}
 .nbtn .ni{font-size:20px;line-height:1}
 
 /* ===== CARDS ===== */
@@ -128,7 +131,7 @@ input,select,textarea{font-family:inherit}
 .card-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .card-hdr h3{font-size:15px;font-weight:700}
 .card-hdr .sub{font-size:12px;color:#6b7280;margin-top:2px}
-.welcome-card{background:linear-gradient(135deg,#8f1050,#D9008D);border-radius:14px;padding:18px;color:#fff;margin-bottom:12px}
+.welcome-card{background:#111827;border-left:4px solid #E5178F;border-radius:14px;padding:18px;color:#fff;margin-bottom:12px}
 .welcome-card .wname{font-size:20px;font-weight:800;margin-bottom:4px}
 .welcome-card .winfo{font-size:13px;opacity:.85;line-height:1.6}
 .welcome-card .wid{display:inline-block;background:rgba(255,255,255,.2);padding:3px 10px;border-radius:12px;font-size:12px;margin-top:8px}
@@ -136,20 +139,20 @@ input,select,textarea{font-family:inherit}
 .scard{background:#fff;border-radius:12px;padding:13px 8px;text-align:center;box-shadow:var(--sh)}
 .scard .sv{font-size:22px;font-weight:800;line-height:1}
 .scard .sl{font-size:11px;color:#6b7280;margin-top:3px}
-.sv-blue{color:#D9008D}.sv-green{color:#16a34a}.sv-amber{color:#ca8a04}.sv-red{color:#dc2626}
+.sv-blue{color:#E5178F}.sv-green{color:#16a34a}.sv-amber{color:#ca8a04}.sv-red{color:#dc2626}
 
 /* ===== BADGES ===== */
 .badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600}
 .b-pending{background:#fef9c3;color:#a16207}
 .b-approved{background:#dcfce7;color:#15803d}
 .b-rejected{background:#fee2e2;color:#b91c1c}
-.b-blue{background:#fce7f0;color:#D9008D}
+.b-blue{background:#fce7f0;color:#E5178F}
 .b-gray{background:#f3f4f6;color:#6b7280}
 
 /* ===== TABS ===== */
 .tabs{display:flex;background:#f3f4f6;border-radius:10px;padding:4px;margin-bottom:14px}
 .tab-btn{flex:1;padding:9px 6px;border-radius:7px;font-size:13px;font-weight:600;color:#6b7280;transition:all .2s}
-.tab-btn.on{background:#fff;color:#D9008D;box-shadow:var(--sh)}
+.tab-btn.on{background:#fff;color:#E5178F;box-shadow:var(--sh)}
 
 /* ===== LEAVE ===== */
 .leave-item{display:flex;align-items:flex-start;gap:11px;padding:11px 0;border-bottom:1px solid #f3f4f6}
@@ -161,11 +164,11 @@ input,select,textarea{font-family:inherit}
 .ldetail .lreason{font-size:12px;color:#9ca3af;font-style:italic;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px}
 .bal-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
 .bal-card{background:#fff;border-radius:12px;padding:16px;box-shadow:var(--sh);text-align:center}
-.bal-card .bnum{font-size:34px;font-weight:800;color:#D9008D;line-height:1}
+.bal-card .bnum{font-size:34px;font-weight:800;color:#E5178F;line-height:1}
 .bal-card .btype{font-size:13px;font-weight:600;color:#374151;margin-top:4px}
 .bal-card .bsub{font-size:11px;color:#9ca3af;margin-top:2px}
 .prog{height:6px;background:#e5e7eb;border-radius:3px;margin-top:8px;overflow:hidden}
-.prog-fill{height:100%;background:#D9008D;border-radius:3px}
+.prog-fill{height:100%;background:#E5178F;border-radius:3px}
 .date-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 
 /* ===== ATTENDANCE ===== */
@@ -190,8 +193,8 @@ input,select,textarea{font-family:inherit}
 .cd-present{background:#dcfce7;color:#15803d}
 .cd-absent{background:#fee2e2;color:#b91c1c}
 .cd-leave{background:#fef9c3;color:#a16207}
-.cd-compoff{background:#ede9fe;color:#D9008D}
-.cd-today{background:#D9008D;color:#fff;font-weight:700}
+.cd-compoff{background:#ede9fe;color:#E5178F}
+.cd-today{background:#E5178F;color:#fff;font-weight:700}
 .cd-future{background:#f9fafb;color:#d1d5db}
 .cd-empty{background:transparent}
 .cd-weekend{background:#f3f4f6;color:#9ca3af}
@@ -214,10 +217,10 @@ input,select,textarea{font-family:inherit}
 .doc-body h4{font-size:13px;font-weight:700;color:#111827;margin:10px 0 5px}
 .doc-body .doc-meta{font-size:11px;color:#9ca3af;margin-bottom:10px}
 .upload-zone{border:2px dashed #e5e7eb;border-radius:10px;padding:20px;text-align:center;cursor:pointer;transition:border-color .2s;margin-top:10px}
-.upload-zone:hover{border-color:#D9008D}
+.upload-zone:hover{border-color:#E5178F}
 .upload-zone .uz-icon{font-size:30px;margin-bottom:8px}
 .upload-zone p{font-size:13px;color:#6b7280}
-.upload-zone .uz-link{color:#D9008D;font-weight:600}
+.upload-zone .uz-link{color:#E5178F;font-weight:600}
 
 /* ===== MANAGER PANEL ===== */
 .appr-card{background:#fff;border-radius:12px;padding:15px;box-shadow:var(--sh);margin-bottom:10px}
@@ -229,19 +232,19 @@ input,select,textarea{font-family:inherit}
 /* ===== HR PANEL ===== */
 .hr-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
 .hrsc{background:#fff;border-radius:12px;padding:14px;box-shadow:var(--sh);text-align:center}
-.hrsc .hn{font-size:26px;font-weight:800;color:#D9008D}.hrsc .hl{font-size:12px;color:#6b7280;margin-top:3px}
+.hrsc .hn{font-size:26px;font-weight:800;color:#E5178F}.hrsc .hl{font-size:12px;color:#6b7280;margin-top:3px}
 .emp-row{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid #f3f4f6}
 .emp-row:last-child{border-bottom:none}
-.emp-av{width:36px;height:36px;border-radius:50%;background:#fce7f0;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#D9008D;flex-shrink:0}
+.emp-av{width:36px;height:36px;border-radius:50%;background:#fce7f0;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#E5178F;flex-shrink:0}
 .emp-row .en{font-size:13px;font-weight:600}
 .emp-row .em{font-size:11px;color:#9ca3af}
 .filter-row{display:flex;gap:7px;margin-bottom:12px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
 .filter-row::-webkit-scrollbar{display:none}
 .fchip{padding:6px 13px;border-radius:20px;font-size:12px;font-weight:600;background:#f3f4f6;color:#6b7280;white-space:nowrap;cursor:pointer;border:2px solid transparent;flex-shrink:0}
-.fchip.on{background:#fce7f0;color:#D9008D;border-color:#f9a8d4}
+.fchip.on{background:#fce7f0;color:#E5178F;border-color:#f9a8d4}
 
 /* ===== PROFILE ===== */
-.prof-av{width:72px;height:72px;border-radius:50%;background:#fce7f0;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:#D9008D;margin:0 auto 12px}
+.prof-av{width:72px;height:72px;border-radius:50%;background:#fce7f0;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:#E5178F;margin:0 auto 12px}
 .prof-row{display:flex;align-items:center;padding:11px 0;border-bottom:1px solid #f3f4f6}
 .prof-row:last-child{border-bottom:none}
 .prof-row .pl{font-size:13px;color:#6b7280;flex:1}
@@ -315,26 +318,24 @@ input,select,textarea{font-family:inherit}
       <p>Sign in to Wiom DigiDesk</p>
     </div>
 
-    <!-- Step indicator -->
-    <div class="login-step" id="loginStepBar">
-      <div class="login-step-item active" id="step1Item">
-        <div class="login-step-num">1</div>
-        <span>Google SSO</span>
-      </div>
-    </div>
-
     <div id="loginAuthMessage" style="display:none" class="demo-box"></div>
 
     <!-- Google SSO -->
     <div id="credStep">
       <p class="login-title">Sign in</p>
       <p class="login-sub">Use the Google account mapped to your DigiDesk employee record</p>
-      <button class="btn btn-primary btn-w" onclick="startGoogleSignIn()" id="googleSignInBtn" style="background:#fff;color:#111827;border:1.5px solid #e5e7eb;border-radius:10px;padding:13px;font-size:15px;margin-top:4px;box-shadow:0 1px 2px rgba(15,23,42,.06)">
-        <span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;margin-right:8px;font-weight:800;color:#4285F4">G</span>
-        Continue with Google
+      <button class="google-sso-btn" type="button" onclick="startGoogleSignIn()" id="googleSignInBtn" aria-label="Sign in with Google">
+        <span class="google-sso-mark" aria-hidden="true">
+          <svg viewBox="0 0 18 18" focusable="false">
+            <path fill="#4285F4" d="M17.64 9.2c0-.63-.06-1.24-.16-1.82H9v3.45h4.84a4.13 4.13 0 0 1-1.79 2.72v2.24h2.9c1.7-1.56 2.69-3.86 2.69-6.59z"/>
+            <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.9-2.24c-.81.54-1.84.86-3.06.86-2.35 0-4.34-1.59-5.05-3.72H.96v2.31A9 9 0 0 0 9 18z"/>
+            <path fill="#FBBC05" d="M3.95 10.72A5.41 5.41 0 0 1 3.67 9c0-.6.1-1.18.28-1.72V4.97H.96A9 9 0 0 0 0 9c0 1.45.35 2.82.96 4.03l2.99-2.31z"/>
+            <path fill="#EA4335" d="M9 3.56c1.32 0 2.5.45 3.43 1.34l2.58-2.58A8.65 8.65 0 0 0 9 0 9 9 0 0 0 .96 4.97l2.99 2.31C4.66 5.15 6.65 3.56 9 3.56z"/>
+          </svg>
+        </span>
+        <span class="google-sso-text">Sign in with Google</span>
       </button>
-      <input type="hidden" id="loginEmpId">
-      <input type="hidden" id="loginMobile">
+      <p class="google-sso-note">Only active Wiom employee emails can access DigiDesk.</p>
     </div>
 
     <div class="login-footer">© 2026 Wiom DigiDesk · All rights reserved</div>
@@ -418,7 +419,7 @@ input,select,textarea{font-family:inherit}
         <input type="date" id="leaveTo">
       </div>
     </div>
-    <div id="leaveDaysNote" style="font-size:13px;color:#D9008D;font-weight:600;margin-bottom:12px"></div>
+    <div id="leaveDaysNote" style="font-size:13px;color:#E5178F;font-weight:600;margin-bottom:12px"></div>
     <div class="fgroup">
       <label>Reason</label>
       <textarea id="leaveReason" placeholder="Brief reason for leave..."></textarea>
@@ -826,7 +827,13 @@ function showLoginAuthMessage(msg,type){
 
 function startGoogleSignIn(){
   const btn=document.getElementById('googleSignInBtn');
-  if(btn){btn.disabled=true;btn.textContent='Redirecting to Google...';}
+  if(btn){
+    btn.disabled=true;
+    btn.setAttribute('aria-busy','true');
+    const label=btn.querySelector('.google-sso-text');
+    if(label)label.textContent='Opening Google...';
+    else btn.textContent='Opening Google...';
+  }
   window.location.href='/auth/sign-in';
 }
 
@@ -885,19 +892,6 @@ function logout(){
   _cacheLoaded=false;
   try{localStorage.removeItem('wiom_session');}catch(e){}
   window.location.href='/auth/sign-out';
-  return;
-  document.getElementById('loginPage').style.display='flex';
-  const app=document.getElementById('app');
-  app.classList.remove('on','role-manager','role-hr','role-employee');
-  document.getElementById('loginEmpId').value='';
-  document.getElementById('loginMobile').value='';
-  document.getElementById('credStep').style.display='block';
-  document.getElementById('step1Item').className='login-step-item active';
-}
-
-function resetLoginStep(){
-  document.getElementById('credStep').style.display='block';
-  document.getElementById('step1Item').className='login-step-item active';
 }
 
 // ==================== NAVIGATION ====================
@@ -1041,12 +1035,12 @@ function renderEmpDashboard(){
     </div>
     <div style="height:8px;background:#f3f4f6;border-radius:4px;overflow:hidden">
       <div style="height:100%;display:flex">
-        <div style="width:${Math.round(bal.used/3*100)}%;background:#D9008D"></div>
+        <div style="width:${Math.round(bal.used/3*100)}%;background:#E5178F"></div>
         <div style="width:${Math.round(bal.pending/3*100)}%;background:#93c5fd"></div>
       </div>
     </div>
     <div style="display:flex;gap:10px;margin-top:4px;font-size:11px;color:#9ca3af">
-      <span style="color:#D9008D">■ Used: ${bal.used}</span>${bal.pending?`<span style="color:#93c5fd">■ Pending: ${bal.pending}</span>`:''}
+      <span style="color:#E5178F">■ Used: ${bal.used}</span>${bal.pending?`<span style="color:#93c5fd">■ Pending: ${bal.pending}</span>`:''}
       <span>□ Available: ${bal.avail}</span>
     </div>
   </div>
@@ -1281,17 +1275,17 @@ function renderHRDashboard(){
   ${depts.map(d=>{const c=EMPLOYEES.filter(e=>e.dept===d).length;const pct=Math.round(c/EMPLOYEES.length*100);
   return `<div style="margin-bottom:10px">
     <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px"><span style="font-weight:600">${d}</span><span style="color:#6b7280">${c} employees</span></div>
-    <div style="height:8px;background:#f3f4f6;border-radius:4px;overflow:hidden"><div style="height:100%;width:${pct}%;background:#D9008D;border-radius:4px"></div></div>
+    <div style="height:8px;background:#f3f4f6;border-radius:4px;overflow:hidden"><div style="height:100%;width:${pct}%;background:#E5178F;border-radius:4px"></div></div>
   </div>`;}).join('')}
 </div>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
   <div class="card" style="margin-bottom:0">
     <div style="font-size:13px;font-weight:700;margin-bottom:10px">By Payroll</div>
-    ${payrolls.map(p=>{const c=EMPLOYEES.filter(e=>e.payroll===p).length;return `<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f3f4f6;font-size:13px"><span>${p}</span><span style="font-weight:700;color:#D9008D">${c}</span></div>`;}).join('')}
+    ${payrolls.map(p=>{const c=EMPLOYEES.filter(e=>e.payroll===p).length;return `<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f3f4f6;font-size:13px"><span>${p}</span><span style="font-weight:700;color:#E5178F">${c}</span></div>`;}).join('')}
   </div>
   <div class="card" style="margin-bottom:0">
     <div style="font-size:13px;font-weight:700;margin-bottom:10px">By Location</div>
-    ${locs.map(l=>{const c=EMPLOYEES.filter(e=>e.loc===l).length;return `<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f3f4f6;font-size:13px"><span>${l}</span><span style="font-weight:700;color:#D9008D">${c}</span></div>`;}).join('')}
+    ${locs.map(l=>{const c=EMPLOYEES.filter(e=>e.loc===l).length;return `<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f3f4f6;font-size:13px"><span>${l}</span><span style="font-weight:700;color:#E5178F">${c}</span></div>`;}).join('')}
   </div>
 </div>
 <div class="card">
@@ -1334,7 +1328,7 @@ function renderLeaveApply(){
 <div class="card" style="background:#fdf2f7;border:1.5px solid #f9a8d4">
   <div style="font-size:13px;font-weight:600;color:#b01560;margin-bottom:8px">Available Balance — ${quarterLabel(q,y)}</div>
   <div style="display:flex;gap:14px">
-    <div><span style="font-size:22px;font-weight:800;color:#D9008D">${bal.avail}</span> <span style="font-size:12px;color:#374151">Leaves left</span></div>
+    <div><span style="font-size:22px;font-weight:800;color:#E5178F">${bal.avail}</span> <span style="font-size:12px;color:#374151">Leaves left</span></div>
     <div><span style="font-size:22px;font-weight:800;color:#6b7280">${bal.used}</span> <span style="font-size:12px;color:#374151">Used</span></div>
     ${bal.pending>0?`<div><span style="font-size:22px;font-weight:800;color:#ca8a04">${bal.pending}</span> <span style="font-size:12px;color:#374151">Pending</span></div>`:''}
   </div>
@@ -1402,7 +1396,7 @@ function renderLeaveBalance(){
       <div class="bsub">Awaiting approval</div>
     </div>
   </div>
-  <div class="prog" style="margin-top:10px"><div class="prog-fill" style="width:${usedPct}%;background:#D9008D"></div></div>
+  <div class="prog" style="margin-top:10px"><div class="prog-fill" style="width:${usedPct}%;background:#E5178F"></div></div>
   <div style="font-size:11px;color:#9ca3af;margin-top:4px">${bal.used} of 3 leaves used this quarter</div>
 </div>
 <div class="card" style="background:#fef9c3;border:1.5px solid #fcd34d">
@@ -1417,7 +1411,7 @@ function renderLeaveBalance(){
     return `<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid #f3f4f6">
       <span style="font-size:13px;color:#374151">${['Q1 Jan–Mar','Q2 Apr–Jun','Q3 Jul–Sep','Q4 Oct–Dec'][qi]} ${y}</span>
       <div style="display:flex;gap:8px;align-items:center">
-        <span style="font-size:13px;font-weight:600;color:#D9008D">${qUsed} used</span>
+        <span style="font-size:13px;font-weight:600;color:#E5178F">${qUsed} used</span>
         ${qi===q?'<span class="badge b-blue">Current</span>':'<span style="font-size:11px;color:#9ca3af">Lapsed: '+(3-qUsed)+'</span>'}
       </div>
     </div>`;
@@ -1526,8 +1520,8 @@ ${lwdOver?`<div style="background:#fee2e2;border:1px solid #fca5a5;border-radius
     <div class="leg-item"><div class="leg-badge" style="background:#fee2e2;color:#b91c1c">A</div> Absent</div>
     <div class="leg-item"><div class="leg-badge" style="background:#fef9c3;color:#a16207">L</div> Leave</div>
     <div class="leg-item"><div class="leg-badge" style="background:#f3f4f6;color:#9ca3af">WO</div> Week Off</div>
-    <div class="leg-item"><div class="leg-badge" style="background:#ede9fe;color:#D9008D">CO</div> Comp Off</div>
-    <div class="leg-item"><div class="leg-badge" style="background:#D9008D;color:#fff">•</div> Today</div>
+    <div class="leg-item"><div class="leg-badge" style="background:#ede9fe;color:#E5178F">CO</div> Comp Off</div>
+    <div class="leg-item"><div class="leg-badge" style="background:#E5178F;color:#fff">•</div> Today</div>
   </div>
 </div>`;
 }
@@ -1754,7 +1748,7 @@ function rosterListHTML(filterByMgr){
         <div style="font-size:11px;color:#9ca3af;margin-top:2px">Uploaded: ${fmtDate(r.date)} · ${r.size} KB · By: ${r.uploadedBy}</div>
       </div>
       <div style="display:flex;gap:6px;flex-shrink:0;margin-left:8px">
-        <button class="btn btn-sm" style="background:#fdf2f7;color:#D9008D;border:1px solid #f9a8d4;padding:5px 10px;font-size:12px" onclick="downloadRoster(${gi})">⬇ Download</button>
+        <button class="btn btn-sm" style="background:#fdf2f7;color:#E5178F;border:1px solid #f9a8d4;padding:5px 10px;font-size:12px" onclick="downloadRoster(${gi})">⬇ Download</button>
         <button class="btn btn-sm btn-danger" style="padding:5px 10px;font-size:12px" onclick="deleteRoster(${gi})">✕</button>
       </div>
     </div>`;
@@ -2118,7 +2112,7 @@ function renderHR(){
       <div class="em">${e.id} · ${e.designation} · ${e.loc}</div>
       <div style="font-size:11px;color:#9ca3af;margin-top:1px">${e.dept} · ${e.payroll}${getCustomEmps().find(c=>c.id===e.id)?' · <span style="color:#16a34a;font-weight:600">New</span>':''}</div>
     </div>
-    <button class="btn btn-sm" style="background:#fdf2f7;color:#D9008D;border:1px solid #f9a8d4;padding:5px 10px;font-size:12px;border-radius:7px;flex-shrink:0;margin-top:2px" onclick="openEditEmpModal('${e.id}')">✏️ Edit</button>
+    <button class="btn btn-sm" style="background:#fdf2f7;color:#E5178F;border:1px solid #f9a8d4;padding:5px 10px;font-size:12px;border-radius:7px;flex-shrink:0;margin-top:2px" onclick="openEditEmpModal('${e.id}')">✏️ Edit</button>
   </div>`).join('')}
 </div>
 
@@ -2625,7 +2619,7 @@ function showToast(msg,type=''){
 
 // ==================== INIT ====================
 (async function init(){
-  document.body.insertAdjacentHTML('beforeend','<div id="appLoader" style="position:fixed;inset:0;background:#D9008D;display:flex;align-items:center;justify-content:center;z-index:9999"><div style="text-align:center;color:#fff"><div style="font-size:26px;font-weight:800;margin-bottom:10px">Wiom DigiDesk</div><div style="font-size:14px;opacity:0.75">Loading, please wait…</div></div></div>');
+  document.body.insertAdjacentHTML('beforeend','<div id="appLoader" style="position:fixed;inset:0;background:#E5178F;display:flex;align-items:center;justify-content:center;z-index:9999"><div style="text-align:center;color:#fff"><div style="font-size:26px;font-weight:800;margin-bottom:10px">Wiom DigiDesk</div><div style="font-size:14px;opacity:0.75">Loading, please wait…</div></div></div>');
   const params=new URLSearchParams(window.location.search);
   if(params.get('authError'))showLoginAuthMessage(params.get('authError'),'error');
   else if(params.get('signedOut'))showLoginAuthMessage('You have been signed out.','success');
