@@ -4,3 +4,5 @@ data.json
 .env.*
 !.env.example
 supabase/.temp/
+.vercel/
+.next/

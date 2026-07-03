@@ -2,20 +2,29 @@
   "name": "digidesk-backend",
   "version": "1.0.0",
   "description": "",
-  "main": "server.js",
+  "main": "server.cjs",
   "scripts": {
-    "check": "node -c server.js && node -c scripts/seed_supabase_state.js",
-    "start": "node server.js",
-    "supabase:seed": "node scripts/seed_supabase_state.js --replace",
+    "build": "next build",
+    "check": "node -c server.cjs && node -c scripts/seed_supabase_state.cjs && next build",
+    "dev": "next dev",
+    "start": "next start",
+    "start:express": "node server.cjs",
+    "supabase:seed": "node scripts/seed_supabase_state.cjs --replace",
     "test": "npm run check"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "dependencies": {
     "@supabase/supabase-js": "2.104.0",
     "cors": "^2.8.6",
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "next": "16.2.10",
+    "react": "19.2.7",
+    "react-dom": "19.2.7"
+  },
+  "overrides": {
+    "postcss": "8.5.10"
   }
 }
