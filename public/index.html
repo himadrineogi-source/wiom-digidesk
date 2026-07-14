@@ -652,24 +652,23 @@ function renderPage(pg){
 }
 
 // ==================== DASHBOARD HELPERS ====================
-function workingDaysPassed(y,m){
+function workingDaysPassed(y,m,emp){
   let wd=0;
   const now=new Date();
   const maxD=(now.getFullYear()===y&&now.getMonth()===m)?now.getDate():new Date(y,m+1,0).getDate();
   for(let d=1;d<=maxD;d++){
-    const dow=new Date(y,m,d).getDay();
     const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    if(dow!==0&&dow!==6&&ds<=today())wd++;
+    if(!isRosterWeekOff(emp,ds)&&ds<=today())wd++;
   }
   return wd;
 }
 function absenceDays(empId,y,m){
-  const att=getAtt();const leaves=getLeaves();let absent=0;
+  const emp=EMPLOYEES.find(e=>e.id===empId);const att=getAtt();const leaves=getLeaves();let absent=0;
   const maxD=(new Date().getFullYear()===y&&new Date().getMonth()===m)?new Date().getDate()-1:new Date(y,m+1,0).getDate();
   for(let d=1;d<=maxD;d++){
-    const dow=new Date(y,m,d).getDay();if(dow===0||dow===6)continue;
     const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     if(ds>today())break;
+    if(isRosterWeekOff(emp,ds))continue;
     const onLeave=leaves.some(l=>l.empId===empId&&l.status==='Approved'&&ds>=l.from&&ds<=l.to);
     const hasAtt=att[getAttKey(empId,ds)]&&att[getAttKey(empId,ds)].in;
     if(!onLeave&&!hasAtt)absent++;
@@ -702,7 +701,7 @@ function renderEmpDashboard(){
   const m=new Date().getMonth();
   const todayAtt=getEmpAtt(emp.id,today());
   const presentDays=countPresent(emp.id,y,m);
-  const wdPassed=workingDaysPassed(y,m);
+  const wdPassed=workingDaysPassed(y,m,emp);
   const absentDays=absenceDays(emp.id,y,m);
   const lvDays=leaveDaysThisMonth(emp.id,y,m);
   const attPct=wdPassed>0?Math.round(presentDays/wdPassed*100):0;
@@ -1212,6 +1211,7 @@ function renderAttendance(){
   const empId=emp?emp.id:'DEMO';
   const t=today();
   const att=getEmpAtt(empId,t);
+  const todayIsWeekOff=isRosterWeekOff(emp,t);
   const {calYear:y,calMonth:m}=S;
   const presentCount=emp?countPresent(empId,y,m):0;
   const daysInMonth=new Date(y,m+1,0).getDate();
@@ -1226,6 +1226,7 @@ ${lwdOver?`<div style="background:#fee2e2;border:1px solid #fca5a5;border-radius
   <div>
     <div style="font-size:13px;font-weight:700;color:#065f46">Today's Attendance</div>
     <div style="font-size:11px;color:#6b7280;margin-top:1px">${new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'short'})}</div>
+    ${todayIsWeekOff?'<div style="font-size:11px;color:#6b7280;margin-top:2px;font-weight:600">Roster week off</div>':''}
     ${att&&att.in?`<div style="font-size:11px;color:#059669;margin-top:2px;font-weight:600">In: ${att.in}${att.out?' · Out: '+att.out:''}</div>`:''}
   </div>
   <div style="display:flex;gap:8px">
@@ -1238,7 +1239,7 @@ ${lwdOver?`<div style="background:#fee2e2;border:1px solid #fca5a5;border-radius
 </div>`}
 <div class="stats-row">
   <div class="scard"><div class="sv sv-green">${presentCount}</div><div class="sl">Present</div></div>
-  <div class="scard"><div class="sv sv-red">${Math.max(0,(new Date()<new Date(y,m+1,0)?new Date().getDate()-1:daysInMonth)-presentCount-(emp?getLeaves().filter(l=>l.empId===empId&&l.status==='Approved'&&new Date(l.from).getMonth()===m).reduce((s,l)=>s+l.days,0):0))}</div><div class="sl">Absent</div></div>
+  <div class="scard"><div class="sv sv-red">${emp?absenceDays(emp.id,y,m):0}</div><div class="sl">Absent</div></div>
   <div class="scard"><div class="sv sv-amber">${emp?getLeaves().filter(l=>l.empId===empId&&l.status==='Approved'&&new Date(l.from).getMonth()===m&&new Date(l.from).getFullYear()===y).reduce((s,l)=>s+l.days,0):0}</div><div class="sl">On Leave</div></div>
 </div>
 <div class="cal-wrap">
@@ -1266,6 +1267,7 @@ function buildCalendar(empId,y,m){
   const firstDay=new Date(y,m,1).getDay();
   const daysInMonth=new Date(y,m+1,0).getDate();
   const att=getAtt();
+  const emp=EMPLOYEES.find(e=>e.id===empId);
   const approvedLeaves=getLeaves().filter(l=>l.empId===empId&&l.status==='Approved');
   let html='';
   for(let i=0;i<firstDay;i++)html+=`<div class="cal-day cd-empty"></div>`;
@@ -1274,14 +1276,14 @@ function buildCalendar(empId,y,m){
     const dow=new Date(y,m,d).getDay();
     const isToday=ds===today();
     const isFuture=ds>today();
-    const isWeekend=dow===0||dow===6;
+    const isWeekOff=isRosterWeekOff(emp,ds);
     const onLeave=approvedLeaves.some(l=>ds>=l.from&&ds<=l.to);
     const attRec=att[getAttKey(empId,ds)];
     let cls='cal-day ';let lbl='';
-    if(isToday){cls+='cd-today';lbl='';}
-    else if(isFuture){cls+=isWeekend?'cd-weekend':'cd-future';lbl=isWeekend?'WO':'';}
+    if(isToday){cls+='cd-today';lbl=isWeekOff?'WO':'';}
+    else if(isFuture){cls+=isWeekOff?'cd-weekend':'cd-future';lbl=isWeekOff?'WO':'';}
     else if(onLeave){cls+='cd-leave';lbl='L';}
-    else if(isWeekend){cls+='cd-weekend';lbl='WO';}
+    else if(isWeekOff){cls+='cd-weekend';lbl='WO';}
     else if(attRec&&attRec.compoff){cls+='cd-compoff';lbl='CO';}
     else if(attRec&&attRec.in){cls+='cd-present';lbl='P';}
     else{cls+='cd-absent';lbl='A';}
@@ -1407,6 +1409,149 @@ function uploadDoc(input){
 
 // ==================== ROSTER ====================
 
+const ROSTER_DAYS=['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
+
+function normalizeRosterValue(value){
+  return String(value==null?'':value).trim();
+}
+
+function normalizeRosterHeader(value){
+  return normalizeRosterValue(value).toLowerCase().replace(/[^a-z0-9]/g,'');
+}
+
+function parseCsvRows(text){
+  const rows=[];let row=[];let cell='';let quoted=false;
+  const source=String(text||'').replace(/^\uFEFF/,'');
+  for(let i=0;i<source.length;i++){
+    const ch=source[i];
+    if(ch==='"'){
+      if(quoted&&source[i+1]==='"'){cell+='"';i++;}
+      else quoted=!quoted;
+    }else if(ch===','&&!quoted){row.push(cell);cell='';}
+    else if((ch==='\n'||ch==='\r')&&!quoted){
+      if(ch==='\r'&&source[i+1]==='\n')i++;
+      row.push(cell);cell='';
+      if(row.some(value=>normalizeRosterValue(value)))rows.push(row);
+      row=[];
+    }else cell+=ch;
+  }
+  if(cell||row.length){row.push(cell);if(row.some(value=>normalizeRosterValue(value)))rows.push(row);}
+  return rows;
+}
+
+function rosterDate(value){
+  const raw=normalizeRosterValue(value);
+  if(!raw)return '';
+  if(/^\d{4}-\d{1,2}-\d{1,2}$/.test(raw)){
+    const [y,m,d]=raw.split('-').map(Number);
+    return `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+  }
+  const parts=raw.split(/[\/.\-]/).map(Number);
+  if(parts.length===3&&parts.every(Number.isFinite)){
+    const [a,b,c]=parts;
+    const y=a>999?a:c;const m=a>999?b:b;const d=a>999?c:a;
+    if(y>1900&&m>=1&&m<=12&&d>=1&&d<=31)
+      return `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+  }
+  const serial=Number(raw);
+  if(Number.isFinite(serial)&&serial>20000&&serial<80000){
+    const d=new Date(Date.UTC(1899,11,30)+serial*86400000);
+    return d.toISOString().slice(0,10);
+  }
+  return '';
+}
+
+function isRosterOffValue(value){
+  const normalized=normalizeRosterValue(value).toLowerCase().replace(/[\-_]/g,' ');
+  return ['off','wo','w o','weekly off','week off','weekoff','holiday','rest'].includes(normalized);
+}
+
+function parseRosterCsv(text){
+  const rows=parseCsvRows(text);
+  const headerIndex=rows.findIndex(row=>row.some(cell=>normalizeRosterHeader(cell)==='employeeid'));
+  if(headerIndex<0)return [];
+  const headers=rows[headerIndex].map(normalizeRosterHeader);
+  const indexOf=(...names)=>names.map(name=>headers.indexOf(name)).find(index=>index>=0);
+  const employeeIdIndex=indexOf('employeeid','ecode','employeecode','employeeidnumber');
+  const employeeNameIndex=indexOf('employeename','fullname','name');
+  const managerIndex=indexOf('manager','managername','reportingmanager');
+  const weekStartIndex=indexOf('weekstartdate','weekstarting','startdate');
+  const dayIndexes=ROSTER_DAYS.map(day=>headers.indexOf(day));
+  if(employeeIdIndex===undefined&&employeeNameIndex===undefined)return [];
+  return rows.slice(headerIndex+1).map(row=>{
+    const days=dayIndexes.map(index=>index===-1?'':normalizeRosterValue(row[index]));
+    return {
+      employeeId:normalizeRosterValue(row[employeeIdIndex]),
+      employeeName:normalizeRosterValue(row[employeeNameIndex]),
+      managerName:normalizeRosterValue(row[managerIndex]),
+      weekStart:rosterDate(row[weekStartIndex]),
+      dayValues:days,
+      daysOff:days.map((value,index)=>isRosterOffValue(value)?index:-1).filter(index=>index>=0)
+    };
+  }).filter(entry=>(entry.employeeId||entry.employeeName)&&entry.weekStart&&entry.dayValues.some(Boolean));
+}
+
+function rosterDataUrlText(dataUrl){
+  if(!dataUrl||!String(dataUrl).startsWith('data:'))return '';
+  const comma=String(dataUrl).indexOf(',');
+  if(comma<0)return '';
+  const meta=String(dataUrl).slice(0,comma);const payload=String(dataUrl).slice(comma+1);
+  try{
+    if(/;base64/i.test(meta)){
+      const binary=atob(payload);const bytes=Uint8Array.from(binary,char=>char.charCodeAt(0));
+      return new TextDecoder().decode(bytes);
+    }
+    return decodeURIComponent(payload);
+  }catch(e){return '';}
+}
+
+function getRosterEntries(roster){
+  if(Array.isArray(roster&&roster.entries))return roster.entries;
+  if(!roster||!String(roster.name||'').toLowerCase().endsWith('.csv'))return [];
+  return parseRosterCsv(rosterDataUrlText(roster.dataUrl));
+}
+
+function rosterEntryMatchesEmployee(entry,emp){
+  if(!entry||!emp)return false;
+  const id=normalizeRosterValue(entry.employeeId).toLowerCase();
+  const name=normalizeRosterValue(entry.employeeName).toLowerCase();
+  return (id&&id===normalizeRosterValue(emp.id).toLowerCase())||
+    (name&&name===normalizeRosterValue(emp.name).toLowerCase());
+}
+
+function rosterTargetsEmployee(roster,emp){
+  if(!roster||!emp)return false;
+  if(roster.scope==='all'||roster.visibleTo==='all'||!roster.managerName)return true;
+  return normalizeRosterValue(roster.managerName).toLowerCase()===normalizeRosterValue(emp.mgr).toLowerCase();
+}
+
+function rosterScheduleForDate(emp,dateStr){
+  if(!emp||!dateStr)return null;
+  const target=new Date(`${dateStr}T00:00:00`);
+  if(Number.isNaN(target.getTime()))return null;
+  for(const roster of getRosters()){
+    if(!rosterTargetsEmployee(roster,emp))continue;
+    for(const entry of getRosterEntries(roster)){
+      if(!rosterEntryMatchesEmployee(entry,emp))continue;
+      const start=new Date(`${entry.weekStart}T00:00:00`);
+      const offset=Math.round((target-start)/86400000);
+      if(!Number.isNaN(start.getTime())&&offset>=0&&offset<7)return entry;
+    }
+  }
+  return null;
+}
+
+function isRosterWeekOff(emp,dateStr){
+  const schedule=rosterScheduleForDate(emp,dateStr);
+  if(schedule)return schedule.daysOff.includes(new Date(`${dateStr}T00:00:00`).getDay());
+  const dow=new Date(`${dateStr}T00:00:00`).getDay();
+  return dow===0||dow===6;
+}
+
+function rosterFileIsCsv(file){
+  return /\.csv$/i.test(file.name||'')||file.type==='text/csv';
+}
+
 function getRosterManagers(){
   const names=new Set();
   EMPLOYEES.forEach(e=>{
@@ -1439,12 +1584,15 @@ function uploadRoster(input,managerName,uploadedBy){
   const file=input.files[0];
   if(!file)return;
   if(file.size>5*1024*1024){showToast('File too large. Max 5 MB.','e');input.value='';return;}
+  if(!rosterFileIsCsv(file)){showToast('Please upload the CSV roster format so weekly offs can be applied.','e');input.value='';return;}
   uploadedBy=uploadedBy||managerName;
   managerName=managerName||'all';
   const reader=new FileReader();
   reader.onload=async function(ev){
     const rosters=getRosters();
     const scope=managerName==='all'?'all':'manager';
+    const entries=parseRosterCsv(rosterDataUrlText(ev.target.result));
+    if(!entries.length){input.value='';showToast('Roster not saved. Use the template headers and include employee rows with a Week Start Date.','e');return;}
     const roster={
       id:'RST'+Date.now(),
       name:file.name,
@@ -1454,13 +1602,15 @@ function uploadRoster(input,managerName,uploadedBy){
       uploadedBy,
       type:file.type,
       size:(file.size/1024).toFixed(0),
-      dataUrl:ev.target.result
+      dataUrl:ev.target.result,
+      entries
     };
     rosters.unshift(roster);
     try{await saveRosters(rosters);}
     catch(e){rosters.shift();input.value='';showToast('Roster save failed. Please try again.','e');return;}
     input.value='';
-    showToast('Roster uploaded for '+rosterOwnerLabel(roster)+': '+file.name,'s');
+    const matched=entries.filter(entry=>EMPLOYEES.some(emp=>rosterEntryMatchesEmployee(entry,emp))).length;
+    showToast(`Roster uploaded for ${rosterOwnerLabel(roster)}: ${file.name}${matched?'':' (no employee IDs or names matched yet)'}`,'s');
     if(S.user&&S.user.role==='manager')renderManager();
     else renderHR();
   };
@@ -1524,7 +1674,7 @@ function rosterListHTML(filterByMgr){
     return`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f3f4f6">
       <div>
         <div style="font-size:13px;font-weight:600;color:#111827">📋 ${r.name}</div>
-        <div style="font-size:11px;color:#9ca3af;margin-top:2px">Uploaded: ${fmtDate(r.date)} · ${r.size} KB · Owner: ${rosterOwnerLabel(r)} · By: ${r.uploadedBy||'-'}</div>
+        <div style="font-size:11px;color:#9ca3af;margin-top:2px">Uploaded: ${fmtDate(r.date)} · ${r.size} KB · ${getRosterEntries(r).length} employee rows · Owner: ${rosterOwnerLabel(r)} · By: ${r.uploadedBy||'-'}</div>
       </div>
       <div style="display:flex;gap:6px;flex-shrink:0;margin-left:8px">
         <button class="btn btn-sm" style="background:#fdf2f7;color:#E5178F;border:1px solid #f9a8d4;padding:5px 10px;font-size:12px" onclick="downloadRoster(${gi})">⬇ Download</button>
@@ -1564,8 +1714,7 @@ function downloadAttendanceCSV(scope,mgrName){
     const lwd=resign?resign.lwd:'';
     const fixedCols=[emp.id,emp.name,emp.loc||'',emp.payroll||'',emp.dept||'',emp.doj||'',emp.mobile||'',emp.status||'Active',lwd];
     const dateCols=dates.map(ds=>{
-      const [_y,_m,_d]=ds.split('-').map(Number);const dow=new Date(_y,_m-1,_d).getDay();
-      if(dow===0||dow===6)return 'WO'; // Sunday & Saturday
+      if(isRosterWeekOff(emp,ds))return 'WO';
       if(ds>todayStr)return ''; // Future dates blank
       const onLeave=leaves.some(l=>l.empId===emp.id&&l.status==='Approved'&&ds>=l.from&&ds<=l.to);
       if(onLeave)return 'L';
@@ -1736,7 +1885,7 @@ ${approved.length?`
       <button class="btn btn-sm" style="background:#fef9c3;color:#a16207;border:1.5px solid #fde047;font-weight:600" onclick="downloadRosterTemplate()">⬇ Download Format</button>
       <label class="btn btn-sm btn-primary" style="cursor:pointer;margin:0">
         📋 Upload Roster
-        <input type="file" style="display:none" accept=".csv,.xlsx,.xls,.pdf,.doc,.docx" onchange="uploadRoster(this,'${mgrName}','${mgrName}')">
+        <input type="file" style="display:none" accept=".csv,text/csv" onchange="uploadRoster(this,'${mgrName}','${mgrName}')">
       </label>
     </div>
   </div>
@@ -1924,7 +2073,7 @@ function renderHR(){
       <button class="btn btn-sm" style="background:#fef9c3;color:#a16207;border:1.5px solid #fde047;font-weight:600" onclick="downloadRosterTemplate()">⬇ Download Format</button>
       <label class="btn btn-sm btn-primary" style="cursor:pointer;margin:0">
         📋 Upload Roster
-        <input type="file" style="display:none" accept=".csv,.xlsx,.xls,.pdf,.doc,.docx" onchange="uploadRoster(this,document.getElementById('hrRosterManager').value,'HR Admin')">
+        <input type="file" style="display:none" accept=".csv,text/csv" onchange="uploadRoster(this,document.getElementById('hrRosterManager').value,'HR Admin')">
       </label>
     </div>
   </div>
